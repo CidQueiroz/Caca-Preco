@@ -1,176 +1,137 @@
-# Caça-Preço (Web) / CacaPreco (Mobile)
+# Caça-Preço - Marketplace com Monitoramento Inteligente
 
- ## Visão Geral do Projeto
+## Visão Geral
 
-O "Caça-Preço" é um marketplace multiplataforma inovador que visa conectar clientes e vendedores, empoderando os usuários a encontrar os melhores preços em produtos do dia a dia. Expandindo o conceito tradicional de listas de compras, a plataforma permite que vendedores cadastrem e gerenciem seus produtos e lojas, enquanto os clientes podem otimizar suas compras através de comparação de preços e sugestões inteligentes.
+O **Caça-Preço** é uma plataforma completa que une um marketplace dinâmico a uma poderosa ferramenta de monitoramento de concorrência para vendedores. Construído com uma arquitetura robusta, o projeto visa otimizar a experiência de compra para clientes e potencializar as vendas para os lojistas.
 
-A aplicação é construída sobre um ecossistema unificado de JavaScript/TypeScript, garantindo coesão e eficiência no desenvolvimento entre as diferentes plataformas.
+- **Para Clientes:** Uma plataforma intuitiva para criar listas de compras, comparar preços entre diferentes lojas e receber sugestões otimizadas para economizar ao máximo.
+- **Para Vendedores:** Um portal para gerenciar produtos, lojas e ofertas, com acesso a um dashboard de análise de vendas e a um módulo SaaS exclusivo para monitorar preços de concorrentes de forma automatizada.
 
-## Funcionalidades Chave
+Este documento fornece um guia detalhado sobre a arquitetura do projeto, a estrutura dos diretórios e as instruções para configuração e execução de cada componente.
 
-### Gerenciamento de Usuários e Papéis
-*   **Cadastro e Login:** Clientes, Vendedores e Administradores podem se cadastrar e fazer login com permissões distintas.
-*   **Verificação de E-mail:** Fluxo robusto de confirmação de e-mail para garantir a validade das contas, com opção de reenvio de código.
-*   **Preenchimento de Perfil Obrigatório:** Após o cadastro inicial e verificação de e-mail, os usuários são direcionados para completar seus perfis com informações específicas (cliente ou vendedor).
-
-### Gestão de Produtos por Vendedores
-*   Vendedores podem adicionar, listar e gerenciar seus próprios produtos (funcionalidade a ser expandida).
-
-### Busca e Comparação de Preços para Clientes
-*   Clientes podem criar listas de compras e buscar o menor preço para cada item.
-*   Comparação de preços entre diferentes estabelecimentos.
-
-### Sugestão de Compra Otimizada
-*   O aplicativo sugere a combinação de estabelecimentos com o melhor custo-benefício para a lista completa do cliente.
-*   Flexibilidade para o usuário consolidar a compra em menos lojas, mesmo com pequenas variações de preço.
-
-### Sugestões Inteligentes (Fase Inicial)
-*   Utiliza inteligência artificial (baseada em localização via Google Maps e categorização) para sugerir estabelecimentos próximos que vendem os itens desejados, mesmo que não estejam formalmente cadastrado plataforma.
+---
 
 ## Arquitetura e Tecnologias
 
-A aplicação é dividida em três componentes principais, todos utilizando um ecossistema unificado de JavaScript/TypeScript:
+O ecossistema do Caça-Preço é composto por três componentes principais que trabalham de forma integrada para entregar uma solução coesa e performática.
 
-### 1. Backend (API Central)
-*   **Tecnologias:** Node.js, Express.js, MySQL (Banco de Dados), JSON Web Tokens (JWT) para autenticação.
-*   **Estrutura:** Segue um padrão modular com `controllers` (lógica de negócio para autenticação, produtos, usuários, categorias), `models` (schemas para `USUARIO`, `CLIENTE`, `VENDEDOR`, `CATEGORIA_LOJA`, `PRODUTO`, etc.), `routes` (endpoints da API) e `middlewares` (autenticação de rota).
+| Componente | Tecnologia | Propósito |
+| :--- | :--- | :--- |
+| **Backend** | **Python, Django, Django Rest Framework** | API RESTful central que gerencia toda a lógica de negócio, incluindo usuários, produtos, ofertas, autenticação (JWT) e o módulo SaaS. |
+| **Frontend Web** | **React, React Router, Axios** | Aplicação web (SPA) para clientes, vendedores e administradores interagirem com a plataforma. |
+| **Frontend Mobile** | **React Native, Expo, React Navigation** | Aplicativo móvel para Android e iOS, oferecendo uma experiência nativa para os clientes em trânsito. |
 
-### 2. Frontend Web (Aplicação Web para Cliente/Vendedor/Admin)
-*   **Tecnologias:** React, React Router, Axios (comunicação com API), Context API (para gerenciamento de estado de autenticação).
-*   **Funcionalidades:** Páginas para Home, Login, Cadastro, Completar Perfil, Verificar E-mail e rotas protegidas que validam o tipo de usuário. Inclui um `DashboardRedirect` para direcionar usuários após o login.
+---
 
-### 3. Frontend Mobile (Aplicação para Android/iOS)
-*   **Tecnologias:** React Native, React Navigation, Axios, Context API (autenticação).
-*   **Funcionalidades:** Telas de Home (com personagem "Lourdes", layout responsivo), Login, Cadastro, Completar Perfil, Verificar E-mail.
+## Estrutura do Projeto
+
+O repositório está organizado em diretórios distintos para cada componente da aplicação.
+
+```
+/
+├── backend/              # API Principal (Python/Django)
+├── frontend/             # Aplicação Web (React)
+├── mobile/               # Aplicativo Móvel (React Native)
+└── docs/                 # Documentação detalhada do projeto
+```
+
+---
 
 ## Configuração e Instalação
 
-Para configurar e rodar o projeto localmente, siga os passos abaixo para cada componente.
+Siga os passos abaixo para configurar o ambiente de desenvolvimento local. É crucial instalar e executar o **Backend (Django)** e o **Frontend Web (React)** para a aplicação principal funcionar.
 
-### Pré-requisitos
-*   Node.js (versão 18 ou superior recomendada)
-*   npm (Node Package Manager) ou Yarn
-*   MySQL Server
+### 1. Backend (Django)
 
-### 1. Backend (API Central)
+Este é o cérebro da aplicação.
 
-1.  **Navegue até o diretório do backend:**
+1.  **Navegue até o diretório:**
+    ```bash
+    cd busca-app/backend
+    ```
 
-      cd busca-app/backend
+2.  **Crie e ative um ambiente virtual:**
+    ```bash
+    python -m venv venv
+    # Windows
+    .\venv\Scripts\activate
+    # macOS/Linux
+    source venv/bin/activate
+    ```
 
-2.  **Instale as dependências:**
+3.  **Instale as dependências:**
+    *Nota: Um arquivo `requirements.txt` não foi encontrado. Com base em `core/settings.py`, as dependências principais são `django`, `djangorestframework`, `djangorestframework-simplejwt`, `mysqlclient` e `django-cors-headers`.*
+    ```bash
+    pip install django djangorestframework djangorestframework-simplejwt mysqlclient django-cors-headers
+    ```
 
-      npm install
+4.  **Configure o Banco de Dados:**
+    *   Abra o arquivo `core/settings.py`.
+    *   Localize a seção `DATABASES` e atualize com suas credenciais do MySQL. O banco de dados `testecacapreco_django` deve ser criado previamente.
 
-3.  **Configuração do Banco de Dados:**
-*   Crie um banco de dados MySQL.
-*   Utilize o script SQL fornecido em `banco.txt` para criar as tabelas necessárias.
-*   **Importante:** Popule a tabela `CATEGORIA_LOJA` com algumas categorias para que o frontend possa carregá-las (ex: `INSERT INTO CATEGORIA_LOJA (NomeCategoria, Descricao) VALUES ('Supermercado', 'Lojas que vendem produtos alimentícios e de uso doméstico.');`).
-4.  **Variáveis de Ambiente:**
-*   Crie um arquivo `.env` na raiz do diretório `busca-app/backend/` com as seguintes variáveis:
+5.  **Execute as migrações e inicie o servidor:**
+    ```bash
+    python manage.py migrate
+    python manage.py runserver
+    ```
+    A API estará disponível em `http://localhost:8000`.
 
-          PORT=3000
-          JWT_SECRET=sua_chave_secreta_jwt_aqui
-          DB_HOST=localhost
-          DB_USER=seu_usuario_mysql
-          DB_PASSWORD=sua_senha_mysql
-          DB_NAME=seu_nome_do_banco_de_dados
+### 2. Frontend Web (React)
 
-5.  **Inicie o servidor:**
+A interface principal para interagir com o Caça-Preço.
 
-      node servidor.js
-
-
-   O servidor estará rodando na porta especificada (padrão: 3000).
-
-### 2. Frontend Web
-1.  **Navegue até o diretório do frontend web:**
-
-      cd busca-app/frontend
-
-2.  **Instale as dependências:**
-
-      npm install
-
-
-3.  **Variáveis de Ambiente:**
-*   Crie um arquivo `.env.development` na raiz do diretório `busca-app/frontend/` com a seguinte variável:
-
-          REACT_APP_API_URL=http://localhost:3001
-
-
-         (Certifique-se de que a porta corresponde à porta do seu backend).
-
-4.  **Inicie a aplicação web:**
-
-      npm start
-
-  A aplicação será aberta no seu navegador (padrão: `http://localhost:3001`).
-
-### 3. Frontend Mobile
-
-1.  **Navegue até o diretório do frontend mobile:**
-
-      cd busca-app/mobile
+1.  **Navegue até o diretório:**
+    ```bash
+    cd busca-app/frontend
+    ```
 
 2.  **Instale as dependências:**
+    ```bash
+    npm install
+    ```
 
-      npm install
+3.  **Configure as Variáveis de Ambiente:**
+    *   O arquivo `src/api.js` já está configurado para se comunicar com `http://localhost:8000/api`, a URL do backend Django. Certifique-se de que o backend Django esteja rodando nesta porta.
 
+4.  **Inicie a aplicação:**
+    ```bash
+    npm start
+    ```
+    A aplicação web será aberta em `http://localhost:3001`.
 
-3.  **Configuração da API URL:**
-*   Abra o arquivo `app.json` e adicione a URL da sua API dentro da seção `expo.extra`:
+### 3. Frontend Mobile (React Native)
 
-          {
-            "expo": {
-              "name": "CacaPrecoMobile",
-              "slug": "CacaPrecoMobile",
-              // ... outras configurações
-              "extra": {
-                "apiUrl": "http://192.168.x.x:3000" // Use o IP da sua máquina e a porta do backend
-              }
-            }
-          }
+1.  **Navegue até o diretório:**
+    ```bash
+    cd busca-app/mobile
+    ```
 
+2.  **Instale as dependências:**
+    ```bash
+    npm install
+    ```
 
-**Importante:** Para testes em dispositivos reais ou emuladores, `localhost` não funcionará. Use o endereço IP da sua máquina na
-     rede local.
+3.  **Configure a URL da API:**
+    *   Abra o arquivo `app.json`.
+    *   Na seção `expo.extra`, adicione a chave `apiUrl` com o endereço IP da sua máquina na rede local onde o backend Django está rodando. **Não use `localhost`**.
+    ```json
+    "extra": {
+      "apiUrl": "http://192.168.X.X:8000"
+    }
+    ```
 
-4.  **Inicie a aplicação mobile:**
+4.  **Inicie a aplicação:**
+    ```bash
+    npm start
+    ```
+    Use o Expo Go app em seu dispositivo para escanear o QR code gerado.
 
-      npm start
+---
 
+## Documentação Adicional
 
-  Isso abrirá o Expo Dev Tools no seu navegador, onde você pode escolher como rodar a aplicação (emulador, dispositivo físico, etc.).
-  
-## Fluxo de Uso (Exemplo de Cadastro e Login)
+Para uma visão mais aprofundada da arquitetura, endpoints da API e esquema do banco de dados, consulte a pasta `/docs`.
 
-1.  **Cadastro Inicial:**
-*   Acesse a tela de cadastro (Web: `/cadastro`, Mobile: `TelaCadastro`).
-*   Preencha E-mail, Senha e Tipo de Usuário (Cliente/Vendedor).
-
-2.  **Completar Perfil:**
-*   Após o cadastro inicial, você será redirecionado para a tela "Completar Perfil".
-*   Preencha os dados específicos para o seu tipo de usuário (Cliente ou Vendedor), incluindo os campos de endereço detalhados e a categoria da loja (para vendedores).
-
-3.  **Verificação de E-mail:**
-*   Após completar o perfil, você será direcionado para a tela "Verificar E-mail".
-*   Para fins de desenvolvimento, o código de verificação é **`123456`**.
-*   Você pode usar o botão "Reenviar Código" para "resetar" o código para `123456` a qualquer momento.
-
-4.  **Login:**
-*   Após a verificação bem-sucedida, você será redirecionado para a tela de Login.
-*   Faça login com suas credenciais.
-*   Se a conta estiver inativa, você será redirecionado para a tela de verificação de e-mail.
-*   Se o perfil estiver incompleto, você será redirecionado para a tela de "Completar Perfil".
-*   Após o login bem-sucedido e com o perfil completo, você será direcionado para o painel principal da aplicação.
-
-## Contribuição
-
-24 Contribuições são bem-vindas! Sinta-se à vontade para abrir issues e pull requests.
-
-26 ## Licença
-
-MIT License
-
-Copyright (c) 2028 Este projeto está licenciado sob a licença MIT.
+- **[Referência da API (`docs/backend/api-referencia.md`)]**
+- **[Esquema do Banco de Dados (`docs/backend/database.md`)]**
+- **[Autenticação (`docs/backend/authentication.md`)]**

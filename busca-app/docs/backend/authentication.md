@@ -1,28 +1,64 @@
-# Fluxo de Autenticação
+# Fluxo de Autenticação (JWT)
 
-Este documento descreve o fluxo de autenticação para o Caça-Preço.
+A autenticação no Caça-Preço é gerenciada via JSON Web Tokens (JWT), utilizando a biblioteca `djangorestframework-simplejwt`. Este sistema garante que todas as requisições a endpoints protegidos sejam seguras e venham de usuários autenticados.
 
-## Visão Geral
+## 1. Obtenção dos Tokens
 
-A autenticação é baseada em JSON Web Tokens (JWT). O fluxo geral é o seguinte:
+O primeiro passo para um usuário autenticar-se é enviar suas credenciais (e-mail e senha) para o endpoint de login.
 
-1. O usuário se registra ou faz login com suas credenciais (email e senha).
-2. O servidor valida as credenciais.
-3. Se as credenciais forem válidas, o servidor gera um token JWT e o envia de volta para o cliente.
-4. O cliente armazena o token JWT (por exemplo, em `localStorage` ou `sessionStorage`).
-5. Para cada solicitação subsequente a uma rota protegida, o cliente envia o token JWT no cabeçalho de autorização.
-6. O servidor valida o token JWT. Se for válido, o servidor permite o acesso à rota protegida.
+- **Endpoint:** `POST /api/login/`
+- **Corpo da Requisição: (JSON)**
+  ```json
+  {
+    "email": "usuario@exemplo.com",
+    "password": "sua_senha"
+  }
+  ```
 
-## Middleware de Autenticação
+- **Resposta de Sucesso: (JSON)**
+  Se as credenciais forem válidas, a API retornará um par de tokens:
+  ```json
+  {
+    "refresh": "<refresh_token_longo>",
+    "access": "<access_token_curto>"
+  }
+  ```
 
-O middleware de autenticação (`authMiddleware.js`) é responsável por proteger as rotas. Ele verifica a presença e a validade do token JWT no cabeçalho de autorização de cada solicitação.
+### Tipos de Token
+- **Access Token:** Um token de vida curta (ex: 1 hora) que deve ser enviado em cada requisição para endpoints protegidos. Sua curta duração aumenta a segurança.
+- **Refresh Token:** Um token de vida longa (ex: 1 dia) usado exclusivamente para obter um novo `access token` quando o atual expirar, sem que o usuário precise fazer login novamente.
 
-## Papéis de Usuário
+## 2. Realizando Requisições Autenticadas
 
-O sistema utiliza um sistema de controle de acesso baseado em papéis. Os papéis são:
+Para acessar um endpoint protegido, o `access token` deve ser incluído no cabeçalho `Authorization` da requisição, prefixado com a palavra `Bearer`.
 
-- `client`: Cliente
-- `seller`: Vendedor
-- `admin`: Administrador
+- **Exemplo de Cabeçalho:**
+  ```
+  Authorization: Bearer <seu_access_token>
+  ```
 
-O middleware de autenticação também verifica se o usuário tem o papel necessário para acessar uma rota específica.
+A API irá validar o token. Se for válido e não expirado, a requisição será processada. Caso contrário, um erro `401 Unauthorized` será retornado.
+
+## 3. Renovando o Access Token
+
+Quando o `access token` expira, o frontend deve usar o `refresh token` para obter um novo par de tokens sem interromper a sessão do usuário.
+
+- **Endpoint:** `POST /api/login/refresh/`
+- **Corpo da Requisição: (JSON)**
+  ```json
+  {
+    "refresh": "<seu_refresh_token>"
+  }
+  ```
+
+- **Resposta de Sucesso: (JSON)**
+  A API retornará um novo `access token` (e opcionalmente um novo `refresh token`).
+  ```json
+  {
+    "access": "<novo_access_token>"
+  }
+  ```
+
+## 4. Protegendo Rotas no Backend
+
+No Django, a proteção de rotas é definida nas `views`. A permissão padrão no `settings.py` é `IsAuthenticated`, o que significa que, por padrão, todos os endpoints requerem um token válido. Para diferenciar o acesso entre 'Cliente', 'Vendedor' e 'Administrador', permissões customizadas são utilizadas nas views específicas, verificando o campo `tipo_usuario` do usuário associado ao token.
