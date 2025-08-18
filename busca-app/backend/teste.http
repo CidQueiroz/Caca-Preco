@@ -1,0 +1,10 @@
+POST http://127.0.0.1:8000/api/vendedores/
+-Type: application/json
+
+{
+    "usuario": 2,
+    "nome_loja": "Loja do Ze",
+    "cnpj": "12345678000199",
+    "categoria_loja": 2,
+    "nome_responsavel": "Jose da Silva",
+}
