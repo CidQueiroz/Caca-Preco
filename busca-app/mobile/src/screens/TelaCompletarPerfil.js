@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'react-native';
+import { AuthContext } from '../context/AuthContext';
 import Constants from 'expo-constants';
 import axios from 'axios';
 import { Picker } from '@react-native-picker/picker';
@@ -15,7 +16,7 @@ const StyledInput = (props) => (
     />
 );
 
-const FormularioCliente = ({ idUsuario, aoEnviar }) => {
+const FormularioCliente = ({ usuario, aoEnviar }) => {
     const [nome, setNome] = useState('');
     const [cpf, setCpf] = useState('');
     const [telefone, setTelefone] = useState('');
@@ -41,7 +42,7 @@ const FormularioCliente = ({ idUsuario, aoEnviar }) => {
         if (!numero) novosErros.numero = 'Número é obrigatório.';
         if (!bairro) novosErros.bairro = 'Bairro é obrigatório.';
         if (!cidade) novosErros.cidade = 'Cidade é obrigatória.';
-        if (!estado) novosErros.estado = 'Estado é obrigatória.';
+        if (!estado) novosErros.estado = 'Estado é obrigatório.';
         if (!cep) novosErros.cep = 'CEP é obrigatório.';
 
         setErros(novosErros);
@@ -51,7 +52,7 @@ const FormularioCliente = ({ idUsuario, aoEnviar }) => {
     const handleSubmit = () => {
         if (validarCampos()) {
             aoEnviar({
-                idUsuario,
+                idUsuario: usuario.id,
                 nome,
                 cpf,
                 telefone,
@@ -106,7 +107,7 @@ const FormularioCliente = ({ idUsuario, aoEnviar }) => {
     );
 };
 
-const FormularioVendedor = ({ idUsuario, aoEnviar }) => {
+const FormularioVendedor = ({ usuario, aoEnviar }) => {
     const [nomeLoja, setNomeLoja] = useState('');
     const [cnpj, setCnpj] = useState('');
     const [rua, setRua] = useState('');
@@ -175,7 +176,7 @@ const FormularioVendedor = ({ idUsuario, aoEnviar }) => {
     const handleSubmit = () => {
         if (validarCampos()) {
             aoEnviar({
-                idUsuario,
+                idUsuario: usuario.id,
                 nomeLoja,
                 cnpj,
                 telefone,
@@ -216,6 +217,7 @@ const FormularioVendedor = ({ idUsuario, aoEnviar }) => {
             {erros.rua && <Text style={styles.errorText}>{erros.rua}</Text>}
             <StyledInput placeholder="Rua" value={rua} onChangeText={setRua} />
             {erros.numero && <Text style={styles.errorText}>{erros.numero}</Text>}
+            <StyledInput placeholder="Número" value={numero} onChangeText={setNumero} keyboardType="numeric" />
             <StyledInput placeholder="Complemento (Opcional)" value={complemento} onChangeText={setComplemento} />
             {erros.bairro && <Text style={styles.errorText}>{erros.bairro}</Text>}
             <StyledInput placeholder="Bairro" value={bairro} onChangeText={setBairro} />
@@ -253,50 +255,94 @@ const FormularioVendedor = ({ idUsuario, aoEnviar }) => {
     );
 };
 
-const TelaCompletarPerfil = ({ route, navigation }) => {
-    const { idUsuario, tipoUsuario, email } = route.params;
+const TelaCompletarPerfil = ({ navigation }) => {
+    const { usuario, atualizarStatusPerfil, refreshUser } = useContext(AuthContext);
     const [erro, setErro] = useState(null);
-    const { atualizarStatusPerfil } = useContext(AuthContext);
+    const [carregando, setCarregando] = useState(false);
 
     const aoEnviarPerfil = async (dadosPerfil) => {
-        const endpoint = tipoUsuario === 'Cliente' 
-            ? '/usuarios/client/complete-profile' 
-            : '/usuarios/seller/complete-profile';
-
+        if (carregando) return; // Evitar envios duplicados
+        
+        setCarregando(true);
+        setErro(null);
+        
         try {
             const apiUrl = Constants.expoConfig.extra.apiUrl;
+            
+            // Definir endpoint baseado no tipo de usuário
+            const endpoint = usuario.tipoUsuario === 'Cliente' 
+                ? '/api/complete-profile-client/' 
+                : '/api/complete-profile-seller/';
+            
+            console.log('Enviando dados do perfil:', dadosPerfil);
+            console.log('Endpoint:', `${apiUrl}${endpoint}`);
+            
             const response = await axios.post(`${apiUrl}${endpoint}`, dadosPerfil);
 
-            if (response.status === 200) {
-                atualizarStatusPerfil(true);
-                if (response.data.usuarioAtivo) {
-                    if (tipoUsuario === 'Cliente') {
-                        navigation.navigate('BemVindo'); // Ou para o Dashboard do Cliente
-                    } else {
-                        navigation.navigate('DashboardVendedor');
-                    }
-                } else {
-                    navigation.navigate('TelaVerificarEmail', { email: email });
-                }
+            if (response.status === 200 || response.status === 201) {
+                console.log('Perfil completado com sucesso');
+                
+                // Refresh user data to get updated perfil_completo status
+                await refreshUser();
+                
+                Alert.alert(
+                    'Perfil Completo!', 
+                    'Seu perfil foi completado com sucesso. Você será redirecionado para o painel.',
+                    [
+                        {
+                            text: 'OK',
+                            onPress: () => {
+                                // O redirecionamento será automático via useEffect no App.js
+                                // após refreshUser() atualizar o estado do usuário
+                            }
+                        }
+                    ]
+                );
             } else {
-                setErro(response.data.message || 'Ocorreu um erro ao salvar o perfil.');
-                Alert.alert('Erro', response.data.message || 'Ocorreu um erro ao salvar o perfil.');
+                const mensagem = response.data?.message || 'Ocorreu um erro ao salvar o perfil.';
+                setErro(mensagem);
+                Alert.alert('Erro', mensagem);
             }
         } catch (error) {
-            setErro('Falha ao conectar com o servidor.');
-            Alert.alert('Erro', 'Falha ao conectar com o servidor.');
             console.error('Erro ao enviar perfil:', error.response ? error.response.data : error.message);
+            
+            let mensagemErro = 'Falha ao conectar com o servidor.';
+            
+            if (error.response?.data) {
+                if (typeof error.response.data === 'string') {
+                    mensagemErro = error.response.data;
+                } else if (error.response.data.message) {
+                    mensagemErro = error.response.data.message;
+                } else {
+                    // Pegar primeira mensagem de erro disponível
+                    const primeiroErro = Object.values(error.response.data)[0];
+                    mensagemErro = Array.isArray(primeiroErro) ? primeiroErro[0] : primeiroErro;
+                }
+            }
+            
+            setErro(mensagemErro);
+            Alert.alert('Erro', mensagemErro);
+        } finally {
+            setCarregando(false);
         }
     };
 
-    if (!idUsuario || !tipoUsuario) {
+    // Verificar se temos dados do usuário necessários
+    if (!usuario || !usuario.id || !usuario.tipoUsuario) {
         return (
-            <View style={globalStyles.container}>
-                <Text style={styles.errorText}>Erro: Dados de usuário não encontrados. Por favor, volte e tente novamente.</Text>
-                <TouchableOpacity style={globalStyles.button} onPress={() => navigation.navigate('TelaCadastro')}>
-                    <Text style={globalStyles.buttonText}>Voltar ao Cadastro</Text>
-                </TouchableOpacity>
-            </View>
+            <MainLayout>
+                <View style={styles.container}>
+                    <Text style={styles.errorText}>
+                        Erro: Dados de usuário não encontrados. Por favor, faça login novamente.
+                    </Text>
+                    <TouchableOpacity 
+                        style={globalStyles.button} 
+                        onPress={() => navigation.navigate('TelaLogin')}
+                    >
+                        <Text style={globalStyles.buttonText}>Voltar ao Login</Text>
+                    </TouchableOpacity>
+                </View>
+            </MainLayout>
         );
     }
 
@@ -304,19 +350,27 @@ const TelaCompletarPerfil = ({ route, navigation }) => {
         <MainLayout>
             <ScrollView contentContainerStyle={styles.container}>
                 <Text style={globalStyles.title}>Quase lá!</Text>
-                <Text style={styles.subtitle}>Complete as informações abaixo para uma experiência mágica.</Text>
+                <Text style={styles.subtitle}>
+                    Complete as informações abaixo para uma experiência mágica.
+                </Text>
+                
                 {erro && <Text style={styles.errorText}>{erro}</Text>}
                 
-                {tipoUsuario === 'Cliente' ? (
-                    <FormularioCliente idUsuario={idUsuario} aoEnviar={aoEnviarPerfil} />
-                ) : (
-                    <FormularioVendedor idUsuario={idUsuario} aoEnviar={aoEnviarPerfil} />
+                {carregando && (
+                    <Text style={styles.loadingText}>Salvando perfil...</Text>
                 )}
+                
+                <View style={[carregando && styles.disabledForm]} pointerEvents={carregando ? 'none' : 'auto'}>
+                    {usuario.tipoUsuario === 'Cliente' ? (
+                        <FormularioCliente usuario={usuario} aoEnviar={aoEnviarPerfil} />
+                    ) : (
+                        <FormularioVendedor usuario={usuario} aoEnviar={aoEnviarPerfil} />
+                    )}
+                </View>
             </ScrollView>
         </MainLayout>
     );
 };
-
 
 const styles = StyleSheet.create({
     container: {
@@ -372,12 +426,29 @@ const styles = StyleSheet.create({
         height: 50,
         color: cores.texto,
     },
+    descriptionText: {
+        fontSize: 14,
+        color: cores.hover,
+        fontStyle: 'italic',
+        marginBottom: 15,
+        paddingHorizontal: 10,
+    },
     errorText: {
         ...globalStyles.text,
         color: 'red',
         textAlign: 'center',
         marginBottom: 20,
-    }
+    },
+    loadingText: {
+        ...globalStyles.text,
+        color: cores.primaria,
+        textAlign: 'center',
+        marginBottom: 20,
+        fontWeight: 'bold',
+    },
+    disabledForm: {
+        opacity: 0.6,
+    },
 });
 
 export default TelaCompletarPerfil;

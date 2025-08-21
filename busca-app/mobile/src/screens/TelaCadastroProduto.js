@@ -37,8 +37,8 @@ const TelaCadastroProduto = ({ navigation }) => {
     const fetchSubcategories = async () => {
       try {
         const apiUrl = Constants.expoConfig.extra.apiUrl;
-        const response = await axios.get(`${apiUrl}/categories/subcategories`);
-        setTodasSubcategorias(response.data.map(sub => ({ id: sub.ID_Subcategoria, nome: sub.NomeSubcategoria })));
+        const response = await axios.get(`${apiUrl}/api/subcategorias/`);
+        setTodasSubcategorias(response.data.map(sub => ({ id: sub.id, nome: sub.nome })));
       } catch (error) {
         console.error('Erro ao buscar subcategorias:', error);
         showNotification('Erro ao carregar subcategorias. Tente novamente.', 'error');
@@ -134,37 +134,56 @@ const TelaCadastroProduto = ({ navigation }) => {
       return;
     }
 
-    const formData = new FormData();
-    formData.append('nomeProduto', nomeProduto);
-    formData.append('descricao', descricao);
-    formData.append('idSubcategoria', subcategoriaSelecionada.id);
-
-    variacoes.forEach((variacao, index) => {
-      formData.append(`variacoes[${index}][nomeVariacao]`, variacao.nomeVariacao);
-      formData.append(`variacoes[${index}][valorVariacao]`, variacao.valorVariacao);
-      formData.append(`variacoes[${index}][preco]`, variacao.preco);
-      formData.append(`variacoes[${index}][quantidadeDisponivel]`, variacao.quantidadeDisponivel);
-
-      variacao.imagens.forEach((imagemUri, imgIndex) => {
-        const uriParts = imagemUri.split('.');
-        const fileType = uriParts[uriParts.length - 1];
-        const fileName = `imagem_${variacao.id}_${imgIndex}.${fileType}`;
-        formData.append(`imagens`, {
-          uri: imagemUri,
-          name: fileName,
-          type: `image/${fileType}`,
-        });
-      });
-    });
-
     try {
       const apiUrl = Constants.expoConfig.extra.apiUrl;
-      await axios.post(`${apiUrl}/produtos/completo`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
+      
+      // 1. Criar o Produto principal
+      const produtoResponse = await axios.post(`${apiUrl}/api/produtos/`, {
+        nome: nomeProduto,
+        descricao: descricao,
+        subcategoria: subcategoriaSelecionada.id,
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
       });
+      const produtoId = produtoResponse.data.id;
+
+      // 2. Criar Variações (SKUs) e Ofertas
+      for (const variacao of variacoes) {
+        const skuFormData = new FormData();
+        skuFormData.append('produto', produtoId);
+        skuFormData.append('variacoes', JSON.stringify([
+          { nome: variacao.nomeVariacao, valor: variacao.valorVariacao }
+        ]));
+
+        if (variacao.imagens.length > 0) {
+          const uriParts = variacao.imagens[0].split('.');
+          const fileType = uriParts[uriParts.length - 1];
+          const fileName = `imagem_${variacao.id}.${fileType}`;
+          skuFormData.append('imagem', {
+            uri: variacao.imagens[0],
+            name: fileName,
+            type: `image/${fileType}`,
+          });
+        }
+
+        const skuResponse = await axios.post(`${apiUrl}/api/variacoes/`, skuFormData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        const skuId = skuResponse.data.id;
+
+        // Criar Oferta para a variação
+        await axios.post(`${apiUrl}/api/ofertas/`, {
+          sku: skuId,
+          preco: variacao.preco,
+          quantidade_disponivel: variacao.quantidadeDisponivel,
+        }, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      }
+
       showNotification('Produto cadastrado com sucesso!', 'success');
       // Limpar o formulário ou navegar para outra tela
       setNomeProduto('');
@@ -173,7 +192,7 @@ const TelaCadastroProduto = ({ navigation }) => {
       setSubcategoriaSelecionada(null);
       setVariacoes([]);
     } catch (error) {
-      console.error('Erro ao cadastrar produto:', error);
+      console.error('Erro ao cadastrar produto:', error.response ? error.response.data : error.message);
       showNotification('Falha ao cadastrar o produto. Tente novamente.', 'error');
     }
   };

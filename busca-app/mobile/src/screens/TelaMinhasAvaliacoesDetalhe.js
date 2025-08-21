@@ -16,7 +16,7 @@ const TelaMinhasAvaliacoesDetalhe = ({ navigation }) => {
         const fetchAvaliacoes = async () => {
             try {
                 const apiUrl = Constants.expoConfig.extra.apiUrl;
-                const response = await axios.get(`${apiUrl}/usuarios/avaliacoes`, {
+                const response = await axios.get(`${apiUrl}/api/avaliacoes/`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setAvaliacoes(response.data);
@@ -59,10 +59,10 @@ const TelaMinhasAvaliacoesDetalhe = ({ navigation }) => {
                 ) : (
                     <View style={styles.evaluationList}>
                         {avaliacoes.map(avaliacao => (
-                            <View key={avaliacao.ID_Avaliacao} style={styles.evaluationCard}>
-                                <Text style={styles.evaluationText}><Text style={{ fontWeight: 'bold' }}>Nota:</Text> {avaliacao.Nota}/5</Text>
-                                <Text style={styles.evaluationText}><Text style={{ fontWeight: 'bold' }}>Comentário:</Text> {avaliacao.Comentario}</Text>
-                                <Text style={styles.evaluationDate}><Text style={{ fontWeight: 'bold' }}>Avaliado em:</Text> {new Date(avaliacao.DataAvaliacao).toLocaleDateString()}</Text>
+                            <View key={avaliacao.id} style={styles.evaluationCard}>
+                                <Text style={styles.evaluationText}><Text style={{ fontWeight: 'bold' }}>Nota:</Text> {avaliacao.nota}/5</Text>
+                                <Text style={styles.evaluationText}><Text style={{ fontWeight: 'bold' }}>Comentário:</Text> {avaliacao.comentario}</Text>
+                                <Text style={styles.evaluationDate}><Text style={{ fontWeight: 'bold' }}>Avaliado em:</Text> {new Date(avaliacao.data_avaliacao).toLocaleDateString()}</Text>
                             </View>
                         ))}
                     </View>

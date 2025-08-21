@@ -1,8 +1,6 @@
 
-import React, { useState, useContext } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
-import axios from 'axios';
-import { AuthContext } from '../context/AuthContext';
+import Constants from 'expo-constants';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 
 const TelaMonitorarConcorrencia = () => {
   const [url, setUrl] = useState('');
@@ -18,7 +16,7 @@ const TelaMonitorarConcorrencia = () => {
     setResultado(null);
 
     try {
-      const response = await axios.post('http://192.168.0.101:8000/api/monitoramento/add-url', { url }, {
+      const response = await axios.post(`${apiUrl}/api/monitoramento/`, { url_produto: url }, { // Updated endpoint and payload
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -57,9 +55,9 @@ const TelaMonitorarConcorrencia = () => {
         {resultado && (
           <View style={styles.resultadoContainer}>
             <Text style={styles.resultadoTitle}>Resultado do Monitoramento:</Text>
-            <Text style={styles.resultadoText}><Text style={styles.bold}>Produto:</Text> {resultado.nomeProduto || 'N/A'}</Text>
-            <Text style={styles.resultadoText}><Text style={styles.bold}>Preço Encontrado:</Text> R$ {resultado.preco || 'N/A'}</Text>
-            <Text style={styles.resultadoText}><Text style={styles.bold}>Última Atualização:</Text> {new Date(resultado.dataColeta).toLocaleString()}</Text>
+            <Text style={styles.resultadoText}><Text style={styles.bold}>Produto:</Text> {resultado.nome_produto || 'N/A'}</Text>
+            <Text style={styles.resultadoText}><Text style={styles.bold}>Preço Encontrado:</Text> R$ {resultado.preco_atual || 'N/A'}</Text>
+            <Text style={styles.resultadoText}><Text style={styles.bold}>Última Atualização:</Text> {new Date(resultado.ultima_coleta).toLocaleString()}</Text>
             <Text style={styles.messageSuccess}>Produto adicionado para monitoramento contínuo!</Text>
           </View>
         )}

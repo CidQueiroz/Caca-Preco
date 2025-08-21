@@ -47,68 +47,75 @@ const TelaIndicarVendedor = () => {
     };
 
     return (
-        <ScrollView contentContainerStyle={globalStyles.container}>
-            {notification.message && (
-                <View style={[styles.notification, notification.type === 'success' ? styles.success : styles.error]}>
-                    <Text style={styles.notificationText}>{notification.message}</Text>
-                </View>
-            )}
-            <Text style={globalStyles.title}>Indicar Novo Vendedor</Text>
-            <Text style={globalStyles.text}>Conhece alguém que deveria vender aqui? Indique-o!</Text>
+        <View style={{ flex: 1 }}>
+            <ScrollView contentContainerStyle={globalStyles.container}>
+                {notification.message && (
+                    <View style={[styles.notification, notification.type === 'success' ? styles.success : styles.error]}>
+                        <Text style={styles.notificationText}>{notification.message}</Text>
+                    </View>
+                )}
 
-            <View style={styles.formContainer}>
-                <View style={styles.formGroup}>
-                    <Text style={styles.label}>Nome do Indicado:</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Nome completo"
-                        placeholderTextColor={cores.hover}
-                        value={indicacao.nomeIndicado}
-                        onChangeText={(text) => handleIndicacaoChange('nomeIndicado', text)}
-                        required
-                    />
+                <Text style={globalStyles.title}>Indicar Novo Vendedor</Text>
+                <Text style={globalStyles.text}>Conhece alguém que deveria vender aqui? Indique-o!</Text>
+
+                <View style={styles.formContainer}>
+                    <View style={styles.formGroup}>
+                        <Text style={styles.label}>Nome do Indicado:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Nome completo"
+                            placeholderTextColor={cores.hover}
+                            value={indicacao.nomeIndicado}
+                            onChangeText={(text) => handleIndicacaoChange('nomeIndicado', text)}
+                            required
+                        />
+                    </View>
+                    
+                    <View style={styles.formGroup}>
+                        <Text style={styles.label}>Email do Indicado:</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="email@exemplo.com"
+                            placeholderTextColor={cores.hover}
+                            value={indicacao.emailIndicado}
+                            onChangeText={(text) => handleIndicacaoChange('emailIndicado', text)}
+                            keyboardType="email-address"
+                            autoCapitalize="none"
+                            required
+                        />
+                    </View>
+                    
+                    <View style={styles.formGroup}>
+                        <Text style={styles.label}>Telefone do Indicado (opcional):</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="(XX) XXXXX-XXXX"
+                            placeholderTextColor={cores.hover}
+                            value={indicacao.telefoneIndicado}
+                            onChangeText={(text) => handleIndicacaoChange('telefoneIndicado', text)}
+                            keyboardType="phone-pad"
+                        />
+                    </View>
+                    
+                    <View style={styles.formGroup}>
+                        <Text style={styles.label}>Mensagem (opcional):</Text>
+                        <TextInput
+                            style={styles.textArea}
+                            placeholder="Sua mensagem aqui..."
+                            placeholderTextColor={cores.hover}
+                            value={indicacao.mensagem}
+                            onChangeText={(text) => handleIndicacaoChange('mensagem', text)}
+                            multiline
+                            numberOfLines={4}
+                        />
+                    </View>
+                    
+                    <TouchableOpacity style={[globalStyles.button, globalStyles.buttonPrimary]} onPress={handleIndicacaoSubmit}>
+                        <Text style={globalStyles.buttonText}>Enviar Indicação</Text>
+                    </TouchableOpacity>
                 </View>
-                <View style={styles.formGroup}>
-                    <Text style={styles.label}>Email do Indicado:</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="email@exemplo.com"
-                        placeholderTextColor={cores.hover}
-                        value={indicacao.emailIndicado}
-                        onChangeText={(text) => handleIndicacaoChange('emailIndicado', text)}
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                        required
-                    />
-                </View>
-                <View style={styles.formGroup}>
-                    <Text style={styles.label}>Telefone do Indicado (opcional):</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="(XX) XXXXX-XXXX"
-                        placeholderTextColor={cores.hover}
-                        value={indicacao.telefoneIndicado}
-                        onChangeText={(text) => handleIndicacaoChange('telefoneIndicado', text)}
-                        keyboardType="phone-pad"
-                    />
-                </View>
-                <View style={styles.formGroup}>
-                    <Text style={styles.label}>Mensagem (opcional):</Text>
-                    <TextInput
-                        style={styles.textArea}
-                        placeholder="Sua mensagem aqui..."
-                        placeholderTextColor={cores.hover}
-                        value={indicacao.mensagem}
-                        onChangeText={(text) => handleIndicacaoChange('mensagem', text)}
-                        multiline
-                        numberOfLines={4}
-                    />
-                </View>
-                <TouchableOpacity style={[globalStyles.button, globalStyles.buttonPrimary]} onPress={handleIndicacaoSubmit}>
-                    <Text style={globalStyles.buttonText}>Enviar Indicação</Text>
-                </TouchableOpacity>
-            </View>
-        </ScrollView>
+            </ScrollView>
+        </View>
     );
 };
 
@@ -116,7 +123,7 @@ const styles = StyleSheet.create({
     formContainer: {
         width: '100%',
         padding: 20,
-        backgroundColor: cores.branco,
+        backgroundColor: cores.primaria,
         borderRadius: 8,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
@@ -164,7 +171,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     success: {
-        backgroundColor: 'lightgreen',
+        backgroundColor: 'lightblue',
     },
     error: {
         backgroundColor: 'lightcoral',

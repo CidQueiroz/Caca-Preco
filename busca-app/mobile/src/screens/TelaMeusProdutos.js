@@ -1,238 +1,300 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, ImageBackground, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, Image, Alert, FlatList } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import axios from 'axios';
+import * as ImagePicker from 'expo-image-picker';
 import { AuthContext } from '../context/AuthContext';
 import { globalStyles, cores, fontes } from '../styles/globalStyles';
-import Constants from 'expo-constants';
-import Notification from '../components/Notification';
+import apiClient from '../../apiClient';
 
 const TelaMeusProdutos = ({ navigation }) => {
+    const { token } = useContext(AuthContext);
     const [produtos, setProdutos] = useState([]);
     const [loading, setLoading] = useState(true);
-    const { token } = useContext(AuthContext);
     const [categorias, setCategorias] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState('');
-    const [editingProduct, setEditingProduct] = useState(null);
     const [notification, setNotification] = useState({ message: '', type: '' });
+    const [viewMode, setViewMode] = useState('card');
+    const [editingProduct, setEditingProduct] = useState(null);
+    const [editingImage, setEditingImage] = useState(null);
+    const [expandedRowId, setExpandedRowId] = useState(null);
 
     const showNotification = (message, type) => {
         setNotification({ message, type });
+        setTimeout(() => setNotification({ message: '', type: '' }), 3000);
     };
 
     const fetchProdutos = useCallback(async () => {
+        setLoading(true);
         try {
-            const apiUrl = Constants.expoConfig.extra.apiUrl;
             const url = selectedCategory 
-                ? `${apiUrl}/produtos/meus-produtos?idCategoria=${selectedCategory}` 
-                : `${apiUrl}/produtos/meus-produtos`;
-            const response = await axios.get(url, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setProdutos(response.data);
+                ? `/api/produtos/meus-produtos/?id_categoria=${selectedCategory}` 
+                : `/api/produtos/meus-produtos/`;
+                
+            const response = await apiClient.get(url);
+            
+            setProdutos(response.data.results || response.data || []);
+            console.log("Produtos fetched after update:", response.data.results || response.data || []);
+
         } catch (err) {
-            showNotification('Falha ao buscar produtos.', 'error');
-            console.error(err);
+            console.error("Falha ao buscar produtos:", err);
+            showNotification('Falha ao carregar os seus produtos.', 'error');
+            setProdutos([]);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     }, [token, selectedCategory]);
 
     useEffect(() => {
-        const fetchCategorias = async () => {
+        if (!token) {
+            setLoading(false);
+            return;
+        }
+
+        const carregarDadosDaPagina = async () => {
+            setLoading(true);
             try {
-                const apiUrl = Constants.expoConfig.extra.apiUrl;
-                const response = await axios.get(`${apiUrl}/categories`);
-                setCategorias(response.data);
+                const urlProdutos = selectedCategory 
+                    ? `/api/produtos/meus-produtos/?id_categoria=${selectedCategory}` 
+                    : `/api/produtos/meus-produtos/`;
+
+                const urlCategorias = `/api/categorias/`;
+
+                const [respostaProdutos, respostaCategorias] = await Promise.all([
+                    apiClient.get(urlProdutos),
+                    apiClient.get(urlCategorias)
+                ]);
+
+                setProdutos(respostaProdutos.data.results || respostaProdutos.data || []);
+                console.log(JSON.stringify(respostaProdutos.data, null, 2));
+                setCategorias(respostaCategorias.data.results || respostaCategorias.data || []);
+
             } catch (err) {
-                console.error('Erro ao buscar categorias:', err);
-                showNotification('Erro ao buscar categorias.', 'error');
+                console.error("Falha ao carregar dados da página:", err);
+                showNotification('Falha ao carregar os dados. Tente atualizar a página.', 'error');
+                setProdutos([]);
+                setCategorias([]);
+            } finally {
+                setLoading(false);
             }
         };
 
-        if (token) {
-            fetchProdutos();
-            fetchCategorias();
-        }
-    }, [token, selectedCategory, fetchProdutos]);
+        carregarDadosDaPagina();
+
+    }, [token, selectedCategory]);
 
     const handleEditClick = (product) => {
         setEditingProduct({ ...product });
+        setEditingImage(null);
     };
+    const handleCancelEdit = () => setEditingProduct(null);
+    
+    const handleChange = (name, value) => setEditingProduct(prev => ({ ...prev, [name]: value }));
 
-    const handleCancelEdit = () => {
-        setEditingProduct(null);
-    };
+    const handleChooseImage = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8,
+        });
 
-    const handleChange = (name, value) => {
-        setEditingProduct(prev => ({
-            ...prev,
-            [name]: value
-        }));
+        if (!result.canceled) {
+            setEditingImage(result.assets[0]);
+        }
     };
 
     const handleSaveClick = async () => {
         if (!editingProduct) return;
 
-        try {
-            const apiUrl = Constants.expoConfig.extra.apiUrl;
-            await axios.put(`${apiUrl}/produtos/${editingProduct.ID_Produto}`, {
-                idVariacao: editingProduct.ID_Variacao,
-                NomeProduto: editingProduct.NomeProduto,
-                Descricao: editingProduct.Descricao,
-                NomeVariacao: editingProduct.NomeVariacao,
-                ValorVariacao: editingProduct.ValorVariacao,
-                Preco: editingProduct.Preco,
-                QuantidadeDisponivel: editingProduct.QuantidadeDisponivel,
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
+        const formData = new FormData();
+        formData.append('preco', editingProduct.preco);
+        formData.append('quantidade_disponivel', editingProduct.quantidade_disponivel);
+        
+        if (editingImage) {
+            let uriParts = editingImage.uri.split('.');
+            let fileType = uriParts[uriParts.length - 1];
+            formData.append('imagem', {
+                uri: editingImage.uri,
+                name: `photo.${fileType}`,
+                type: `image/${fileType}`,
             });
-            showNotification('Produto atualizado com sucesso!', 'success');
+        }
+
+        console.log("Editing image:", editingImage);
+        console.log("FormData:", formData);
+        try {
+            await apiClient.patch(`/api/ofertas/${editingProduct.id}/`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            showNotification('Oferta atualizada com sucesso!', 'success');
             setEditingProduct(null);
-            fetchProdutos(); // Refresh the product list
+            setEditingImage(null);
+            fetchProdutos();
         } catch (err) {
-            showNotification('Falha ao atualizar produto.', 'error');
-            console.error(err);
+            showNotification('Falha ao atualizar a oferta.', 'error');
+            console.error(err.response?.data || err);
         }
     };
 
-    const handleDeleteClick = async (idVariacao) => {
+    const handleDeleteClick = (idOferta) => {
         Alert.alert(
-            'Confirmar Exclusão',
-            'Tem certeza que deseja excluir esta oferta de produto?',
+            'Confirmar Exclusão', 'Tem certeza de que deseja excluir esta oferta?',
             [
                 { text: 'Cancelar', style: 'cancel' },
                 {
                     text: 'Excluir',
                     onPress: async () => {
                         try {
-                            const apiUrl = Constants.expoConfig.extra.apiUrl;
-                            await axios.delete(`${apiUrl}/produtos/${idVariacao}`, {
-                                headers: { Authorization: `Bearer ${token}` }
-                            });
-                            showNotification('Oferta de produto excluída com sucesso!', 'success');
-                            fetchProdutos(); // Atualiza a lista de produtos
+                            await apiClient.delete(`/api/ofertas/${idOferta}/`);
+                            showNotification('Oferta excluída com sucesso!', 'success');
+                            fetchProdutos();
                         } catch (err) {
-                            showNotification('Falha ao excluir a oferta de produto.', 'error');
+                            showNotification('Falha ao excluir a oferta.', 'error');
                             console.error(err);
                         }
                     },
+                    style: 'destructive'
                 },
-            ],
-            { cancelable: true }
+            ]
+        );
+    };
+
+    const toggleImageExpansion = (id) => {
+        setExpandedRowId(expandedRowId === id ? null : id);
+    };
+
+    const Notification = ({ message, type, onHide }) => {
+        if (!message) return null;
+        return (
+            <View style={[styles.notification, type === 'success' ? styles.success : styles.error]}>
+                <Text style={styles.notificationText}>{message}</Text>
+            </View>
         );
     };
 
     if (loading) {
         return (
-            <View style={globalStyles.container}> 
-                <ActivityIndicator size="large" color="#0000ff" />
-                <Text style={globalStyles.text}>Carregando...</Text>
+            <View style={globalStyles.loadingContainer}> 
+                <ActivityIndicator size="large" color={cores.primaria} />
+                <Text style={globalStyles.text}>A carregar...</Text>
             </View>
         );
     }
 
-    return (
-        <ImageBackground 
-            source={require('../../assets/ia.png')} 
-            style={globalStyles.backgroundImage}
-            imageStyle={{ opacity: 0.2 }}
-        >
-            <ScrollView style={globalStyles.container}>
-            <Notification
-                message={notification.message}
-                type={notification.type}
-                onHide={() => setNotification({ message: '', type: '' })}
-            />
-            <View style={styles.headerContainer}>
-                <Text style={globalStyles.title}>Meus Produtos</Text>
-                <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('CadastroProduto')}>
-                    <Text style={styles.addButtonText}>+</Text>
-                </TouchableOpacity>
-            </View>
+    const renderItem = ({ item: produto }) => {
+11
+        // TEMPORARY TEST: Display product name to check FlatList rendering
+        if (produto && produto.sku && produto.sku.produto && produto.sku.produto.nome) {
+            console.log("Rendering product:", produto.sku.produto.nome); // Log to confirm this part is reached
+            // return <Text style={{ color: 'red', fontSize: 20, padding: 10 }}>{produto.sku.produto.nome}</Text>; // Uncomment to only show name
+        }
+        // END TEMPORARY TEST
 
-            <View style={styles.filterContainer}>
-                <Text style={styles.label}>Filtrar por Categoria:</Text>
-                <View style={styles.pickerContainer}>
-                    <Picker
-                        selectedValue={selectedCategory}
-                        onValueChange={(itemValue) => setSelectedCategory(itemValue)}
-                        style={styles.picker}
-                    >
-                        <Picker.Item label="Todas as Categorias" value="" />
-                        {categorias.map(cat => (
-                            <Picker.Item key={cat.ID_CategoriaLoja} label={cat.NomeCategoria} value={cat.ID_CategoriaLoja} />
-                        ))}
-                    </Picker>
+        
+        const isEditing = editingProduct && editingProduct.id === produto.id;
+        const imageUrl = editingImage?.uri || produto.url_imagem;
+        const imageSource = imageUrl ? { uri: imageUrl } : require('../../assets/ia.png');
+        
+        if (isEditing) {
+            return (
+                <View style={[styles.card, styles.editingCard]}>
+                    <TouchableOpacity onPress={handleChooseImage}>
+                        <Image source={{ uri: imageUrl }} style={styles.productImage} />
+                        <Text style={styles.changeImageText}>Trocar Imagem</Text>
+                    </TouchableOpacity>
+                    <View style={styles.formGroup}>
+                        <Text style={styles.label}>Preço:</Text>
+                        <TextInput style={globalStyles.input} value={String(editingProduct.preco)} onChangeText={(text) => handleChange('preco', text)} keyboardType="numeric" />
+                    </View>
+                    <View style={styles.formGroup}>
+                        <Text style={styles.label}>Estoque:</Text>
+                        <TextInput style={globalStyles.input} value={String(editingProduct.quantidade_disponivel)} onChangeText={(text) => handleChange('quantidade_disponivel', text)} keyboardType="numeric" />
+                    </View>
+                    <TouchableOpacity style={[globalStyles.button, globalStyles.buttonPrimary]} onPress={handleSaveClick}>
+                        <Text style={globalStyles.buttonText}>Salvar</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={[globalStyles.button, globalStyles.buttonSecondary, { marginTop: 10 }]} onPress={handleCancelEdit}>
+                        <Text style={globalStyles.buttonText}>Cancelar</Text>
+                    </TouchableOpacity>
                 </View>
-            </View>
+            );
+        }
 
-            {produtos.length === 0 ? (
-                <Text style={styles.noProductsText}>Você ainda não cadastrou nenhum produto ou não há produtos nesta categoria.</Text>
-            ) : (
-                <View style={styles.cardGrid}>
-                    {produtos.map(produto => (
-                        <View key={produto.ID_Variacao} style={styles.card}>
-                            {editingProduct && editingProduct.ID_Variacao === produto.ID_Variacao ? (
-                                <>
-                                    <View style={styles.formGroup}>
-                                        <Text style={styles.label}>Nome do Produto:</Text>
-                                        <TextInput style={globalStyles.input} name="NomeProduto" value={editingProduct.NomeProduto || ''} onChangeText={(text) => handleChange('NomeProduto', text)} />
-                                    </View>
-                                    <View style={styles.formGroup}>
-                                        <Text style={styles.label}>Descrição:</Text>
-                                        <TextInput style={[globalStyles.input, styles.textArea]} name="Descricao" value={editingProduct.Descricao || ''} onChangeText={(text) => handleChange('Descricao', text)} multiline />
-                                    </View>
-                                    <View style={styles.formGroup}>
-                                        <Text style={styles.label}>Nome da Variação:</Text>
-                                        <TextInput style={globalStyles.input} name="NomeVariacao" value={editingProduct.NomeVariacao || ''} onChangeText={(text) => handleChange('NomeVariacao', text)} />
-                                    </View>
-                                    <View style={styles.formGroup}>
-                                        <Text style={styles.label}>Valor da Variação:</Text>
-                                        <TextInput style={globalStyles.input} name="ValorVariacao" value={editingProduct.ValorVariacao || ''} onChangeText={(text) => handleChange('ValorVariacao', text)} />
-                                    </View>
-                                    <View style={styles.formGroup}>
-                                        <Text style={styles.label}>Preço:</Text>
-                                        <TextInput style={globalStyles.input} name="Preco" value={editingProduct.Preco ? String(editingProduct.Preco) : ''} onChangeText={(text) => handleChange('Preco', text)} keyboardType="numeric" />
-                                    </View>
-                                    <View style={styles.formGroup}>
-                                        <Text style={styles.label}>Estoque:</Text>
-                                        <TextInput style={globalStyles.input} name="QuantidadeDisponivel" value={editingProduct.QuantidadeDisponivel ? String(editingProduct.QuantidadeDisponivel) : ''} onChangeText={(text) => handleChange('QuantidadeDisponivel', text)} keyboardType="numeric" />
-                                    </View>
-                                    <View style={styles.formActions}>
-                                        <TouchableOpacity style={[globalStyles.button, globalStyles.buttonPrimary]} onPress={handleSaveClick}>
-                                            <Text style={globalStyles.buttonText}>Salvar</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity style={[globalStyles.button, globalStyles.buttonSecondary, { marginTop: 10 }]} onPress={handleCancelEdit}>
-                                            <Text style={globalStyles.buttonText}>Cancelar</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity style={[globalStyles.button, globalStyles.buttonDanger, { marginTop: 10 }]} onPress={() => handleDeleteClick(editingProduct.ID_Variacao)}>
-                                            <Text style={globalStyles.buttonText}>Excluir</Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                </>
-                            ) : (
-                                <>
-                                    {produto.URL_Imagem && (
-                                        <Image source={{ uri: `${apiUrl}/${produto.URL_Imagem}` }} style={styles.productImage} />
-                                    )}
-                                    <Text style={styles.cardTitle}>{produto.NomeProduto}</Text>
-                                    <Text style={styles.cardText}>{produto.Descricao}</Text>
-                                    <Text style={styles.cardText}><Text style={{ fontWeight: 'bold' }}>Variação:</Text> {produto.NomeVariacao} - {produto.ValorVariacao}</Text>
-                                    <Text style={styles.cardText}><Text style={{ fontWeight: 'bold' }}>Preço:</Text> R$ {produto.Preco}</Text>
-                                    <Text style={styles.cardText}><Text style={{ fontWeight: 'bold' }}>Estoque:</Text> {produto.QuantidadeDisponivel}</Text>
-                                    <TouchableOpacity style={[globalStyles.button, globalStyles.buttonSecondary]} onPress={() => handleEditClick(produto)}>
-                                        <Text style={globalStyles.buttonText}>Editar</Text>
-                                    </TouchableOpacity>
-                                </>
-                            )}
+        if (viewMode === 'card') {
+            return (
+                <View style={styles.card}>
+                    <Image source={imageSource} style={styles.productImage} />
+                    <Text style={styles.cardTitle}>{produto.nome_produto}</Text>
+                    {produto.variacao_formatada && <Text style={styles.cardText}>{produto.variacao_formatada}</Text>}
+                    <Text style={styles.cardText}><Text style={{fontWeight: 'bold'}}>Preço:</Text> R$ {produto.preco}</Text>
+                    <Text style={styles.cardText}><Text style={{fontWeight: 'bold'}}>Estoque:</Text> {produto.quantidade_disponivel}</Text>
+                    <TouchableOpacity style={[globalStyles.button, globalStyles.buttonSecondary]} onPress={() => handleEditClick(produto)}>
+                        <Text style={globalStyles.buttonText}>Editar</Text>
+                    </TouchableOpacity>
+                </View>
+            );
+        }
+
+        if (viewMode === 'list') {
+            const isExpanded = expandedRowId === produto.id;
+            return (
+                <View style={styles.listItemContainer}>
+                    <View style={styles.listItem}>
+                        <View style={{ flex: 1 }}>
+                            <Text style={styles.listItemTitle}>{produto.nome_produto}</Text>
+                            {produto.variacao_formatada && <Text style={styles.cardText}>{produto.variacao_formatada}</Text>}
+                            <Text style={styles.cardText}>Preço: R$ {produto.preco} | Estoque: {produto.quantidade_disponivel}</Text>
                         </View>
-                    ))}
+                        <TouchableOpacity onPress={() => toggleImageExpansion(produto.id)} style={{ padding: 5 }}>
+                             <Text style={{color: cores.primaria, fontSize: 24}}>{isExpanded ? '▲' : '▼'}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => handleEditClick(produto)} style={{ padding: 5, marginLeft: 10 }}>
+                             <Text style={{color: cores.hover, fontSize: 18}}>✏️</Text>
+                        </TouchableOpacity>
+                    </View>
+                    {isExpanded && (
+                         <Image source={imageSource} style={[styles.productImage, { resizeMode: "contain", marginVertical: 10 }]} />
+                    )}
                 </View>
-            )}
-        </ScrollView>
-    </ImageBackground>
+            );
+        }
+    };
+
+    
+    return (
+        <View style={{flex: 1}}>
+            <Notification message={notification.message} type={notification.type} onHide={() => setNotification({ message: '', type: '' })} />
+            {console.log("Produtos array length before FlatList:", produtos.length)}
+            {console.log("Produtos array content before FlatList:", produtos)}
+            <FlatList
+                ListHeaderComponent={
+                    <>
+                        <View style={styles.headerContainer}>
+                            <Text style={globalStyles.title}>Meus Produtos</Text>
+                            <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('AdicionarOferta')}>
+                                <Text style={styles.addButtonText}>+</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={styles.viewControls}>
+                             <TouchableOpacity onPress={() => setViewMode('card')} style={[globalStyles.button, viewMode === 'card' ? globalStyles.buttonPrimary : globalStyles.buttonSecondary]}>
+                                <Text style={globalStyles.buttonText}>Cards</Text>
+                             </TouchableOpacity>
+                             <TouchableOpacity onPress={() => setViewMode('list')} style={[globalStyles.button, viewMode === 'list' ? globalStyles.buttonPrimary : globalStyles.buttonSecondary]}>
+                                <Text style={globalStyles.buttonText}>Lista</Text>
+                             </TouchableOpacity>
+                        </View>
+                    </>
+                }
+                data={produtos}
+                renderItem={renderItem}
+                keyExtractor={item => item.id.toString()}
+                contentContainerStyle={{ padding: 10 }}
+                key={viewMode}
+            />
+        </View>
     );
 };
+
 
 const styles = StyleSheet.create({
     headerContainer: {
@@ -250,34 +312,11 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    addButtonText: {
-        color: '#fff',
-        fontSize: 24,
-        lineHeight: 28,
-    },
-    filterContainer: {
-        marginBottom: 20,
-        alignItems: 'center',
-    },
-    pickerContainer: {
-        borderRadius: 12,
-        borderWidth: 1,
-        borderColor: cores.terciaria,
-        overflow: 'hidden',
-        backgroundColor: '#fff',
-        width: '90%',
-        marginTop: 10,
-    },
-    picker: {
-        width: '100%',
-        height: 50,
-        color: cores.texto,
-    },
-    noProductsText: {
-        textAlign: 'center',
-        fontSize: 16,
-        color: cores.texto,
-        marginTop: 20,
+    viewControls: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        gap: 10,
+        marginVertical: 10,
     },
     cardGrid: {
         flexDirection: 'column',
@@ -308,6 +347,22 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginBottom: 5,
     },
+    editingCard: {
+        borderColor: cores.primaria,
+        borderWidth: 1,
+    },
+    changeImageText: {
+        color: cores.primaria,
+        textAlign: 'center',
+        marginVertical: 10,
+        textDecorationLine: 'underline',
+    },
+    productImage: {
+        width: '100%',
+        height: 150,
+        marginBottom: 10,
+        borderRadius: 8,
+    },
     formGroup: {
         width: '100%',
         marginBottom: 15,
@@ -318,35 +373,36 @@ const styles = StyleSheet.create({
         marginBottom: 5,
         fontFamily: fontes.secundaria,
     },
-    textArea: {
-        height: 80,
-        textAlignVertical: 'top',
+    listItemContainer: {
+        backgroundColor: cores.branco,
+        borderRadius: 8,
+        padding: 15,
+        marginBottom: 10,
+        elevation: 2,
     },
-    formActions: {
-        flexDirection: 'column',
-        marginTop: 10,
-        width: '100%',
+    listItem: {
+        flexDirection: 'row',
         alignItems: 'center',
     },
-    successMessage: {
-        color: 'green',
-        textAlign: 'center',
-        marginBottom: 10,
+    listItemTitle: {
         fontSize: 16,
+        fontFamily: fontes.semiBold,
+        color: cores.texto,
     },
-    errorText: {
-        color: 'red',
-        textAlign: 'center',
-        marginBottom: 10,
-        fontSize: 16,
+    notification: {
+        padding: 10,
+        borderRadius: 5,
+        margin: 10,
     },
-    productImage: {
-        width: '100%',
-        height: 150,
-        resizeMode: 'contain',
-        marginBottom: 10,
-        borderRadius: 8,
+    success: {
+        backgroundColor: 'green',
     },
+    error: {
+        backgroundColor: 'red',
+    },
+    notificationText: {
+        color: 'white',
+    }
 });
 
 export default TelaMeusProdutos;

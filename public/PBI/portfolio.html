@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <link rel="icon" type="image/png" href="Assets/favicon.png">        
+        
+        <title>Portfólio de Dashboards - CDK TECK</title>
+        <style>
+            /* --- ESTILOS GERAIS --- */
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body {
+                background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+                font-family: 'Arial', sans-serif;
+                color: #f0f0f0;
+            }
+
+            /* --- CABEÇALHO E TÍTULO --- */
+            .header {
+                text-align: center;
+                padding: 50px 20px;
+            }
+            .header h1 {
+                font-size: 42px;
+                background: linear-gradient(45deg, #ff6b35, #4ecdc4, #3498db);
+                -webkit-background-clip: text;
+                background-clip: text;
+                -webkit-text-fill-color: transparent;
+                text-shadow: 0 0 20px rgba(78, 205, 196, 0.4);
+            }
+            .header p {
+                margin-top: 10px;
+                font-size: 18px;
+                color: #ff6b35;
+            }
+
+            /* --- GALERIA DE PROJETOS --- */
+            .gallery-container {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                gap: 30px;
+                padding: 0 40px 60px 40px;
+                max-width: 1400px;
+                margin: 0 auto;
+            }
+            .project-card {
+                background: linear-gradient(145deg, #1a1a2e, #16213e);
+                border-radius: 15px;
+                overflow: hidden;
+                border: 1px solid rgba(78, 205, 196, 0.2);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+                cursor: pointer;
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            .project-card:hover {
+                transform: translateY(-10px);
+                box-shadow: 0 0 40px rgba(78, 205, 196, 0.5);
+            }
+
+            .project-card img {
+                width: 100%;
+                /* height: auto;  REMOVEMOS a altura fixa */
+                object-fit: cover;
+                display: block;
+                aspect-ratio: 16 / 10; /* NOVA PROPRIEDADE: Mantém uma proporção consistente */
+            }
+
+            .project-info {
+                padding: 20px;
+            }
+
+            .project-info p {
+                font-size: 15px; /* Um pouco maior */
+                line-height: 1.5; /* Mais espaçamento entre linhas */
+                color: #c0c0d0;
+            }
+
+            /* --- MODAL --- */
+            .modal {
+                display: none;
+                position: fixed;
+                z-index: 1000;
+                left: 0; top: 0;
+                width: 100%; height: 100%;
+                background-color: rgba(0, 0, 0, 0.8);
+                backdrop-filter: blur(5px);
+                overflow: auto;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .modal-content {
+                background: linear-gradient(135deg, #1a1a2e, #16213e, #2c3e50);
+                padding: 20px;
+                border: 1px solid #4ecdc4;
+                width: 95%; /* Ocupa 95% da largura da tela */
+                max-width: 1366px; /* Um máximo razoável para telas grandes */
+                height: 90vh; /* Ocupa 90% da ALTURA da tela */
+                border-radius: 15px;
+                box-shadow: 0 0 50px rgba(78, 205, 196, 0.3);
+                position: relative;
+                /* Adicionado para organizar o conteúdo interno */
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .close-button {
+                color: #aaa;
+                position: absolute;
+                top: 15px; right: 25px;
+                font-size: 35px;
+                font-weight: bold;
+                cursor: pointer;
+                transition: color 0.3s;
+            }
+            .close-button:hover, .close-button:focus { color: #fff; }
+            
+            #modal-title { margin-bottom: 15px; color: #4ecdc4; }
+            #modal-description { line-height: 1.6; margin-bottom: 20px; }
+            
+            .responsive-iframe {
+                position: relative; overflow: hidden; width: 100%;
+                padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            }
+            
+            .responsive-iframe iframe {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                border: 0;
+            }
+            
+            #modal-github-link {
+                display: inline-block;
+                margin-top: 20px;
+                padding: 10px 20px;
+                background-color: #4ecdc4;
+                color: #1a1a2e;
+                text-decoration: none;
+                font-weight: bold;
+                border-radius: 8px;
+                transition: background-color 0.3s;
+            }
+            #modal-github-link:hover { background-color: #ff6b35; }
+        </style>
+    </head>
+<body>
+
+    <header class="header">
+        <h1>Portfólio de Dashboards</h1>
+        <p>Explore projetos interativos de Business Intelligence e Análise de Dados.</p>
+    </header>
+
+    <main class="gallery-container" id="gallery">
+        </main>
+
+    <div id="projectModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2 id="modal-title"></h2>
+            <p id="modal-description"></p>
+            <div class="responsive-iframe" id="modal-iframe-container">
+                </div>
+            <a id="modal-github-link" href="#" target="_blank">Ver arquivo .PBIX no GitHub</a>
+        </div>
+    </div>
+
+    <script>
+        
+        const projects = [
+        
+            {
+                title: "Dashboard de Análise Comercial",
+                thumbnail: "PBI_Portfolio/thumb_comercial.png",
+                description: "Criar um dashboard no Power BI para a análise detalhada de dados comerciais, com foco em fornecer uma visão clara do desempenho de vendas e outras métricas de negócio relevantes.",
+                githubLink: "https://github.com/CidQueiroz/PBI_Portfolio/tree/main/DashComercial",
+                iframeUrl: "https://app.powerbi.com/view?r=eyJrIjoiMTdiMzE2MmMtODg1ZC00ODY1LTgyMDAtYmYwZjJlNWUzZjhmIiwidCI6ImY0MTE4N2VhLTlkNmItNDNlNy04YjNiLWU1NmFmNjQ4N2IwYSJ9"
+            },
+            {
+                title: "Dashboard de Vendas",
+                thumbnail: "PBI_Portfolio/thumb_vendas01.png",
+                description: "O dashboard oferece uma análise 360º da performance de vendas e dos fatores que influenciam o churn de clientes. A solução permite a exploração de dados por múltiplas dimensões, como perfil do cliente, tempo de contrato, geografia e performance de produtos, facilitando a identificação de padrões e a tomada de decisão estratégica.",
+                githubLink: "https://github.com/CidQueiroz/PBI_Portfolio/tree/main/DashVendas01",
+                iframeUrl: "https://app.powerbi.com/view?r=eyJrIjoiN2VhOTIyZTktNWZhMi00NTY3LTg1NzctOGUwNWViZDIwYzg3IiwidCI6ImY0MTE4N2VhLTlkNmItNDNlNy04YjNiLWU1NmFmNjQ4N2IwYSJ9"
+            },
+            {
+                title: "Dashboard de Engenharia de Produção",
+                thumbnail:  "PBI_Portfolio/thumb_engenharia_producao.png", 
+                description: "Este projeto apresenta um dashboard em Power BI focado na análise de séries temporais de dados de produção, com o objetivo de prever a performance futura e otimizar a eficiência do processo produtivo.",
+                githubLink: "https://github.com/CidQueiroz/PBI_Portfolio/tree/main/DashEngProducao",
+                iframeUrl: "https://app.powerbi.com/view?r=eyJrIjoiYmQxN2JiNGEtNDc1NS00YWVkLWI2NTAtNDU4ZTI1MDIxZTkzIiwidCI6ImY0MTE4N2VhLTlkNmItNDNlNy04YjNiLWU1NmFmNjQ4N2IwYSJ9"
+            },
+            {
+                title: "Dashboard de Balanço Patrimonial",
+                thumbnail: "PBI_Portfolio/thumb_balanco_patrimonial.png",
+                description: "Este projeto consiste em um dashboard para análise da estrutura de capital da empresa, com foco em liquidez, endividamento e ROI.",
+                githubLink: "https://github.com/CidQueiroz/PBI_Portfolio/tree/main/DashBalancoPatrimonial",
+                iframeUrl: "https://app.powerbi.com/view?r=eyJrIjoiYjExOGFiOWEtOGUyYy00ZDFlLThkZDYtMWNhYWE2YTZjYWY0IiwidCI6ImY0MTE4N2VhLTlkNmItNDNlNy04YjNiLWU1NmFmNjQ4N2IwYSJ9"
+            },
+            {
+                title: "Dashboard de Análise Financeira",
+                thumbnail: "PBI_Portfolio/thumb_financeiro.png",
+                description: "Este projeto apresenta um dashboard para análise de DRE (Demonstração do Resultado do Exercício) e Fluxo de Caixa, com foco em margem de lucro, EBITDA e rentabilidade por centro de custo.",
+                githubLink: "https://github.com/CidQueiroz/PBI_Portfolio/tree/main/DashFinanceiro",
+                iframeUrl: "https://app.powerbi.com/view?r=eyJrIjoiZGRmNDk0NDYtNzBiMC00YzFhLWJlNWMtMWZiZWM1OTQ3OWIzIiwidCI6ImY0MTE4N2VhLTlkNmItNDNlNy04YjNiLWU1NmFmNjQ4N2IwYSJ9"
+            },
+            {
+                title: "Dashboard de Análise de Logística",
+                thumbnail: "PBI_Portfolio/thumb_logistica.png",
+                description: "O dashboard oferece uma análise completa da performance logística, permitindo a exploração de dados por múltiplas dimensões, como custos de transporte, eficiência de rotas e desempenho de entregas.",
+                githubLink: "https://github.com/CidQueiroz/PBI_Portfolio/tree/main/DashLogistica",
+                iframeUrl: "https://app.powerbi.com/view?r=eyJrIjoiYzBlY2Q2NzAtNTQ5Zi00Yjg1LThlMTQtMzY0NDljOTE0MzczIiwidCI6ImY0MTE4N2VhLTlkNmItNDNlNy04YjNiLWU1NmFmNjQ4N2IwYSJ9"
+            },
+            {
+                title: "Dashboard de Machine Learning",
+                thumbnail: "PBI_Portfolio/thumb_ml.png",
+                description: "Desenvolver um dashboard abrangente no Power BI para analisar a eficácia de campanhas de marketing e realizar a segmentação de clientes com base em seu comportamento de compra e dados demográficos.",
+                githubLink: "https://github.com/CidQueiroz/PBI_Portfolio/tree/main/DashMarketing",
+                iframeUrl: "https://app.powerbi.com/view?r=eyJrIjoiZTg1YzM4Y2UtNjVkMy00OWIyLWIyMDAtMmQyNzY1OTIzNGFkIiwidCI6ImY0MTE4N2VhLTlkNmItNDNlNy04YjNiLWU1NmFmNjQ4N2IwYSJ9"
+            },
+            {
+                title: "Dashboard de Marketing",
+                thumbnail: "PBI_Portfolio/thumb_marketing.png",
+                description: "Desenvolver um dashboard abrangente no Power BI para analisar a eficácia de campanhas de marketing e realizar a segmentação de clientes com base em seu comportamento de compra e dados demográficos.",
+                githubLink: "https://github.com/CidQueiroz/PBI_Portfolio/blob/main/Recursos_Humanos.pbix",
+                iframeUrl: "https://app.powerbi.com/view?r=eyJrIjoiOTg0ZjhlYjUtMGUwNC00YzFiLWI5MWUtN2ViZjM5NWU5YzI0IiwidCI6ImY0MTE4N2VhLTlkNmItNDNlNy04YjNiLWU1NmFmNjQ4N2IwYSJ9"
+            },
+            {
+                title: "Dashboard de Mercado de Ações",
+                thumbnail: "PBI_Portfolio/thumb_mercadoacoes.png",
+                description: "Este projeto apresenta um dashboard para análise de dados do mercado de ações, permitindo o acompanhamento de cotações e o cálculo de indicadores.",
+                githubLink: "https://github.com/CidQueiroz/PBI_Portfolio/tree/main/DashMercadoAcoes",
+                iframeUrl: "https://app.powerbi.com/view?r=eyJrIjoiMTE1ZDg1YWItYWJlYi00MDhmLTlmYWQtNWU1MjVlNjE5ZmEyIiwidCI6ImY0MTE4N2VhLTlkNmItNDNlNy04YjNiLWU1NmFmNjQ4N2IwYSJ9"
+            },
+            {
+                title: "Dashboard de Recursos Humanos",
+                thumbnail: "PBI_Portfolio/thumb_rh.png",
+                description: "O dashboard oferece uma análise completa da performance de Recursos Humanos, permitindo a exploração de dados por múltiplas dimensões, como demografia dos funcionários, satisfação, desempenho e turnover.",
+                githubLink: "https://github.com/CidQueiroz/PBI_Portfolio/tree/main/DashRH",
+                iframeUrl: "https://app.powerbi.com/view?r=eyJrIjoiYmMzMzdhMzMtMzgxZi00ZGM3LTliNDItM2NkODNmYmMwYTFlIiwidCI6ImY0MTE4N2VhLTlkNmItNDNlNy04YjNiLWU1NmFmNjQ4N2IwYSJ9"
+            },
+            {
+                title: "Dashboard de Vendas",
+                thumbnail: "PBI_Portfolio/thumb_vendas02.png",
+                description: "O principal objetivo é construir um modelo de dados relacional (esquema estrela) para permitir análises de vendas mais complexas e segmentadas.",
+                githubLink: "https://github.com/CidQueiroz/PBI_Portfolio/tree/main/DashVendas02",
+                iframeUrl: "https://app.powerbi.com/view?r=eyJrIjoiNjYwYjBlZTctZTMzNS00YjMyLWI0YTUtMzA4ZTk0NWQyNTJhIiwidCI6ImY0MTE4N2VhLTlkNmItNDNlNy04YjNiLWU1NmFmNjQ4N2IwYSJ9"
+            },
+            {
+                title: "Dashboard de Estatísticas",
+                thumbnail: "PBI_Portfolio/thumb_estatisticas.png",
+                description: "Este projeto apresenta um dashboard para análise estatística de dados de clientes, com foco em medidas de tendência central e dispersão.",
+                githubLink: "https://github.com/CidQueiroz/PBI_Portfolio/tree/main/Estatisticas",
+                iframeUrl: "https://app.powerbi.com/view?r=eyJrIjoiZjQ0MTU3MzMtOWQ1My00NmNiLTg3MGItMTUzNDViYWZhMjgzIiwidCI6ImY0MTE4N2VhLTlkNmItNDNlNy04YjNiLWU1NmFmNjQ4N2IwYSJ9"
+            },
+            {
+                title: "Dashboard de Linguagem R",
+                thumbnail: "PBI_Portfolio/thumb_linguagem_r.png",
+                description: "Este projeto demonstra a integração avançada entre a linguagem R e o Microsoft Power BI para realizar análises preditivas e visualizar os resultados de forma interativa.",
+                githubLink: "https://github.com/CidQueiroz/PBI_Portfolio/tree/main/LinguagemR",
+                iframeUrl: "https://app.powerbi.com/view?r=eyJrIjoiZDE4ZTE4ZWEtM2Y0ZC00ZTVkLTk3NTUtODk3NzkzOWM3MGZlIiwidCI6ImY0MTE4N2VhLTlkNmItNDNlNy04YjNiLWU1NmFmNjQ4N2IwYSJ9"
+            },
+            {
+                title: "Dashboard de Limpeza de dados",
+                thumbnail: "PBI_Portfolio/thumb_limpeza.png",
+                description: "Este projeto apresenta um dashboard para análise de dados de pacientes, permitindo a exploração de informações demográficas e de saúde.",
+                githubLink: "https://github.com/CidQueiroz/PBI_Portfolio/tree/main/DadosPacientes",
+                iframeUrl: "https://app.powerbi.com/view?r=eyJrIjoiNGM2ZDUxZmMtNzg3Yi00NTY1LWFiZDMtYmIzMWI3MjA1ZWMyIiwidCI6ImY0MTE4N2VhLTlkNmItNDNlNy04YjNiLWU1NmFmNjQ4N2IwYSJ9"
+            },
+        
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const gallery = document.getElementById('gallery');
+            const modal = document.getElementById('projectModal');
+            const closeModal = document.querySelector('.close-button');
+
+            // Popula a galeria com os projetos
+            projects.forEach((project, index) => {
+                const card = document.createElement('div');
+                card.className = 'project-card';
+                card.dataset.index = index; // Adiciona um identificador
+                
+                card.innerHTML = `
+                    <img src="${project.thumbnail}" alt="Thumbnail do projeto ${project.title}">
+                    <div class="project-info">
+                        <p>${project.description.substring(0, 100)}...</p>
+                    </div>
+                `;
+                
+                gallery.appendChild(card);
+            });
+
+            // Adiciona o evento de clique para abrir o modal
+            gallery.addEventListener('click', (e) => {
+                const card = e.target.closest('.project-card');
+                if (card) {
+                    const projectIndex = card.dataset.index;
+                    const projectData = projects[projectIndex];
+                    
+                    document.getElementById('modal-title').innerText = projectData.title;
+                    document.getElementById('modal-description').innerText = projectData.description;
+                    document.getElementById('modal-github-link').href = projectData.githubLink;
+                    
+                    const iframeContainer = document.getElementById('modal-iframe-container');
+                    if(projectData.iframeUrl !== "URL_DO_SEU_IFRAME_PUBLICADO_AQUI") {
+                        iframeContainer.innerHTML = `<iframe title="${projectData.title}" src="${projectData.iframeUrl}" frameborder="0" allowFullScreen="true"></iframe>`;
+                    } else {
+                        iframeContainer.innerHTML = `<p style="text-align:center; padding: 50px;">O dashboard interativo será exibido aqui.</p>`;
+                    }
+                    
+                    modal.style.display = 'flex';
+                }
+            });
+
+            // Fecha o modal
+            const close = () => modal.style.display = 'none';
+            closeModal.addEventListener('click', close);
+            window.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    close();
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

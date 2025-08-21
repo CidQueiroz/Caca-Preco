@@ -7,19 +7,40 @@ import Notification from '../components/Notification';
 import Constants from 'expo-constants';
 
 const TelaDashboardVendedor = ({ navigation }) => {
-  const { token, user } = useContext(AuthContext);
-  const userName = user?.NomeResponsavel || 'Usuário';
+  const { token, usuario } = useContext(AuthContext);
+  const [perfilVendedor, setPerfilVendedor] = useState(null);
+  const userName = perfilVendedor?.nome_responsavel || 'Usuário';
   const [avaliacoes, setAvaliacoes] = useState([]);
   const [loadingAvaliacoes, setLoadingAvaliacoes] = useState(true);
   const [showSuggestionForm, setShowSuggestionForm] = useState(false);
   const [suggestionText, setSuggestionText] = useState('');
   const [notification, setNotification] = useState({ message: '', type: '' });
-  const [error, setError] = useState(null); // Added error state
+  const [error, setError] = useState(null);
   const apiUrl = Constants.expoConfig.extra.apiUrl;
 
-  const showNotification = (message, type) => {
-    setNotification({ message, type });
-  };
+  useEffect(() => {
+    const fetchPerfil = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/api/perfil/`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (response.data && response.data.nome_responsavel) {
+          setPerfilVendedor(response.data.nome_responsavel);
+        } else if (user?.email) { // Fallback para o email se nome_loja não estiver disponível
+          setPerfilVendedor(user.email);
+        }
+      } catch (err) {
+        console.error('Falha ao buscar perfil do vendedor:', err);
+        if (user?.email) {
+          setSellerName(user.email);
+        }
+      }
+    };
+
+    if (token && usuario?.tipo_usuario === 'Vendedor') { // Changed tipoUsuario to tipo_usuario
+      fetchPerfil();
+    }
+  }, [token, usuario]);
 
   const handleSendSuggestion = async () => {
     if (!suggestionText.trim()) {
@@ -27,7 +48,7 @@ const TelaDashboardVendedor = ({ navigation }) => {
       return;
     }
     try {
-      await axios.post(`${apiUrl}/usuarios/suggestions`, { suggestion: suggestionText }, {
+      await axios.post(`${apiUrl}/api/sugestoes/`, { texto: suggestionText }, { // Updated endpoint and payload
         headers: { Authorization: `Bearer ${token}` }
       });
       showNotification('Sugestão enviada com sucesso!', 'success');
@@ -36,7 +57,7 @@ const TelaDashboardVendedor = ({ navigation }) => {
     } catch (err) {
       showNotification('Falha ao enviar sugestão.', 'error');
       console.error(err);
-      setError('Falha ao buscar suas avaliações.'); // Set error state here
+      setError('Falha ao buscar suas avaliações.');
     }
   };
 
@@ -47,14 +68,14 @@ const TelaDashboardVendedor = ({ navigation }) => {
   useEffect(() => {
     const fetchAvaliacoes = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/usuarios/avaliacoes`, {
+        const response = await axios.get(`${apiUrl}/api/avaliacoes/`, { // Updated endpoint
           headers: { Authorization: `Bearer ${token}` }
         });
         setAvaliacoes(response.data);
       } catch (err) {
         showNotification('Falha ao buscar suas avaliações.', 'error');
         console.error(err);
-        setError('Falha ao buscar suas avaliações.'); // Set error state here
+        setError('Falha ao buscar suas avaliações.');
       }
       setLoadingAvaliacoes(false);
     };

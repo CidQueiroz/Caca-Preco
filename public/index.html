@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    
+    <head>
+        
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        
+        <link rel="icon" type="image/png" href="PBI/Assets/favicon.png">        
+        
+        <title>CDK TECK - Soluções Tecnológicas</title>
+        
+        <style>
+            
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            html, body {
+                width: 100%;
+                height: 100%;
+                overflow-x: hidden; /* CRÍTICO: Impede scroll horizontal */
+            }
+
+            body {
+                background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+                min-height: 100vh;
+                font-family: 'Arial', sans-serif;
+                position: relative;
+            }
+
+            /* Partículas flutuantes de fundo */
+            .particles {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+            }
+
+            .particle {
+                position: absolute;
+                width: 2px;
+                height: 2px;
+                background: rgba(0, 255, 255, 0.6);
+                border-radius: 50%;
+                animation: float 6s infinite linear;
+            }
+
+            @keyframes float {
+                0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+                10% { opacity: 1; }
+                90% { opacity: 1; }
+                100% { transform: translateY(-10px) rotate(360deg); opacity: 0; }
+            }
+
+            .container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                position: relative;
+                z-index: 10;
+                width: 100%; /* Garante que o container ocupe toda a largura */
+            }
+
+            .logo-container {
+                position: relative;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 90vw;
+                max-width: 600px;
+                aspect-ratio: 1 / 1;
+            }
+            
+            .brain-core {
+                width: 100%; 
+                height: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: relative;
+                animation: pulse 4s infinite;
+            }
+
+            @keyframes pulse {
+                0%, 100% { 
+                    filter: drop-shadow(0 0 20px rgba(78, 205, 196, 0.4));
+                }
+                50% { 
+                    filter: drop-shadow(0 0 40px rgba(78, 205, 196, 0.8));
+                }
+            }
+
+            .logo-image {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                max-width: 100%;
+                max-height: 100%;
+            }
+
+            /* Circuitos conectores */
+            .circuit {
+                position: absolute;
+                background: linear-gradient(90deg, 
+                    rgba(255, 107, 53, 0.8), 
+                    rgba(78, 205, 196, 0.8), 
+                    rgba(255, 107, 53, 0.8)
+                );
+                height: 4px;
+                transform-origin: center;
+                animation: circuitFlow 3s infinite;
+                border-radius: 2px;
+                box-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
+            }
+
+            @keyframes circuitFlow {
+                0%, 100% { 
+                    background: linear-gradient(90deg, 
+                        rgba(255, 107, 53, 0.6), 
+                        rgba(78, 205, 196, 0.6), 
+                        rgba(255, 107, 53, 0.6)
+                    );
+                    box-shadow: 0 0 10px rgba(78, 205, 196, 0.3);
+                }
+                50% { 
+                    background: linear-gradient(90deg, 
+                        rgba(255, 107, 53, 1), 
+                        rgba(78, 205, 196, 1), 
+                        rgba(255, 107, 53, 1)
+                    );
+                    box-shadow: 0 0 20px rgba(78, 205, 196, 0.8);
+                }
+            }
+
+            /* Botões nos pontos dos circuitos */
+            .circuit-point {
+                position: absolute;
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                background: radial-gradient(circle, #00ffff, #4ecdc4, #2980b9);
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 
+                    0 0 15px rgba(0, 255, 255, 0.6),
+                    inset 0 2px 4px rgba(255, 255, 255, 0.2);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-size: 10px;
+                color: white;
+                font-weight: bold;
+                border: 2px solid rgba(0, 255, 255, 0.5);
+                z-index: 100;
+            }
+
+            .circuit-point:hover {
+                transform: scale(1.4);
+                box-shadow: 
+                    0 0 30px rgba(0, 255, 255, 1),
+                    inset 0 2px 8px rgba(255, 255, 255, 0.3);
+                background: radial-gradient(circle, #ffffff, #00ffff, #4ecdc4);
+            }
+
+            .circuit-point:active {
+                transform: scale(1.2);
+            }
+
+            /* --- ESTILOS CORRIGIDOS PARA ANIMAÇÃO DAS LOGOS LATERAIS --- */
+            .animated-logo {
+                position: fixed; /* Mudança para fixed para posicionamento absoluto na tela */
+                top: 50%;
+                max-width: 200px;
+                height: auto;
+                opacity: 0;
+                z-index: 100;
+                transition: all 5s cubic-bezier(0.23, 1, 0.32, 1);
+            }
+
+            /* CORREÇÃO: Posições iniciais que não causam overflow */
+            .cdk-logo {
+                left: 10%; /* Posição final à esquerda */
+                transform: translateX(-300%) translateY(-50%); /* Começa fora da tela */
+            }
+
+            .teck-logo {
+                right: 10%; /* Posição final à direita */
+                transform: translateX(300%) translateY(-50%); /* Começa fora da tela */
+            }
+
+            /* Quando carregado, apenas muda o transform e opacity */
+            body.loaded .cdk-logo {
+                opacity: 1;
+                transform: translateX(0%) translateY(-50%); /* Desliza para a posição final */
+            }
+
+            body.loaded .teck-logo {
+                opacity: 1;
+                transform: translateX(0%) translateY(-50%); /* Desliza para a posição final */
+            }
+
+            /* Título */
+            .title {
+                position: absolute;
+                bottom: -80px;
+                left: 50%;
+                transform: translateX(-50%);
+                font-size: 42px;
+                font-weight: bold;
+                background: linear-gradient(45deg, #ff6b35, #4ecdc4, #3498db);
+                -webkit-background-clip: text;
+                background-clip: text;
+                -webkit-text-fill-color: transparent;
+                text-shadow: 0 0 30px rgba(78, 205, 196, 0.5);
+                letter-spacing: 8px;
+                animation: titleGlow 3s infinite alternate;
+            }
+
+            @keyframes titleGlow {
+                from { filter: drop-shadow(0 0 10px rgba(78, 205, 196, 0.3)); }
+                to { filter: drop-shadow(0 0 20px rgba(78, 205, 196, 0.6)); }
+            }
+
+            /* Modal para informações (VERSÃO MELHORADA) */
+            .modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                z-index: 1000;
+                backdrop-filter: blur(8px);
+                opacity: 0;
+                transition: opacity 0.4s ease;
+                padding: 20px;
+            }
+
+            .modal.show {
+                opacity: 1;
+            }
+
+            .modal-content {
+                position: relative;
+                margin: 8vh auto; /* Centraliza verticalmente com margem */
+                background: linear-gradient(135deg, #1a1a2e, #16213e, #2c3e50);
+                padding: 40px;
+                border-radius: 20px;
+                border: 2px solid #4ecdc4;
+                width: 95%; /* Largura fluida */
+                max-width: 650px; /* Maior no desktop */
+                text-align: center;
+                box-shadow: 
+                    0 0 60px rgba(78, 205, 196, 0.3),
+                    inset 0 0 50px rgba(0, 0, 0, 0.5);
+                transform: scale(0.95); /* Efeito de entrada */
+                transition: transform 0.4s ease;
+            }
+
+            .modal.show .modal-content {
+                transform: scale(1);
+            }
+
+            .modal h2 {
+                color: #4ecdc4;
+                margin-bottom: 20px;
+                font-size: 28px;
+                text-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
+            }
+
+            .modal p {
+                color: #ffffff;
+                line-height: 1.6;
+                margin-bottom: 30px;
+                font-size: 16px;
+            }
+
+            .close-modal {
+                background: linear-gradient(45deg, #ff6b35, #4ecdc4);
+                border: none;
+                padding: 12px 25px;
+                border-radius: 25px;
+                color: white;
+                cursor: pointer;
+                font-weight: bold;
+                transition: all 0.3s ease;
+                font-size: 16px;
+                box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+            }
+
+            .close-modal:hover {
+                transform: scale(1.05);
+                box-shadow: 0 6px 20px rgba(78, 205, 196, 0.5);
+            }
+
+            /* Responsivo */
+            @media (max-width: 900px) {
+                .logo-container {
+                    width: 95vw; /* Ocupa quase toda a largura */
+                    max-width: 450px; /* Um bom tamanho máximo para mobile */
+                }
+
+                .animated-logo {
+                    position: absolute;
+                    max-width: 120px;
+                    opacity: 0;
+                    transition: all 2s ease;
+                }
+                
+                .cdk-logo {
+                    top: -15%;
+                    left: 50%;
+                    transform: translateX(-50%) translateY(-100%);
+                }
+
+                .teck-logo {
+                    bottom: -15%;
+                    right: 50%;
+                    top: auto;
+                    transform: translateX(50%) translateY(100%);
+                }
+
+                /* Regras para a animação de entrada em mobile */
+                body.loaded .cdk-logo {
+                    opacity: 1;
+                    transform: translateX(-50%) translateY(0%);
+                }
+
+                body.loaded .teck-logo {
+                    opacity: 1;
+                    transform: translateX(50%) translateY(0%);
+                }
+                
+                .title {
+                    font-size: 24px;
+                    letter-spacing: 4px;
+                }
+            }
+
+            @media (max-width: 600px) {
+                .animated-logo {
+                    max-width: 110px; /* Menor em telas muito pequenas */
+                }
+                
+                .cdk-logo {
+                    top: -12%;
+                }
+                
+                .teck-logo {
+                    bottom: -12%;
+                }
+                
+                .title {
+                    font-size: 20px;
+                    letter-spacing: 2px;
+                    bottom: -50px;
+                }
+
+                .circuit-point {
+                    width: 20px;
+                    height: 20px;
+                    font-size: 9px;
+                }
+            }
+
+            /* --- Estilos Refinados para o Modal de Contato com Flexbox --- */
+            .contact-modal-content {
+                display: flex; /* ATIVA O FLEXBOX */
+                flex-direction: column; /* Organiza os itens em uma coluna vertical */
+                align-items: center; /* Centraliza todos os itens horizontalmente */
+                padding: 40px;
+                padding-top: 80px; /* Aumenta o espaço no topo para a foto */
+                position: relative; /* Necessário para a foto se posicionar corretamente */
+                margin-bottom: 20px; /* ADICIONE ESTA LINHA */
+            }
+
+            .profile-pic {
+                width: 120px;
+                height: 120px;
+                border-radius: 50%;
+                border: 4px solid #4ecdc4;
+                position: absolute; /* Mantém a foto "flutuando" */
+                top: -60px;
+                left: 50%;
+                transform: translateX(-50%);
+                object-fit: cover;
+                background-color: #16213e;
+            }
+
+            #contact-title {
+                margin-bottom: 20px; /* Espaço abaixo do seu nome */
+            }
+
+            #contact-description {
+                /* AJUSTES NO TEXTO */
+                text-align: justify; /* Alinhamento justificado como você pediu */
+                max-width: 90%; /* Evita que o texto fique muito largo */
+                line-height: 1.7; /* Melhora a legibilidade */
+                margin-bottom: 30px; /* Espaço abaixo do parágrafo */
+                color: #E0E0E0;
+            }
+
+            .social-links {
+                display: flex;
+                justify-content: center;
+                align-items: flex-start;
+                flex-wrap: wrap;
+                gap: 15px 20px;
+                margin-bottom: 30px; /* Espaço abaixo dos ícones */
+                width: 100%; /* Garante que o container de links ocupe a largura */
+            }
+
+            .social-link-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-decoration: none;
+                width: 70px;
+            }
+
+            .social-link-item i {
+                font-size: 2.2em;
+                margin-bottom: 8px;
+                color: #a0a0b0;
+                transition: all 0.3s ease;
+            }
+
+            .social-link-item span {
+                font-size: 11px;
+                color: #a0a0b0;
+                font-weight: bold;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                transition: all 0.3s ease;
+            }
+
+            /* Efeito Hover Aprimorado */
+            .social-link-item:hover i,
+            .social-link-item:hover span {
+                color: #4ecdc4; /* Muda a cor de ambos ao passar o mouse */
+                transform: scale(1.1); /* Aumenta um pouco o ícone no hover */
+            }
+            
+            .circuit-point.pulse {
+                animation: initialPulse 1s ease-in-out; /* Duração e tipo de animação */
+            }
+
+            @keyframes initialPulse {
+                0% { box-shadow: 0 0 10px rgba(78, 205, 196, 0.5); } /* Brilho inicial */
+                50% { box-shadow: 0 0 50px rgba(78, 205, 196, 0.8); } /* Brilho máximo */
+                100% { box-shadow: 0 0 10px rgba(78, 205, 196, 0.5); } /* Retorna ao brilho normal do hover */
+            }
+
+        </style>
+    
+</head>
+
+    <body>
+        <div class="particles" id="particles"></div>
+        
+        <div class="container">
+            
+            <div class="logo-container">
+                
+                <img src="PBI/Assets/CDK_borda.png" alt="CDK Logo" class="animated-logo cdk-logo">
+                
+                <img src="PBI/Assets/TECK_borda.png" alt="TECK Logo" class="animated-logo teck-logo">
+            
+                <div class="brain-core">
+                    
+                    <img class="logo-image" src="PBI/Assets/logo_metalico_sem_fundo.png" alt="CDK TECK Logo" />
+
+                </div>
+
+                <!-- Pontos clicáveis -->
+                <div class="circuit-point animated-circuit-point" id="automacao-button" title="Automação RPA" style="top: 13%; left: 50%; transform: translate(-50%, -50%);" onclick="openModal('automacao')">🤖</div>
+                
+                <div class="circuit-point animated-circuit-point" id="dados-button" title="Análise de Dados" style="top: 24%; left: 84%; transform: translate(-50%, -50%);" onclick="openModal('dados')">📊</div>
+                
+                <div class="circuit-point animated-circuit-point" id="python-button" title="Python/Django" style="top: 42%; left: 91%; transform: translate(-50%, -50%);" onclick="openModal('python')">PY</div>
+                
+                <div class="circuit-point animated-circuit-point" id="contato-button" title="Contato" style="top: 71%; left: 85%; transform: translate(-50%, -50%);" onclick="openContactModal()">👤</div>
+                
+                <div class="circuit-point animated-circuit-point" id="BI-button" title="Business Intelligence" style="top: 90%; left: 53%; transform: translate(-50%, -50%);" onclick="openModal('bi')">📊</div>
+                
+                <div class="circuit-point animated-circuit-point" id="integracao-button" title="Integrações" style="top: 81%; left: 23%; transform: translate(-50%, -50%);" onclick="openModal('integracao')">🔗</div>
+                
+                <div class="circuit-point animated-circuit-point" id="infra-button" title="Infraestrutura TI" style="top: 49%; left: 11%; transform: translate(-50%, -50%);" onclick="openModal('infraestrutura')">🖥️</div>
+                
+                <div class="circuit-point animated-circuit-point" id="suporte-button" title="Suporte Técnico" style="top: 31%; left: 18%; transform: translate(-50%, -50%);" onclick="openModal('suporte')">🛠️</div>
+            
+            </div>
+        
+        </div>
+
+        <!-- Modal -->
+        <div class="modal" id="modal">
+            
+            <div class="modal-content">
+                
+                <h2 id="modal-title"></h2>
+                
+                <p id="modal-description"></p>
+                
+                <button class="close-modal" onclick="closeModal()">Fechar</button>
+            
+            </div>
+        
+        </div>
+        
+        <!-- Modal de Contato -->
+        <div class="modal" id="contact-modal">
+            
+            <div class="modal-content contact-modal-content">
+                
+                <img src="PBI/Assets/foto.jpg" alt="Sua Foto" class="profile-pic">
+                
+                <h2 id="contact-title">Cid Queiroz</h2>
+                
+                <p id="contact-description">Olá! 👋 Sou Cidirclay Queiroz. Formado em Ciências da Computação e com sólida base em Análise de Dados, Machine Learning e Deep Learning, minha especialidade é transformar dados em insights acionáveis. Atuo como Programador Python criando dashboards estratégicos em Power BI , automatizando análises com Pandas e desenvolvendo sistemas back-end  que dão vida aos dados.</p>
+                
+                <div class="social-links">
+                    
+                    <a href="https://www.linkedin.com/in/ciddy-queiroz/" target="_blank" class="social-link-item">
+                        <i class="fab fa-linkedin"></i>
+                        <span>LinkedIn</span>
+                    </a>
+                    
+                    <a href="https://github.com/CidQueiroz" target="_blank" class="social-link-item">
+                        <i class="fab fa-github"></i>
+                        <span>GitHub</span>
+                    </a>
+                    
+                    <a href="https://api.whatsapp.com/send?phone=5521971583118" target="_blank" class="social-link-item">
+                        <i class="fab fa-whatsapp"></i>
+                        <span>WhatsApp</span>
+                    </a>
+                    
+                    <a href="https://www.instagram.com/ciddyqueiroz/" target="_blank" class="social-link-item">
+                        <i class="fab fa-instagram"></i>
+                        <span>Instagram</span>
+                    </a>
+                    
+                    <a href="https://www.facebook.com/cyrd.queiroz/" target="_blank" class="social-link-item">
+                        <i class="fab fa-facebook"></i>
+                        <span>Facebook</span>
+                    </a>
+                    
+                    <a href="PBI/Assets/curriculo.pdf" download class="social-link-item">
+                        <i class="fas fa-download"></i>
+                        <span>Currículo</span>
+                    </a>
+                
+                </div>
+    
+                <button class="close-modal" onclick="closeContactModal()">Fechar</button>
+
+        
+            </div>
+        
+        </div>
+
+        <script>
+            // Criar partículas de fundo
+            function createParticles() {
+                const particles = document.getElementById('particles');
+                for (let i = 0; i < 60; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.animationDelay = Math.random() * 6 + 's';
+                    particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
+                    particles.appendChild(particle);
+                }
+            }
+
+            // Dados para cada seção
+            const modalData = {
+                python: {
+                    title: "Python & Django",
+                    description: "Desenvolvimento de aplicações web robustas e escaláveis usando Python e Django. Criação de APIs REST, sistemas de gestão e automação de processos com as melhores práticas de programação.",
+                    redirectUrl: "https://registrosqueiroz.streamlit.app/"
+                },
+                dados: {
+                    title: "Análise de Dados",
+                    description: "Transformação de dados em insights valiosos usando Pandas, NumPy e ferramentas de visualização. Criação de dashboards e relatórios que auxiliam na tomada de decisões estratégicas."
+                },
+                automacao: {
+                    title: "Automação RPA",
+                    description: "Automação de processos repetitivos e integração de sistemas. Desenvolvimento de bots e scripts que otimizam workflows e aumentam a produtividade empresarial."
+                },
+                suporte: {
+                    title: "Suporte Técnico",
+                    description: "Suporte técnico especializado em infraestrutura de TI, resolução de problemas e manutenção de sistemas. Atendimento ágil e soluções eficazes para manter sua operação funcionando."
+                },
+                infraestrutura: {
+                    title: "Infraestrutura TI",
+                    description: "Planejamento, implementação e manutenção de infraestrutura tecnológica. Servidores, redes, segurança e backup para garantir a continuidade do seu negócio."
+                },
+                integracao: {
+                    title: "Integrações",
+                    description: "Integração de sistemas e APIs para conectar diferentes plataformas. Sincronização de dados e automação de fluxos entre aplicações empresariais."
+                },
+                bi: {
+                    title: "Business Intelligence",
+                    description: "Desenvolvimento de soluções de BI com Power BI e ferramentas de análise. Criação de dashboards executivos e relatórios que transformam dados em estratégia.",
+                    redirectUrl: "PBI/portfolio.html"
+                },
+                consultoria: {
+                    title: "Consultoria Tech",
+                    description: "Consultoria especializada em transformação digital e otimização de processos. Análise de necessidades e implementação de soluções tecnológicas customizadas."
+                }
+            };
+
+            function openModal(section) {
+                const modal = document.getElementById('modal');
+                const title = document.getElementById('modal-title');
+                const description = document.getElementById('modal-description');
+                
+                const data = modalData[section];
+                title.textContent = data.title;
+                description.textContent = data.description;
+                
+                modal.style.display = 'block';
+
+                if (data.redirectUrl) {
+                    const closeButton = document.querySelector('.close-modal');
+                    closeButton.textContent = 'Redirecionando em 3 segundos...';
+
+                    setTimeout(function() {
+                        window.location.href = data.redirectUrl;
+                    }, 3000);
+                } else {
+                    const closeButton = document.querySelector('.close-modal');
+                    closeButton.textContent = 'Fechar';
+                }
+
+                setTimeout(() => {
+                    modal.style.opacity = '1';
+                }, 10);
+            }
+
+            function closeModal() {
+                const modal = document.getElementById('modal');
+                modal.style.display = 'none';
+            }
+
+            // Novas funções para o modal de contato
+            function openContactModal() {
+                const modal = document.getElementById('contact-modal');
+                modal.style.display = 'flex';
+                setTimeout(() => modal.classList.add('show'), 10);
+            }
+
+            function closeContactModal() {
+                const modal = document.getElementById('contact-modal');
+                modal.classList.remove('show');
+                setTimeout(() => modal.style.display = 'none', 400);
+            }
+
+            // Fechar modais clicando fora
+            window.onclick = function(event) {
+                if (event.target.classList.contains('modal')) {
+                    closeModal();
+                    closeContactModal();
+                }
+            }
+
+            // Inicialização da página
+            document.addEventListener('DOMContentLoaded', function() {
+                createParticles();
+
+                // Inicia a animação após um pequeno delay
+                setTimeout(function() {
+                    document.body.classList.add('loaded');
+                }, 500); // Aumentei para 500ms para dar tempo das imagens carregarem
+            });
+
+            // Efeito de hover nos pontos
+            document.querySelectorAll('.circuit-point').forEach(point => {
+                point.addEventListener('mouseenter', function() {
+                    this.style.animation = 'none';
+                    setTimeout(() => {
+                        this.style.animation = 'pulse 0.5s infinite alternate';
+                    }, 10);
+                });
+                
+                point.addEventListener('mouseleave', function() {
+                    this.style.animation = 'none';
+                });
+            });
+            
+            // Animação de pulso sequencial
+            document.addEventListener('DOMContentLoaded', function() {
+                const circuitPoints = document.querySelectorAll('.animated-circuit-point');
+                const delayStep = 150; // Atraso em milissegundos entre cada pulso
+                const pulseDuration = 1000; // Duração do pulso em si (1s)
+
+                circuitPoints.forEach((point, index) => {
+                // Agenda o início do pulso para cada ponto com um atraso crescente
+                setTimeout(() => {
+                    point.classList.add('pulse');
+
+                    // Agenda a remoção do pulso após sua duração
+                    setTimeout(() => {
+                    point.classList.remove('pulse');
+                    }, pulseDuration);
+
+                }, index * delayStep);
+                });
+            });
+        
+        </script>
+
+    </body>
+
+</html>

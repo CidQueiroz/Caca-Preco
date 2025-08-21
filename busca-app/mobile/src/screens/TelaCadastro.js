@@ -7,7 +7,6 @@ import { globalStyles, cores, fontes } from '../styles/globalStyles';
 import MainLayout from '../components/MainLayout';
 
 const TelaCadastro = ({ navigation }) => {
-    const [nome, setNome] = useState('');
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
     const [tipoUsuario, setTipoUsuario] = useState('Cliente');
@@ -15,13 +14,13 @@ const TelaCadastro = ({ navigation }) => {
     const handleRegistro = async () => {
         try {
             const apiUrl = Constants.expoConfig.extra.apiUrl;
-            const response = await axios.post(`${apiUrl}/autenticacao/cadastro`, {
+            const response = await axios.post(`${apiUrl}/api/register/`, {
                 email,
-                senha,
-                tipoUsuario,
+                password: senha,
+                tipo_usuario: tipoUsuario,
             });
-            Alert.alert('Sucesso!', 'Seu cadastro inicial foi realizado. Vamos completar seu perfil.');
-            navigation.navigate('TelaCompletarPerfil', { idUsuario: response.data.idUsuario, tipoUsuario: response.data.tipoUsuario, email: email });
+            Alert.alert('Sucesso!', 'Seu cadastro inicial foi realizado. Um e-mail de verificação foi enviado. Por favor, verifique sua caixa de entrada.');
+            navigation.navigate('TelaVerificarEmail', { email: email });
         } catch (error) {
             console.error('Erro de registro:', error.response ? error.response.data : error.message);
             Alert.alert('Erro no Cadastro', error.response ? error.response.data.message : 'Não foi possível realizar o cadastro. Tente novamente.');
@@ -34,14 +33,6 @@ const TelaCadastro = ({ navigation }) => {
                 <Text style={styles.title}>Crie sua Conta</Text>
                 <Text style={styles.subtitle}>É rápido, fácil e mágico!</Text>
 
-                <TextInput
-                    style={styles.input}
-                    placeholder="Seu nome completo"
-                    placeholderTextColor={cores.hover}
-                    value={nome}
-                    onChangeText={setNome}
-                    autoCapitalize="words"
-                />
                 <TextInput
                     style={styles.input}
                     placeholder="Seu melhor e-mail"
