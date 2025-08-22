@@ -1,5 +1,8 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from .permissions import IsAdminUser, IsCliente
 from .views import (
     UserCreateView, 
     MyTokenObtainPairView, 
@@ -21,9 +24,22 @@ from .views import (
     RedefinirSenhaView,
     VerificarEmailView,
     ReenviarVerificacaoView,
-    VariacaoCreateView
+    VariacaoCreateView,
+    MonitoramentoView
 )
 from rest_framework_simplejwt.views import TokenRefreshView
+
+class AdminTestView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        return Response({"message": "You are an admin"})
+
+class ClienteTestView(APIView):
+    permission_classes = [IsCliente]
+
+    def get(self, request):
+        return Response({"message": "You are a cliente"})
 
 router = DefaultRouter()
 # Rotas antigas
@@ -54,5 +70,8 @@ urlpatterns = [
     path('recuperar-senha/', RecuperarSenhaView.as_view(), name='recuperar_senha'),
     path('redefinir-senha/<uuid:token>/', RedefinirSenhaView.as_view(), name='redefinir_senha'),
     path('verificar-email/<uuid:token>/', VerificarEmailView.as_view(), name='verificar_email'),
-    path('reenviar-verificacao/', ReenviarVerificacaoView.as_view(), name='reenviar_verificacao')
-]
+    path('reenviar-verificacao/', ReenviarVerificacaoView.as_view(), name='reenviar_verificacao'),
+    path('admin-test/', AdminTestView.as_view(), name='admin-test'),
+    path('cliente-test/', ClienteTestView.as_view(), name='cliente-test'),
+    path('monitoramento/', MonitoramentoView.as_view(), name='monitoramento'),
+    ]

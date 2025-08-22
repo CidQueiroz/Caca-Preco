@@ -32,6 +32,10 @@ class IsOwnerOrReadOnly(BasePermission):
             return True
 
         # A permissão de escrita só é concedida ao proprietário do objeto.
-        # Assumimos que o objeto tem um atributo 'usuario'.
-        return obj.usuario == request.user
+        # Verificamos se o objeto tem um atributo 'usuario' ou 'vendedor.usuario'.
+        if hasattr(obj, 'usuario'):
+            return obj.usuario == request.user
+        if hasattr(obj, 'vendedor') and hasattr(obj.vendedor, 'usuario'):
+            return obj.vendedor.usuario == request.user
+        return False
 

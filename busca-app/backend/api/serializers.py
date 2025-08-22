@@ -1,4 +1,5 @@
 from rest_framework import serializers
+
 from .models import (
     Usuario, CategoriaLoja, SubcategoriaProduto, Produto, Atributo, ValorAtributo, SKU, ImagemSKU,
     OfertaProduto, Vendedor, AvaliacaoLoja, Cliente, Endereco, ProdutosMonitoradosExternos, Sugestao
@@ -6,15 +7,13 @@ from .models import (
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.conf import settings # Importar settings
 
-# --- SERIALIZERS DE AUTENTICAÇÃO E USUÁRIO ---
-
 class UserSerializer(serializers.ModelSerializer):
     senha = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
 
     class Meta:
         model = Usuario
-        fields = ['id', 'email', 'senha', 'tipo_usuario']
-        read_only_fields = ['id']
+        fields = ['id', 'email', 'senha', 'tipo_usuario', 'token_verificacao']
+        read_only_fields = ['id', 'token_verificacao']
 
     def create(self, validated_data):
         """
@@ -47,8 +46,6 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer): # CORRIGIDO: Era T
         }
         return data
 
-# --- NOVOS SERIALIZERS PARA A ESTRUTURA DE SKU ---
-
 class AtributoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Atributo
@@ -73,8 +70,6 @@ class SKUSerializer(serializers.ModelSerializer):
         model = SKU
         fields = ['id', 'produto', 'codigo_sku', 'valores', 'imagens']
 
-# --- SERIALIZERS PRINCIPAIS DO MARKETPLACE (ATUALIZADOS) ---
-
 class ProdutoSerializer(serializers.ModelSerializer):
     # Aninha os SKUs para detalhar o produto
     skus = SKUSerializer(many=True, read_only=True)
@@ -95,8 +90,6 @@ class OfertaProdutoSerializer(serializers.ModelSerializer):
         fields = ['id', 'vendedor', 'sku', 'sku_id', 'preco', 'quantidade_disponivel', 'ativo']
         read_only_fields = ['vendedor']
 
-# --- OUTROS SERIALIZERS (sem grandes alterações) ---
-
 class CategoriaLojaSerializer(serializers.ModelSerializer):
     class Meta:
         model = CategoriaLoja
@@ -114,7 +107,7 @@ class EnderecoSerializer(serializers.ModelSerializer):
 
 class ClienteSerializer(serializers.ModelSerializer):
     usuario = UserSerializer(read_only=True)
-    endereco = EnderecoSerializer(required=False)
+    endereco = EnderecoSerializer(required=False, allow_null=True)
 
     class Meta:
         model = Cliente
@@ -122,7 +115,7 @@ class ClienteSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         endereco_data = validated_data.pop('endereco', None)
-        user = self.context['request'].user
+        user = self.context['request'].user # Revert to getting user from context
         cliente = Cliente.objects.create(usuario=user, **validated_data)
         if endereco_data:
             endereco = Endereco.objects.create(**endereco_data)
@@ -131,15 +124,12 @@ class ClienteSerializer(serializers.ModelSerializer):
         return cliente
 
     def update(self, instance, validated_data):
-        print("VendedorSerializer update: validated_data antes do pop", validated_data)
         endereco_data = validated_data.pop('endereco', None)
-        print("VendedorSerializer update: validated_data depois do pop", validated_data)
 
-        # Update Vendedor fields
+        # Update Cliente fields
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
-        print("VendedorSerializer update: instance.save() chamado")
 
         # Update or create Endereco
         if endereco_data:
@@ -147,21 +137,18 @@ class ClienteSerializer(serializers.ModelSerializer):
                 for attr, value in endereco_data.items():
                     setattr(instance.endereco, attr, value)
                 instance.endereco.save()
-                print("VendedorSerializer update: endereco.save() chamado")
             else:
                 endereco = Endereco.objects.create(**endereco_data)
                 instance.endereco = endereco
                 instance.save()
-                print("VendedorSerializer update: novo endereco criado e salvo")
         elif instance.endereco: # If endereco_data is None but instance.endereco exists, delete it
             instance.endereco.delete()
-            print("VendedorSerializer update: endereco deletado")
 
         return instance
 
 class VendedorSerializer(serializers.ModelSerializer):
     usuario = UserSerializer(read_only=True)
-    endereco = EnderecoSerializer(required=False)
+    endereco = EnderecoSerializer(required=False, allow_null=True)
 
     class Meta:
         model = Vendedor
@@ -178,15 +165,12 @@ class VendedorSerializer(serializers.ModelSerializer):
         return vendedor
 
     def update(self, instance, validated_data):
-        print("VendedorSerializer update: validated_data antes do pop", validated_data)
         endereco_data = validated_data.pop('endereco', None)
-        print("VendedorSerializer update: validated_data depois do pop", validated_data)
 
         # Update Vendedor fields
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
-        print("VendedorSerializer update: instance.save() chamado")
 
         # Update or create Endereco
         if endereco_data:
@@ -194,15 +178,12 @@ class VendedorSerializer(serializers.ModelSerializer):
                 for attr, value in endereco_data.items():
                     setattr(instance.endereco, attr, value)
                 instance.endereco.save()
-                print("VendedorSerializer update: endereco.save() chamado")
             else:
                 endereco = Endereco.objects.create(**endereco_data)
                 instance.endereco = endereco
                 instance.save()
-                print("VendedorSerializer update: novo endereco criado e salvo")
         elif instance.endereco: # If endereco_data is None but instance.endereco exists, delete it
             instance.endereco.delete()
-            print("VendedorSerializer update: endereco deletado")
 
         return instance
 
@@ -220,10 +201,9 @@ class SugestaoSerializer(serializers.ModelSerializer):
 class ProdutosMonitoradosExternosSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProdutosMonitoradosExternos
-        fields = '__all__'
-        read_only_fields = ['vendedor']
-
-# --- SERIALIZER CUSTOMIZADO PARA A TELA 'MEUS PRODUTOS' ---
+        # Incluímos todos os campos para retornar o objeto completo ao frontend
+        fields = ['id', 'vendedor', 'url_produto', 'nome_produto', 'preco_atual', 'ultima_coleta']
+        read_only_fields = ['vendedor', 'ultima_coleta'] # Removed nome_produto and preco_atual
 
 class MeusProdutosSerializer(serializers.ModelSerializer):
     nome_produto = serializers.CharField(source='sku.produto.nome', read_only=True)

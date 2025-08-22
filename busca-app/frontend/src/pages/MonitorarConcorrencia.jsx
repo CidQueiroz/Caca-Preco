@@ -16,12 +16,15 @@ const MonitorarConcorrencia = () => {
     setResultado(null);
 
     try {
-      const response = await axios.post('/monitor/add-url', { url }, {
+      // ATENÇÃO: Corrigindo a URL do endpoint para a que definimos no Django
+      const response = await axios.post('/api/monitoramento/', { url }, {
         headers: {
           Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json' // Boa prática adicionar
         },
       });
       setResultado(response.data);
+      console.log('Resultado do monitoramento:', resultado);
     } catch (error) {
       console.error('Erro ao monitorar URL:', error);
       setErro(error.response?.data?.message || 'Falha ao monitorar o produto. Verifique a URL e tente novamente.');
@@ -53,13 +56,13 @@ const MonitorarConcorrencia = () => {
       </form>
 
       {erro && <p className="message-error">{erro}</p>}
-
+      {/* Ajustando a exibição dos resultados para bater com o serializer do Django */}
       {resultado && (
         <div className="monitor-resultado">
           <h3>Resultado do Monitoramento:</h3>
           <p><strong>Produto:</strong> {resultado.nome_produto || 'N/A'}</p>
-          <p><strong>Preço Encontrado:</strong> R$ {resultado.preco || 'N/A'}</p>
-          <p><strong>Última Atualização:</strong> {new Date(resultado.data_coleta).toLocaleString()}</p>
+          <p><strong>Preço Encontrado:</strong> R$ {resultado.preco_atual || 'N/A'}</p>
+          <p><strong>Última Atualização:</strong> {new Date(resultado.ultima_coleta).toLocaleString()}</p>
           <p className="message-success">Produto adicionado para monitoramento contínuo!</p>
         </div>
       )}

@@ -1,4 +1,6 @@
+from django.http import Http404
 from rest_framework import viewsets, status, generics, serializers
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from .permissions import IsVendedor, IsCliente, IsOwnerOrReadOnly 
@@ -15,6 +17,10 @@ from django.conf import settings
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.parsers import MultiPartParser, FormParser
 import os
+from rest_framework import status
+from .models import Vendedor, ProdutosMonitoradosExternos
+from .serializers import ProdutosMonitoradosExternosSerializer
+from .scraper import scrape_product_data # Importamos nossa função
 
 # Modelos atualizados
 from .models import (
@@ -56,7 +62,7 @@ class MyTokenObtainPairView(TokenObtainPairView):
 class CategoriaLojaViewSet(viewsets.ModelViewSet):
     queryset = CategoriaLoja.objects.all()
     serializer_class = CategoriaLojaSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdminUser]
 
 class SubcategoriaProdutoViewSet(viewsets.ModelViewSet):
     queryset = SubcategoriaProduto.objects.all()
@@ -91,27 +97,40 @@ class ProdutoViewSet(viewsets.ModelViewSet):
         ).prefetch_related(
             'sku__valores__atributo',
             'sku__imagens'
-        )
+        ).order_by('sku__produto__nome') # Add ordering
         id_categoria = request.query_params.get('id_categoria')
         if id_categoria:
             ofertas = ofertas.filter(sku__produto__subcategoria__categoria_loja__id=id_categoria)
         serializer = MeusProdutosSerializer(ofertas, many=True, context={'request': request})
         return Response(serializer.data)
 
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser # Add JSONParser
+
 class OfertaProdutoViewSet(viewsets.ModelViewSet):
     queryset = OfertaProduto.objects.all()
     serializer_class = OfertaProdutoSerializer
-    permission_classes = [IsAuthenticated, IsVendedor]
-    parser_classes = [MultiPartParser, FormParser]
+    permission_classes = [IsAuthenticated, IsVendedor, IsOwnerOrReadOnly]
+    parser_classes = [MultiPartParser, FormParser, JSONParser] # Add JSONParser
+
+    def create(self, request, *args, **kwargs):
+        vendedor = get_object_or_404(Vendedor, usuario=self.request.user)
+        sku_id = request.data.get('sku_id')
+        if OfertaProduto.objects.filter(vendedor=vendedor, sku_id=sku_id).exists():
+            instance = OfertaProduto.objects.get(vendedor=vendedor, sku_id=sku_id)
+            serializer = self.get_serializer(instance, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            return Response(serializer.data)
+        else:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def perform_create(self, serializer):
         vendedor = get_object_or_404(Vendedor, usuario=self.request.user)
-        sku_id = serializer.validated_data.get('sku').id
-        if OfertaProduto.objects.filter(vendedor=vendedor, sku_id=sku_id).exists():
-            instance = OfertaProduto.objects.get(vendedor=vendedor, sku_id=sku_id)
-            serializer.update(instance, serializer.validated_data)
-        else:
-            serializer.save(vendedor=vendedor)
+        serializer.save(vendedor=vendedor)
 
     def perform_update(self, serializer):
         serializer.save()
@@ -135,15 +154,18 @@ class ClienteViewSet(viewsets.ModelViewSet):
     serializer_class = ClienteSerializer
     permission_classes = [IsOwnerOrReadOnly]
 
+    def get_queryset(self):
+        if self.request.user.is_authenticated:
+            if self.request.user.tipo_usuario == 'Cliente':
+                return Cliente.objects.filter(usuario=self.request.user)
+            elif self.request.user.is_staff:
+                return Cliente.objects.all()
+        return Cliente.objects.none()
+
 class EnderecoViewSet(viewsets.ModelViewSet):
     queryset = Endereco.objects.all()
     serializer_class = EnderecoSerializer
     permission_classes = [IsAuthenticated]
-
-class AvaliacaoLojaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AvaliacaoLoja
-        fields = '__all__'
 
 class AvaliacaoLojaViewSet(viewsets.ModelViewSet):
     queryset = AvaliacaoLoja.objects.all()
@@ -163,10 +185,45 @@ class ProdutosMonitoradosExternosViewSet(viewsets.ModelViewSet):
     serializer_class = ProdutosMonitoradosExternosSerializer
     permission_classes = [IsAuthenticated]
 
+    def create(self, request, *args, **kwargs):
+        # Se a requisição contém uma 'url', usamos a lógica de scraping.
+        if 'url' in request.data:
+            url = request.data.get('url') # Re-add this line
+
+            try:
+                vendedor = Vendedor.objects.get(usuario=request.user)
+            except Vendedor.DoesNotExist:
+                return Response({'message': 'Apenas vendedores podem monitorar produtos.'}, status=status.HTTP_403_FORBIDDEN)
+            
+            if ProdutosMonitoradosExternos.objects.filter(vendedor=vendedor, url_produto=url).exists():
+                return Response({'message': 'Você já está monitorando este produto.'}, status=status.HTTP_409_CONFLICT)
+
+            scraped_data = scrape_product_data(url)
+
+            if not scraped_data or not scraped_data.get('preco_atual'):
+                return Response({'message': 'Não foi possível extrair os dados do produto. O site pode ser incompatível ou estar indisponível.'}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+            
+            novo_produto = ProdutosMonitoradosExternos.objects.create(
+                vendedor=vendedor,
+                url_produto=url,
+                nome_produto=scraped_data.get('nome_produto', 'Nome não encontrado'),
+                preco_atual=scraped_data.get('preco_atual')
+            )
+            
+            serializer = self.get_serializer(novo_produto)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        # Caso contrário, usamos a criação padrão do ModelViewSet.
+        return super().create(request, *args, **kwargs)
+
     def get_queryset(self) -> QuerySet[ProdutosMonitoradosExternos]:
         if self.request.user.is_authenticated and self.request.user.tipo_usuario == 'Vendedor':
             return ProdutosMonitoradosExternos.objects.filter(vendedor__usuario=self.request.user)
         return ProdutosMonitoradosExternos.objects.none()
+
+    def perform_create(self, serializer):
+        vendedor = get_object_or_404(Vendedor, usuario=self.request.user)
+        serializer.save(vendedor=vendedor)
 
 class RecuperarSenhaView(generics.GenericAPIView):
     permission_classes = [AllowAny]
@@ -214,8 +271,9 @@ class VerificarEmailView(generics.GenericAPIView):
         try:
             user = Usuario.objects.get(token_verificacao=token)
             user.email_verificado = True
+            user.is_active = True
             user.token_verificacao = None
-            user.save(update_fields=['email_verificado', 'token_verificacao'])
+            user.save(update_fields=['email_verificado', 'is_active', 'token_verificacao'])
             return Response({'status': 'Email verificado com sucesso.'}, status=status.HTTP_200_OK)
         except Usuario.DoesNotExist:
             return Response({'error': 'Token de verificação inválido.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -256,9 +314,8 @@ class ObterPerfilView(generics.RetrieveUpdateAPIView):
             elif self.request.user.tipo_usuario == 'Vendedor':
                 return Vendedor.objects.get(usuario=self.request.user)
         except (Cliente.DoesNotExist, Vendedor.DoesNotExist):
-            print("ObterPerfilView: Perfil não encontrado para o usuário.")
-            return None
-        return None
+            raise Http404
+        raise Http404
 
     def get_serializer_class(self):
         print("ObterPerfilView: get_serializer_class chamado")
@@ -343,4 +400,53 @@ class VariacaoCreateView(generics.CreateAPIView):
                 ImagemSKU.objects.create(sku=novo_sku, imagem=default_image_path)
 
         serializer = self.get_serializer(novo_sku)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+class AdminTestView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        return Response({"message": "You are an admin"})
+
+class ClienteTestView(APIView):
+    permission_classes = [IsCliente]
+
+    def get(self, request):
+        return Response({"message": "You are a cliente"})
+
+class MonitoramentoView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        url = request.data.get('url')
+        if not url:
+            return Response({'message': 'A URL do produto é obrigatória.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Assumindo que o usuário logado é um vendedor
+            vendedor = Vendedor.objects.get(usuario=request.user)
+        except Vendedor.DoesNotExist:
+            return Response({'message': 'Apenas vendedores podem monitorar produtos.'}, status=status.HTTP_403_FORBIDDEN)
+            
+        # Verifica se o vendedor já monitora esta URL
+        if ProdutosMonitoradosExternos.objects.filter(vendedor=vendedor, url_produto=url).exists():
+            return Response({'message': 'Você já está monitorando este produto.'}, status=status.HTTP_409_CONFLICT)
+
+        # Inicia o processo de scraping
+        scraped_data = scrape_product_data(url)
+
+        if not scraped_data or not scraped_data.get('preco_atual'):
+            return Response({'message': 'Não foi possível extrair os dados do produto. O site pode ser incompatível ou estar indisponível.'}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        
+        # Cria o novo registro no banco de dados
+        novo_produto = ProdutosMonitoradosExternos.objects.create(
+            vendedor=vendedor,
+            url_produto=url,
+            nome_produto=scraped_data.get('nome_produto', 'Nome não encontrado'),
+            preco_atual=scraped_data.get('preco_atual')
+        )
+        
+        serializer = ProdutosMonitoradosExternosSerializer(novo_produto)
+        
+        # Retorna os dados para o frontend
         return Response(serializer.data, status=status.HTTP_201_CREATED)
