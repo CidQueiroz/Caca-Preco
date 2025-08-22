@@ -1,0 +1,10 @@
+<produtos> 
+  <produto> 
+    <nome>Caneta</nome> 
+    <preco>2.50</preco> 
+  </produto> 
+  <produto> 
+    <nome>Caderno</nome> 
+    <preco>15.00</preco> 
+  </produto> 
+</produtos>

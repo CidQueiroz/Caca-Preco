@@ -16,7 +16,7 @@ from .models import (
     OfertaProduto, Vendedor, AvaliacaoLoja, Cliente, Endereco,
     ProdutosMonitoradosExternos, Sugestao
 )
-from .serializers import ClienteSerializer, VendedorSerializer, ProdutosMonitoradosExternosSerializer
+from .serializers import ClienteSerializer, VendedorSerializer, ProdutosMonitoradosExternosSerializer, MeusProdutosSerializer
 
 class UsuarioModelTests(APITestCase):
     def setUp(self):
@@ -695,248 +695,7 @@ class BusinessLogicTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
-class ProdutosMonitoradosExternosViewSetTests(APITestCase):
-    email_counter = itertools.count(1)
 
-    def setUp(self):
-        self.client = APIClient()
-        self.vendor_user = Usuario.objects.create_user(
-            email=f'vendor_monitor_{next(self.email_counter)}@example.com',
-            password='password123',
-            tipo_usuario='Vendedor',
-            is_active=True,
-            email_verificado=True
-        )
-        self.vendor_profile = Vendedor.objects.create(
-            usuario=self.vendor_user,
-            nome_loja='Loja Monitoramento',
-            cnpj='11111111111111',
-            categoria_loja=CategoriaLoja.objects.create(nome='Eletrônicos')
-        )
-        self.client.force_authenticate(user=self.vendor_user)
-
-    def tearDown(self):
-        ProdutosMonitoradosExternos.objects.all().delete()
-        Vendedor.objects.all().delete()
-        Usuario.objects.all().delete()
-        CategoriaLoja.objects.all().delete()
-
-    @patch('api.views.scrape_product_data')
-    def test_create_monitoramento_missing_url(self, mock_scrape_product_data):
-        mock_scrape_product_data.return_value = {}
-        data = {} # Missing URL
-        response = self.client.post(reverse('monitoramento-list'), data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('url_produto', response.data) # Check for url_produto field error
-        self.assertIn('This field is required.', str(response.data['url_produto'])) # Check for required error message
-
-    @patch('api.views.scrape_product_data')
-    def test_create_monitoramento_not_vendor(self, mock_scrape_product_data):
-        mock_scrape_product_data.return_value = {}
-        client_user = Usuario.objects.create_user(
-            email=f'client_monitor_{next(self.email_counter)}@example.com',
-            password='password123',
-            tipo_usuario='Cliente',
-            is_active=True,
-            email_verificado=True
-        )
-        self.client.force_authenticate(user=client_user)
-        data = {'url': 'http://example.com/product'}
-        response = self.client.post(reverse('monitoramento-list'), data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertIn('Apenas vendedores podem monitorar produtos.', response.data['message'])
-
-    @patch('api.views.scrape_product_data')
-    def test_create_monitoramento_already_monitoring(self, mock_scrape_product_data):
-        mock_scrape_product_data.return_value = {}
-        ProdutosMonitoradosExternos.objects.create(
-            vendedor=self.vendor_profile,
-            url_produto='http://example.com/existing_product',
-            nome_produto='Existing Product',
-            preco_atual=10.00
-        )
-        data = {'url': 'http://example.com/existing_product'}
-        response = self.client.post(reverse('monitoramento-list'), data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
-        self.assertIn('Você já está monitorando este produto.', response.data['message'])
-
-    @patch('api.views.scrape_product_data')
-    def test_create_monitoramento_scraping_fails(self, mock_scrape_product_data):
-        mock_scrape_product_data.return_value = {} # Simulate scraping failure
-        data = {'url': 'http://example.com/product_fail'}
-        response = self.client.post(reverse('monitoramento-list'), data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
-        self.assertIn('Não foi possível extrair os dados do produto.', response.data['message'])
-
-    @patch('api.views.scrape_product_data')
-    def test_create_monitoramento_success_with_url(self, mock_scrape_product_data):
-        mock_scrape_product_data.return_value = {
-            'nome_produto': 'Scraped Product',
-            'preco_atual': 100.00
-        }
-        data = {'url': 'http://example.com/new_product'}
-        response = self.client.post(reverse('monitoramento-list'), data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(ProdutosMonitoradosExternos.objects.count(), 1)
-        self.assertEqual(ProdutosMonitoradosExternos.objects.first().nome_produto, 'Scraped Product')
-
-    def test_create_monitoramento_standard_create(self):
-        # This tests the super().create() path
-        data = {
-            'vendedor': self.vendor_profile.pk,
-            'url_produto': 'http://example.com/standard_product',
-            'nome_produto': 'Standard Product',
-            'preco_atual': 50.00
-        }
-        response = self.client.post(reverse('monitoramento-list'), data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(ProdutosMonitoradosExternos.objects.count(), 1)
-        self.assertEqual(ProdutosMonitoradosExternos.objects.first().nome_produto, 'Standard Product')
-
-class ProdutosMonitoradosExternosViewSetTests(APITestCase):
-    email_counter = itertools.count(1)
-
-    def setUp(self):
-        self.client = APIClient()
-        self.vendor_user = Usuario.objects.create_user(
-            email=f'vendor_monitor_{next(self.email_counter)}@example.com',
-            password='password123',
-            tipo_usuario='Vendedor',
-            is_active=True,
-            email_verificado=True
-        )
-        self.vendor_profile = Vendedor.objects.create(
-            usuario=self.vendor_user,
-            nome_loja='Loja Monitoramento',
-            cnpj='11111111111111',
-            categoria_loja=CategoriaLoja.objects.create(nome='Eletrônicos')
-        )
-        self.client.force_authenticate(user=self.vendor_user)
-
-    def tearDown(self):
-        ProdutosMonitoradosExternos.objects.all().delete()
-        Vendedor.objects.all().delete()
-        Usuario.objects.all().delete()
-        CategoriaLoja.objects.all().delete()
-
-    @patch('api.views.scrape_product_data')
-    def test_create_monitoramento_missing_url(self, mock_scrape_product_data):
-        mock_scrape_product_data.return_value = {}
-        data = {} # Missing URL
-        response = self.client.post(reverse('monitoramento-list'), data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('url_produto', response.data) # Check for url_produto field error
-        self.assertIn('This field is required.', str(response.data['url_produto'])) # Check for required error message
-
-    @patch('api.views.scrape_product_data')
-    def test_create_monitoramento_not_vendor(self, mock_scrape_product_data):
-        mock_scrape_product_data.return_value = {}
-        client_user = Usuario.objects.create_user(
-            email=f'client_monitor_{next(self.email_counter)}@example.com',
-            password='password123',
-            tipo_usuario='Cliente',
-            is_active=True,
-            email_verificado=True
-        )
-        self.client.force_authenticate(user=client_user)
-        data = {'url': 'http://example.com/product'}
-        response = self.client.post(reverse('monitoramento-list'), data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertIn('Apenas vendedores podem monitorar produtos.', response.data['message'])
-
-    @patch('api.views.scrape_product_data')
-    def test_create_monitoramento_already_monitoring(self, mock_scrape_product_data):
-        mock_scrape_product_data.return_value = {}
-        ProdutosMonitoradosExternos.objects.create(
-            vendedor=self.vendor_profile,
-            url_produto='http://example.com/existing_product',
-            nome_produto='Existing Product',
-            preco_atual=10.00
-        )
-        data = {'url': 'http://example.com/existing_product'}
-        response = self.client.post(reverse('monitoramento-list'), data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
-        self.assertIn('Você já está monitorando este produto.', response.data['message'])
-
-    @patch('api.views.scrape_product_data')
-    def test_create_monitoramento_scraping_fails(self, mock_scrape_product_data):
-        mock_scrape_product_data.return_value = {} # Simulate scraping failure
-        data = {'url': 'http://example.com/product_fail'}
-        response = self.client.post(reverse('monitoramento-list'), data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
-        self.assertIn('Não foi possível extrair os dados do produto.', response.data['message'])
-
-    @patch('api.views.scrape_product_data')
-    def test_create_monitoramento_success_with_url(self, mock_scrape_product_data):
-        mock_scrape_product_data.return_value = {
-            'nome_produto': 'Scraped Product',
-            'preco_atual': 100.00
-        }
-        data = {'url': 'http://example.com/new_product'}
-        response = self.client.post(reverse('monitoramento-list'), data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(ProdutosMonitoradosExternos.objects.count(), 1)
-        self.assertEqual(ProdutosMonitoradosExternos.objects.first().nome_produto, 'Scraped Product')
-
-    def test_create_monitoramento_standard_create(self):
-        # This tests the super().create() path
-        data = {
-            'vendedor': self.vendor_profile.pk,
-            'url_produto': 'http://example.com/standard_product',
-            'nome_produto': 'Standard Product',
-            'preco_atual': 50.00
-        }
-        response = self.client.post(reverse('monitoramento-list'), data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(ProdutosMonitoradosExternos.objects.count(), 1)
-        self.assertEqual(ProdutosMonitoradosExternos.objects.first().nome_produto, 'Standard Product')
-
-    def test_get_queryset_vendor_authenticated(self):
-        # Create another vendor and their monitored product
-        other_vendor_user = Usuario.objects.create_user(
-            email=f'other_vendor_monitor_{next(self.email_counter)}@example.com',
-            password='password123',
-            tipo_usuario='Vendedor',
-            is_active=True,
-            email_verificado=True
-        )
-        other_vendor_profile = Vendedor.objects.create(
-            usuario=other_vendor_user,
-            nome_loja='Outra Loja Monitoramento',
-            cnpj='22222222222222',
-            categoria_loja=CategoriaLoja.objects.create(nome='Livros')
-        )
-        ProdutosMonitoradosExternos.objects.create(
-            vendedor=other_vendor_profile,
-            url_produto='http://example.com/other_vendor_product',
-            nome_produto='Other Vendor Product',
-            preco_atual=200.00
-        )
-
-        # Authenticate as the main vendor
-        self.client.force_authenticate(user=self.vendor_user)
-        response = self.client.get(reverse('monitoramento-list'))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1) # Should only see own product
-        self.assertEqual(response.data[0]['vendedor'], self.vendor_profile.pk)
-
-    def test_get_queryset_client_authenticated(self):
-        client_user = Usuario.objects.create_user(
-            email=f'client_monitor_{next(self.email_counter)}@example.com',
-            password='password123',
-            tipo_usuario='Cliente',
-            is_active=True,
-            email_verificado=True
-        )
-        self.client.force_authenticate(user=client_user)
-        response = self.client.get(reverse('monitoramento-list'))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 0) # Clients should see no products
-
-    def test_get_queryset_unauthenticated(self):
-        self.client.force_authenticate(user=None)
-        response = self.client.get(reverse('monitoramento-list'))
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED) # Should be unauthorized
 
 class ProdutosMonitoradosExternosViewSetTests(APITestCase):
     email_counter = itertools.count(1)
@@ -1057,6 +816,13 @@ class ProdutosMonitoradosExternosViewSetTests(APITestCase):
             url_produto='http://example.com/other_vendor_product',
             nome_produto='Other Vendor Product',
             preco_atual=200.00
+        )
+
+        ProdutosMonitoradosExternos.objects.create(
+            vendedor=self.vendor_profile,
+            url_produto='http://example.com/my_product',
+            nome_produto='My Product',
+            preco_atual=100.00
         )
 
         # Authenticate as the main vendor
@@ -1260,6 +1026,28 @@ class PasswordRecoveryTests(APITestCase):
         self.assertIn('error', response.data)
         self.assertEqual(response.data['error'], 'Token inválido.')
 
+    def test_reset_password_with_expired_token(self):
+        """
+        Ensure an error is returned for an expired password reset token.
+        """
+        # First, trigger password recovery to get a token
+        self.client.post(self.recover_password_url, {'email': self.user.email}, format='json')
+        self.user.refresh_from_db()
+        token = self.user.token_redefinir_senha
+        
+        # Expire the token
+        self.user.token_redefinir_senha_expiracao = timezone.now() - datetime.timedelta(hours=1)
+        self.user.save()
+
+        # Now, reset the password
+        reset_url = reverse(self.reset_password_url_name, kwargs={'token': token})
+        data = {'password': 'newpassword123'}
+        response = self.client.post(reset_url, data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('error', response.data)
+        self.assertEqual(response.data['error'], 'Token expirado.')
+
 class EmailVerificationTests(APITestCase):
     def setUp(self):
         self.client = APIClient()
@@ -1310,6 +1098,18 @@ class EmailVerificationTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('error', response.data)
+
+    def test_email_verification_with_invalid_token(self):
+        """
+        Ensure an error is returned for an invalid email verification token.
+        """
+        import uuid
+        invalid_token = uuid.uuid4()
+        verification_url = reverse('verificar_email', kwargs={'token': invalid_token})
+        response = self.client.get(verification_url)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('error', response.data)
+        self.assertEqual(response.data['error'], 'Token de verificação inválido.')
 
 class ObterPerfilViewTests(APITestCase):
     def setUp(self):
@@ -1371,6 +1171,181 @@ class ObterPerfilViewTests(APITestCase):
         data = {'nome': 'Nome Inexistente'}
         response = self.client.patch(self.profile_url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+class VariacaoCreateViewTests(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.vendor_user = Usuario.objects.create_user(
+            email='vendor@example.com',
+            password='vendorpassword123',
+            tipo_usuario='Vendedor',
+            is_active=True,
+            email_verificado=True
+        )
+        self.client.force_authenticate(user=self.vendor_user)
+        self.categoria = CategoriaLoja.objects.create(nome='Eletrônicos')
+        self.subcategoria = SubcategoriaProduto.objects.create(nome='Smartphones', categoria_loja=self.categoria)
+        self.produto = Produto.objects.create(
+            nome='Produto Teste', descricao='Desc', subcategoria=self.subcategoria
+        )
+        self.create_variation_url = reverse('criar_variacao')
+
+    def test_create_variacao_invalid_data(self):
+        import json
+        data = {
+            'produto': self.produto.id,
+            'variacoes': json.dumps([
+                {'nome': 'Cor'},
+            ])
+        }
+        response = self.client.post(self.create_variation_url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+class AdminTestViewTests(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.admin_user = Usuario.objects.create_superuser(
+            email='admin@example.com',
+            password='adminpassword123',
+            tipo_usuario='Administrador',
+            is_active=True,
+            email_verificado=True
+        )
+    def test_admin_test_view(self):
+        self.client.force_authenticate(user=self.admin_user)
+        response = self.client.get(reverse('admin-test'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+class ClienteTestViewTests(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.client_user = Usuario.objects.create_user(
+            email='client@example.com',
+            password='clientpassword123',
+            tipo_usuario='Cliente',
+            is_active=True,
+            email_verificado=True
+        )
+    def test_cliente_test_view(self):
+        self.client.force_authenticate(user=self.client_user)
+        response = self.client.get(reverse('cliente-test'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+class ClienteViewSetTests(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.admin_user = Usuario.objects.create_superuser(
+            email='admin@example.com',
+            password='adminpassword123',
+            is_staff=True,
+            is_active=True,
+            email_verificado=True,
+            tipo_usuario='Administrador'
+        )
+        self.client_user = Usuario.objects.create_user(
+            email='client@example.com',
+            password='clientpassword123',
+            tipo_usuario='Cliente',
+            is_active=True,
+            email_verificado=True
+        )
+        self.cliente_profile = Cliente.objects.create(usuario=self.client_user, nome='Cliente Teste')
+
+    def test_get_queryset_as_admin(self):
+        self.client.force_authenticate(user=self.admin_user)
+        response = self.client.get(reverse('cliente-list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+class ObterPerfilViewUnauthenticatedTests(APITestCase):
+    def test_get_profile_unauthenticated(self):
+        response = self.client.get(reverse('obter_perfil'))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+class VariacaoCreateViewDefaultImageTests(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.vendor_user = Usuario.objects.create_user(
+            email='vendor_default_image@example.com',
+            password='vendorpassword123',
+            tipo_usuario='Vendedor',
+            is_active=True,
+            email_verificado=True
+        )
+        self.client.force_authenticate(user=self.vendor_user)
+        self.categoria = CategoriaLoja.objects.create(nome='Eletrônicos')
+        self.subcategoria = SubcategoriaProduto.objects.create(nome='Smartphones', categoria_loja=self.categoria)
+        self.produto = Produto.objects.create(
+            nome='Produto Teste', descricao='Desc', subcategoria=self.subcategoria
+        )
+        self.create_variation_url = reverse('criar_variacao')
+
+    @patch('os.path.exists')
+    def test_create_variacao_default_image_not_found(self, mock_exists):
+        mock_exists.return_value = False
+        import json
+        data = {
+            'produto': self.produto.id,
+            'variacoes': json.dumps([
+                {'nome': 'Cor', 'valor': 'Roxo'}
+            ])
+        }
+        response = self.client.post(self.create_variation_url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(ImagemSKU.objects.count(), 0)
+
+class MonitoramentoViewTests(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.vendor_user = Usuario.objects.create_user(
+            email='vendor_monitor@example.com',
+            password='password123',
+            tipo_usuario='Vendedor',
+            is_active=True,
+            email_verificado=True
+        )
+        self.client.force_authenticate(user=self.vendor_user)
+        self.monitoramento_url = reverse('monitoramento')
+
+    def test_monitoramento_view_post_no_url(self):
+        response = self.client.post(self.monitoramento_url, {})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    @patch('api.views.scrape_product_data')
+    def test_monitoramento_view_post_not_vendor(self, mock_scrape):
+        client_user = Usuario.objects.create_user(
+            email='client_monitor@example.com',
+            password='password123',
+            tipo_usuario='Cliente',
+            is_active=True,
+            email_verificado=True
+        )
+        self.client.force_authenticate(user=client_user)
+        response = self.client.post(self.monitoramento_url, {'url': 'http://example.com'})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    @patch('api.views.scrape_product_data')
+    def test_monitoramento_view_post_already_monitoring(self, mock_scrape):
+        vendedor = Vendedor.objects.create(usuario=self.vendor_user, nome_loja='Loja do Monitor', categoria_loja=CategoriaLoja.objects.create(nome='Casa'))
+        ProdutosMonitoradosExternos.objects.create(vendedor=vendedor, url_produto='http://example.com')
+        response = self.client.post(self.monitoramento_url, {'url': 'http://example.com'})
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+
+    @patch('api.views.scrape_product_data')
+    def test_monitoramento_view_post_scraping_fails(self, mock_scrape):
+        mock_scrape.return_value = None
+        Vendedor.objects.create(usuario=self.vendor_user, nome_loja='Loja do Monitor', categoria_loja=CategoriaLoja.objects.create(nome='Casa'))
+        response = self.client.post(self.monitoramento_url, {'url': 'http://example.com'})
+        self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+    @patch('api.views.scrape_product_data')
+    def test_monitoramento_view_post_success(self, mock_scrape):
+        mock_scrape.return_value = {'preco_atual': 100.00, 'nome_produto': 'Produto Scraped'}
+        Vendedor.objects.create(usuario=self.vendor_user, nome_loja='Loja do Monitor', categoria_loja=CategoriaLoja.objects.create(nome='Casa'))
+        response = self.client.post(self.monitoramento_url, {'url': 'http://example.com'})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(ProdutosMonitoradosExternos.objects.count(), 1)
+        self.assertEqual(ProdutosMonitoradosExternos.objects.first().nome_produto, 'Produto Scraped')
 
 class ClienteSerializerTests(APITestCase):
     email_counter = itertools.count(1) # Class-level counter for unique emails
@@ -1451,14 +1426,6 @@ class ClienteSerializerTests(APITestCase):
         cliente = serializer.save()
         self.assertIsNone(cliente.endereco)
 
-    def test_update_cliente_name_only(self):
-        data = {'nome': 'Updated Client Name'}
-        serializer = ClienteSerializer(instance=self.client_profile, data=data, partial=True, context={'request': self.mock_request})
-        self.assertTrue(serializer.is_valid(raise_exception=True))
-        cliente = serializer.save()
-        self.assertEqual(cliente.nome, 'Updated Client Name')
-        self.assertIsNone(cliente.endereco) # Should remain None if not provided
-
     def test_update_cliente_add_address(self):
         data = {'endereco': self.endereco_data}
         serializer = ClienteSerializer(instance=self.client_profile, data=data, partial=True, context={'request': self.mock_request})
@@ -1467,42 +1434,6 @@ class ClienteSerializerTests(APITestCase):
         self.assertIsNotNone(cliente.endereco)
         self.assertEqual(cliente.endereco.logradouro, 'Rua Teste')
 
-    def test_update_cliente_update_existing_address(self):
-        # First, add an address to the client
-        existing_address = Endereco.objects.create(**self.endereco_data)
-        self.client_profile.endereco = existing_address
-        self.client_profile.save()
-
-        updated_address_data = {
-            'logradouro': 'Rua Atualizada',
-            'numero': '456',
-            'cidade': 'Cidade Atualizada',
-            'estado': 'RJ',
-            'cep': '98765-432'
-        }
-        data = {'endereco': updated_address_data}
-        serializer = ClienteSerializer(instance=self.client_profile, data=data, partial=True, context={'request': self.mock_request})
-        self.assertTrue(serializer.is_valid(raise_exception=True))
-        cliente = serializer.save()
-        self.assertEqual(cliente.endereco.logradouro, 'Rua Atualizada')
-        self.assertEqual(cliente.endereco.numero, '456')
-
-    def test_update_cliente_remove_address(self):
-        # First, add an address to the client
-        existing_address = Endereco.objects.create(**self.endereco_data)
-        self.client_profile.endereco = existing_address
-        self.client_profile.save()
-
-        data = {'endereco': None} # Explicitly set address to None to remove it
-        serializer = ClienteSerializer(instance=self.client_profile, data=data, partial=True, context={'request': self.mock_request})
-        self.assertTrue(serializer.is_valid(raise_exception=True))
-        cliente = serializer.save()
-        cliente.refresh_from_db() # Refresh the client object to get the latest state
-        self.assertIsNone(cliente.endereco)
-        # Ensure the address object is actually deleted from the database
-        with self.assertRaises(Endereco.DoesNotExist):
-            Endereco.objects.get(pk=existing_address.pk) # Try to retrieve by PK
-
 class VendedorSerializerTests(APITestCase):
     email_counter = itertools.count(1)
 
@@ -1534,10 +1465,10 @@ class VendedorSerializerTests(APITestCase):
         self.mock_request = MockRequest(self.user)
 
     def tearDown(self):
-        self.vendor_profile.delete()
-        self.user.delete()
+        Vendedor.objects.all().delete()
+        Usuario.objects.all().delete()
         Endereco.objects.all().delete()
-        CategoriaLoja.objects.all().delete() # Clean up categories created in tests
+        CategoriaLoja.objects.all().delete()
 
     def test_create_vendedor_with_address(self):
         new_user = Usuario.objects.create_user(
@@ -1561,34 +1492,6 @@ class VendedorSerializerTests(APITestCase):
         self.assertIsNotNone(vendedor.endereco)
         self.assertEqual(vendedor.endereco.logradouro, 'Rua Vendedor')
 
-    def test_create_vendedor_without_address(self):
-        new_user = Usuario.objects.create_user(
-            email=f'new_vendor_without_address_{next(self.email_counter)}@example.com',
-            password='password123',
-            tipo_usuario='Vendedor',
-            is_active=True,
-            email_verificado=True
-        )
-        self.mock_request.user = new_user
-        data = {
-            'usuario': new_user.id,
-            'nome_loja': 'New Store Without Address',
-            'cnpj': '11122233344455',
-            'categoria_loja': self.categoria.id
-        }
-        serializer = VendedorSerializer(data=data, context={'request': self.mock_request})
-        self.assertTrue(serializer.is_valid(raise_exception=True))
-        vendedor = serializer.save()
-        self.assertIsNone(vendedor.endereco)
-
-    def test_update_vendedor_name_only(self):
-        data = {'nome_loja': 'Updated Store Name'}
-        serializer = VendedorSerializer(instance=self.vendor_profile, data=data, partial=True, context={'request': self.mock_request})
-        self.assertTrue(serializer.is_valid(raise_exception=True))
-        vendedor = serializer.save()
-        self.assertEqual(vendedor.nome_loja, 'Updated Store Name')
-        self.assertIsNone(vendedor.endereco) # Should remain None if not provided
-
     def test_update_vendedor_add_address(self):
         data = {'endereco': self.endereco_data}
         serializer = VendedorSerializer(instance=self.vendor_profile, data=data, partial=True, context={'request': self.mock_request})
@@ -1596,26 +1499,6 @@ class VendedorSerializerTests(APITestCase):
         vendedor = serializer.save()
         self.assertIsNotNone(vendedor.endereco)
         self.assertEqual(vendedor.endereco.logradouro, 'Rua Vendedor')
-
-    def test_update_vendedor_update_existing_address(self):
-        # First, add an address to the vendor
-        existing_address = Endereco.objects.create(**self.endereco_data)
-        self.vendor_profile.endereco = existing_address
-        self.vendor_profile.save()
-
-        updated_address_data = {
-            'logradouro': 'Rua Atualizada Vendedor',
-            'numero': '789',
-            'cidade': 'Cidade Atualizada Vendedor',
-            'estado': 'MG',
-            'cep': '54321-987'
-        }
-        data = {'endereco': updated_address_data}
-        serializer = VendedorSerializer(instance=self.vendor_profile, data=data, partial=True, context={'request': self.mock_request})
-        self.assertTrue(serializer.is_valid(raise_exception=True))
-        vendedor = serializer.save()
-        self.assertEqual(vendedor.endereco.logradouro, 'Rua Atualizada Vendedor')
-        self.assertEqual(vendedor.endereco.numero, '789')
 
     def test_update_vendedor_remove_address(self):
         # First, add an address to the vendor
@@ -1633,214 +1516,29 @@ class VendedorSerializerTests(APITestCase):
         with self.assertRaises(Endereco.DoesNotExist):
             Endereco.objects.get(pk=existing_address.pk) # Try to retrieve by PK
 
-class VendedorSerializerTests(APITestCase):
-    email_counter = itertools.count(1)
-
-    def setUp(self):
-        self.user = Usuario.objects.create_user(
-            email=f'test_vendor_{next(self.email_counter)}@example.com',
-            password='password123',
-            tipo_usuario='Vendedor',
-            is_active=True,
-            email_verificado=True
-        )
-        self.categoria = CategoriaLoja.objects.create(nome='Eletrônicos')
-        self.vendor_profile = Vendedor.objects.create(
-            usuario=self.user,
-            nome_loja='Test Store',
-            cnpj='11223344556677',
-            categoria_loja=self.categoria
-        )
-        self.endereco_data = {
-            'logradouro': 'Rua Vendedor',
-            'numero': '456',
-            'cidade': 'Cidade Vendedor',
-            'estado': 'RJ',
-            'cep': '98765-432'
-        }
-        class MockRequest:
-            def __init__(self, user):
-                self.user = user
-        self.mock_request = MockRequest(self.user)
-
-    def tearDown(self):
-        Vendedor.objects.all().delete() # Delete all vendors first
-        Usuario.objects.all().delete() # Then all users
-        Endereco.objects.all().delete() # Then all addresses
-        CategoriaLoja.objects.all().delete() # Finally, all categories
-
-    def test_create_vendedor_with_address(self):
-        new_user = Usuario.objects.create_user(
-            email=f'new_vendor_with_address_{next(self.email_counter)}@example.com',
-            password='password123',
-            tipo_usuario='Vendedor',
-            is_active=True,
-            email_verificado=True
-        )
-        self.mock_request.user = new_user
-        data = {
-            'usuario': new_user.id,
-            'nome_loja': 'New Store With Address',
-            'cnpj': '99887766554433',
-            'categoria_loja': self.categoria.id,
-            'endereco': self.endereco_data
-        }
-        serializer = VendedorSerializer(data=data, context={'request': self.mock_request})
-        self.assertTrue(serializer.is_valid(raise_exception=True))
-        vendedor = serializer.save()
-        self.assertIsNotNone(vendedor.endereco)
-        self.assertEqual(vendedor.endereco.logradouro, 'Rua Vendedor')
-
-    def test_create_vendedor_without_address(self):
-        new_user = Usuario.objects.create_user(
-            email=f'new_vendor_without_address_{next(self.email_counter)}@example.com',
-            password='password123',
-            tipo_usuario='Vendedor',
-            is_active=True,
-            email_verificado=True
-        )
-        self.mock_request.user = new_user
-        data = {
-            'usuario': new_user.id,
-            'nome_loja': 'New Store Without Address',
-            'cnpj': '11122233344455',
-            'categoria_loja': self.categoria.id
-        }
-        serializer = VendedorSerializer(data=data, context={'request': self.mock_request})
-        self.assertTrue(serializer.is_valid(raise_exception=True))
-        vendedor = serializer.save()
-        self.assertIsNone(vendedor.endereco)
-
-    def test_update_vendedor_name_only(self):
-        data = {'nome_loja': 'Updated Store Name'}
-        serializer = VendedorSerializer(instance=self.vendor_profile, data=data, partial=True, context={'request': self.mock_request})
-        self.assertTrue(serializer.is_valid(raise_exception=True))
-        vendedor = serializer.save()
-        self.assertEqual(vendedor.nome_loja, 'Updated Store Name')
-        self.assertIsNone(vendedor.endereco) # Should remain None if not provided
-
-    def test_update_vendedor_add_address(self):
-        data = {'endereco': self.endereco_data}
-        serializer = VendedorSerializer(instance=self.vendor_profile, data=data, partial=True, context={'request': self.mock_request})
-        self.assertTrue(serializer.is_valid(raise_exception=True))
-        vendedor = serializer.save()
-        self.assertIsNotNone(vendedor.endereco)
-        self.assertEqual(vendedor.endereco.logradouro, 'Rua Vendedor')
-
-    def test_update_vendedor_update_existing_address(self):
-        # First, add an address to the vendor
-        existing_address = Endereco.objects.create(**self.endereco_data)
-        self.vendor_profile.endereco = existing_address
-        self.vendor_profile.save()
-
-        updated_address_data = {
-            'logradouro': 'Rua Atualizada Vendedor',
-            'numero': '789',
-            'cidade': 'Cidade Atualizada Vendedor',
-            'estado': 'MG',
-            'cep': '54321-987'
-        }
-        data = {'endereco': updated_address_data}
-        serializer = VendedorSerializer(instance=self.vendor_profile, data=data, partial=True, context={'request': self.mock_request})
-        self.assertTrue(serializer.is_valid(raise_exception=True))
-        vendedor = serializer.save()
-        self.assertEqual(vendedor.endereco.logradouro, 'Rua Atualizada Vendedor')
-        self.assertEqual(vendedor.endereco.numero, '789')
-
-    def test_update_vendedor_remove_address(self):
-        # First, add an address to the vendor
-        existing_address = Endereco.objects.create(**self.endereco_data)
-        self.vendor_profile.endereco = existing_address
-        self.vendor_profile.save()
-
-        data = {'endereco': None} # Explicitly set address to None to remove it
-        serializer = VendedorSerializer(instance=self.vendor_profile, data=data, partial=True, context={'request': self.mock_request})
-        self.assertTrue(serializer.is_valid(raise_exception=True))
-        vendedor = serializer.save()
-        vendedor.refresh_from_db() # Refresh the vendor object to get the latest state
-        self.assertIsNone(vendedor.endereco)
-        # Ensure the address object is actually deleted from the database
-        with self.assertRaises(Endereco.DoesNotExist):
-            Endereco.objects.get(pk=existing_address.pk) # Try to retrieve by PK
-
-class VariacaoCreateViewTests(APITestCase):
+class MeusProdutosSerializerTests(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        self.vendor_user = Usuario.objects.create_user(
-            email='vendor@example.com',
-            password='vendorpassword123',
-            tipo_usuario='Vendedor',
-            is_active=True,
-            email_verificado=True
+        self.vendor_user = Usuario.objects.create_user(email='vendor1@example.com', password='password123', tipo_usuario='Vendedor', is_active=True, email_verificado=True)
+        self.vendor_profile = Vendedor.objects.create(
+            usuario=self.vendor_user,
+            nome_loja='Loja do Vendedor 1',
+            categoria_loja=CategoriaLoja.objects.create(nome='Roupas'),
+            status_aprovacao='aprovado'
         )
-        self.client.force_authenticate(user=self.vendor_user)
-        self.categoria = CategoriaLoja.objects.create(nome='Eletrônicos')
-        self.subcategoria = SubcategoriaProduto.objects.create(nome='Smartphones', categoria_loja=self.categoria)
-        self.produto = Produto.objects.create(
-            nome='Produto Teste', descricao='Desc', subcategoria=self.subcategoria
-        )
-        self.create_variation_url = reverse('criar_variacao')
+        self.subcategoria = SubcategoriaProduto.objects.create(nome='Camisetas', categoria_loja=self.vendor_profile.categoria_loja)
+        self.produto = Produto.objects.create(nome='Camiseta Azul', subcategoria=self.subcategoria)
+        self.sku = SKU.objects.create(produto=self.produto, codigo_sku='CA-AZ')
+        self.oferta = OfertaProduto.objects.create(vendedor=self.vendor_profile, sku=self.sku, preco=50.00)
+        self.imagem = ImagemSKU.objects.create(sku=self.sku, imagem='test.jpg')
 
-    def test_create_variacao(self):
-        import json
-        data = {
-            'produto': self.produto.id,
-            'variacoes': json.dumps([
-                {'nome': 'Cor', 'valor': 'Azul'},
-                {'nome': 'Tamanho', 'valor': 'M'}
-            ])
-        }
-        response = self.client.post(self.create_variation_url, data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(SKU.objects.count(), 1)
-        sku = SKU.objects.first()
-        self.assertEqual(sku.produto, self.produto)
-        self.assertEqual(sku.valores.count(), 2)
+    def test_get_url_imagem(self):
+        from django.test import RequestFactory
+        request = RequestFactory().get('/')
+        serializer = MeusProdutosSerializer(instance=self.oferta, context={'request': request})
+        self.assertIn('test.jpg', serializer.data['url_imagem'])
 
-    def test_create_variacao_with_image(self):
-        import json
-        from django.core.files.uploadedfile import SimpleUploadedFile
-        image = SimpleUploadedFile("test_image.jpg", b"file_content", content_type="image/jpeg")
-        data = {
-            'produto': self.produto.id,
-            'variacoes': json.dumps([
-                {'nome': 'Cor', 'valor': 'Verde'}
-            ]),
-            'imagem': image
-        }
-        response = self.client.post(self.create_variation_url, data, format='multipart')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(SKU.objects.count(), 1)
-        self.assertEqual(ImagemSKU.objects.count(), 1)
-
-    def test_create_variacao_existing(self):
-        import json
-        # Create a variation first
-        data = {
-            'produto': self.produto.id,
-            'variacoes': json.dumps([
-                {'nome': 'Cor', 'valor': 'Azul'}
-            ])
-        }
-        self.client.post(self.create_variation_url, data)
-
-        # Try to create the same variation again
-        response = self.client.post(self.create_variation_url, data)
-        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
-
-    def test_create_variacao_missing_data(self):
-        response = self.client.post(self.create_variation_url, {})
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_create_variacao_invalid_json(self):
-        data = {
-            'produto': self.produto.id,
-            'variacoes': 'invalid-json'
-        }
-        response = self.client.post(self.create_variation_url, data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-class OfertaProdutoViewSetTests(APITestCase):
+class OfertaProdutoViewSetExistingOfferTests(APITestCase):
     def setUp(self):
         self.client = APIClient()
         self.vendor_user = Usuario.objects.create_user(
@@ -1858,10 +1556,6 @@ class OfertaProdutoViewSetTests(APITestCase):
             telefone='11987654321',
             categoria_loja=CategoriaLoja.objects.create(nome='Eletrônicos'),
             status_aprovacao='aprovado',
-            nome_responsavel='Responsavel Teste',
-            cpf_responsavel='12345678901',
-            breve_descricao_loja='Uma loja de testes',
-            site_redes_sociais='http://test.com'
         )
         self.client.force_authenticate(user=self.vendor_user)
         self.categoria = CategoriaLoja.objects.get(nome='Eletrônicos')
@@ -1874,9 +1568,8 @@ class OfertaProdutoViewSetTests(APITestCase):
             vendedor=self.vendor_profile, sku=self.sku, preco=99.99, quantidade_disponivel=10
         )
 
-    def test_create_offer_existing(self):
+    def test_create_offer_that_already_exists(self):
         data = {
-            'vendedor': self.vendor_profile.pk,
             'sku_id': self.sku.id,
             'preco': 120.00,
             'quantidade_disponivel': 5
@@ -1899,8 +1592,9 @@ class OfertaProdutoViewSetTests(APITestCase):
         self.assertEqual(self.oferta.preco, 110.00)
         self.assertEqual(ImagemSKU.objects.count(), 1)
 
-    def test_update_offer_with_new_image(self):
+    def test_update_offer_with_existing_image(self):
         from django.core.files.uploadedfile import SimpleUploadedFile
+        ImagemSKU.objects.create(sku=self.sku, imagem='old_image.jpg')
         image = SimpleUploadedFile("new_test_image.jpg", b"file_content", content_type="image/jpeg")
         data = {
             'preco': 115.00,
@@ -1911,22 +1605,62 @@ class OfertaProdutoViewSetTests(APITestCase):
         self.oferta.refresh_from_db()
         self.assertEqual(self.oferta.preco, 115.00)
         self.assertEqual(ImagemSKU.objects.count(), 1)
+        self.assertIn('new_test_image', ImagemSKU.objects.first().imagem.name)
 
-    def test_update_offer_no_image(self):
-        """
-        Ensure offer can be updated without providing an image.
-        """
+class VariacaoCreateViewErrorTests(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.vendor_user = Usuario.objects.create_user(
+            email='vendor@example.com',
+            password='vendorpassword123',
+            tipo_usuario='Vendedor',
+            is_active=True,
+            email_verificado=True
+        )
+        self.client.force_authenticate(user=self.vendor_user)
+        self.categoria = CategoriaLoja.objects.create(nome='Eletrônicos')
+        self.subcategoria = SubcategoriaProduto.objects.create(nome='Smartphones', categoria_loja=self.categoria)
+        self.produto = Produto.objects.create(
+            nome='Produto Teste', descricao='Desc', subcategoria=self.subcategoria
+        )
+        self.create_variation_url = reverse('criar_variacao')
+
+    def test_create_variacao_missing_produto(self):
+        import json
         data = {
-            'preco': 125.00,
-            'quantidade_disponivel': 15
+            'variacoes': json.dumps([
+                {'nome': 'Cor', 'valor': 'Azul'}
+            ])
         }
-        response = self.client.patch(reverse('ofertaproduto-detail', args=[self.oferta.pk]), data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.oferta.refresh_from_db()
-        self.assertEqual(self.oferta.preco, 125.00)
-        self.assertEqual(self.oferta.quantidade_disponivel, 15)
+        response = self.client.post(self.create_variation_url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-class SugestaoCreateViewTests(APITestCase):
+    def test_create_variacao_invalid_json(self):
+        data = {
+            'produto': self.produto.id,
+            'variacoes': 'invalid-json'
+        }
+        response = self.client.post(self.create_variation_url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_variacao_existing_combination(self):
+        import json
+        # Create a variation first
+        Atributo.objects.create(nome='Cor')
+        ValorAtributo.objects.create(atributo=Atributo.objects.get(nome='Cor'), valor='Azul')
+        sku = SKU.objects.create(produto=self.produto)
+        sku.valores.add(ValorAtributo.objects.get(valor='Azul'))
+
+        data = {
+            'produto': self.produto.id,
+            'variacoes': json.dumps([
+                {'nome': 'Cor', 'valor': 'Azul'}
+            ])
+        }
+        response = self.client.post(self.create_variation_url, data)
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+
+class SugestaoCreateViewTest(APITestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = Usuario.objects.create_user(

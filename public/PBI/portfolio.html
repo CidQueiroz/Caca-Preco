@@ -89,52 +89,130 @@
 
             /* --- MODAL --- */
             .modal {
-                display: none;
+                display: none; /* Inicia oculto */
                 position: fixed;
                 z-index: 1000;
                 left: 0; top: 0;
                 width: 100%; height: 100%;
                 background-color: rgba(0, 0, 0, 0.8);
-                backdrop-filter: blur(5px);
-                overflow: auto;
+                backdrop-filter: blur(8px);
+                overflow: hidden;
+                padding: 20px;
                 align-items: center;
                 justify-content: center;
             }
 
             .modal-content {
-                background: linear-gradient(135deg, #1a1a2e, #16213e, #2c3e50);
-                padding: 20px;
+                background: linear-gradient(135deg, #1a1a2e, #16213e);
                 border: 1px solid #4ecdc4;
-                width: 95%; /* Ocupa 95% da largura da tela */
-                max-width: 1366px; /* Um máximo razoável para telas grandes */
-                height: 90vh; /* Ocupa 90% da ALTURA da tela */
+                width: 95%;
+                max-width: 95vw;
+                max-height: 95vh;
+                overflow-y: auto;
                 border-radius: 15px;
                 box-shadow: 0 0 50px rgba(78, 205, 196, 0.3);
                 position: relative;
-                /* Adicionado para organizar o conteúdo interno */
                 display: flex;
                 flex-direction: column;
+                padding: 0; 
             }
             
-            .close-button {
-                color: #aaa;
-                position: absolute;
-                top: 15px; right: 25px;
-                font-size: 35px;
+            #modal-title {
+                margin-top: 30px;
+                text-align: center;
                 font-weight: bold;
+                color: #4ecdc4;
+            }
+            #modal-description {
+                text-align: center;
+                margin-bottom: 20px;
+                color: #c0c0d0;
+            }
+
+            .responsive-iframe {
+                position: relative;
+                width: 100%;
+                min-height: 500px;
+                flex-grow: 1;
+                border: none;
+            }
+
+            .modal-actions {
+                flex-shrink: 0;
+                display: flex;
+                justify-content: center; /* Centraliza os botões */
+                gap: 20px; /* Espaçamento entre os botões */
+                padding: 20px 40px;
+                background-color: rgba(10, 10, 20, 0.3); /* Fundo sutil para separar */
+                border-top: 1px solid rgba(78, 205, 196, 0.2);
+            }
+
+            .modal-button {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                border: none;
+                padding: 12px 25px;
+                border-radius: 25px;
+                color: white;
                 cursor: pointer;
-                transition: color 0.3s;
+                font-weight: bold;
+                transition: all 0.3s ease;
+                font-size: 16px;
+                text-decoration: none;
+            }
+            .modal-button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            }
+
+            /* Estilo do botão Primário (GitHub) */
+            .modal-button.primary {
+                background: linear-gradient(45deg, #ff6b35, #4ecdc4);
+                border: none;
+                padding: 12px 25px;
+                border-radius: 25px;
+                color: white;
+                cursor: pointer;
+                font-weight: bold;
+                transition: all 0.3s ease;
+                font-size: 16px;
+                box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+            }
+            
+            /* Estilo do botão Secundário (Fechar) */
+            .modal-button.secondary {
+                background: linear-gradient(45deg, #ff6b35, #4ecdc4);
+                border: none;
+                padding: 12px 25px;
+                border-radius: 25px;
+                color: white;
+                cursor: pointer;
+                font-weight: bold;
+                transition: all 0.3s ease;
+                font-size: 16px;
+                box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+            }
+            .modal-button.primary:hover {
+                transform: scale(1.05);
+                box-shadow: 0 6px 20px rgba(78, 205, 196, 0.5);
+            }
+            .modal-button.secondary:hover {
+                transform: scale(1.05);
+                box-shadow: 0 6px 20px rgba(78, 205, 196, 0.5);
+            }
+
+            .close-button {
+                position: absolute;
+                top: 15px;
+                right: 25px;
+                font-size: 35px;
+                color: #aaa;
+                cursor: pointer;
+                z-index: 1010;
             }
             .close-button:hover, .close-button:focus { color: #fff; }
-            
-            #modal-title { margin-bottom: 15px; color: #4ecdc4; }
-            #modal-description { line-height: 1.6; margin-bottom: 20px; }
-            
-            .responsive-iframe {
-                position: relative; overflow: hidden; width: 100%;
-                padding-top: 56.25%; /* 16:9 Aspect Ratio */
-            }
-            
+                    
             .responsive-iframe iframe {
                 position: absolute;
                 top: 0;
@@ -144,20 +222,10 @@
                 border: 0;
             }
             
-            #modal-github-link {
-                display: inline-block;
-                margin-top: 20px;
-                padding: 10px 20px;
-                background-color: #4ecdc4;
-                color: #1a1a2e;
-                text-decoration: none;
-                font-weight: bold;
-                border-radius: 8px;
-                transition: background-color 0.3s;
-            }
-            #modal-github-link:hover { background-color: #ff6b35; }
         </style>
+
     </head>
+    
 <body>
 
     <header class="header">
@@ -169,14 +237,32 @@
         </main>
 
     <div id="projectModal" class="modal">
+        
         <div class="modal-content">
-            <span class="close-button">&times;</span>
+            
+            <span class="close-button" onclick="closeModal()">&times;</span>
+            
             <h2 id="modal-title"></h2>
+            
             <p id="modal-description"></p>
-            <div class="responsive-iframe" id="modal-iframe-container">
-                </div>
-            <a id="modal-github-link" href="#" target="_blank">Ver arquivo .PBIX no GitHub</a>
+            
+            <div class="responsive-iframe" id="modal-iframe-container"></div>
+
+            <div class="modal-actions">
+                
+                <a id="modal-github-link" href="#" target="_blank" class="modal-button primary">
+                    
+                    <i class="fab fa-github"></i> Ver projeto no GitHub
+                </a>
+                
+                <button id="modal-close-btn" class="modal-button secondary">
+                    Fechar
+                </button>
+            
+            </div>
+        
         </div>
+    
     </div>
 
     <script>
@@ -286,8 +372,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             const gallery = document.getElementById('gallery');
-            const modal = document.getElementById('projectModal');
-            const closeModal = document.querySelector('.close-button');
+            const modal = document.getElementById('projectModal');            
 
             // Popula a galeria com os projetos
             projects.forEach((project, index) => {
@@ -298,7 +383,7 @@
                 card.innerHTML = `
                     <img src="${project.thumbnail}" alt="Thumbnail do projeto ${project.title}">
                     <div class="project-info">
-                        <p>${project.description.substring(0, 100)}...</p>
+                        <p>${project.description.substring(0, 1000)}</p>
                     </div>
                 `;
                 
@@ -328,14 +413,26 @@
             });
 
             // Fecha o modal
+            const closeModal = document.querySelector('.close-button');
+            
             const close = () => modal.style.display = 'none';
+            
             closeModal.addEventListener('click', close);
+            
+            const closeBtn = document.getElementById('modal-close-btn');
+            
+            if (closeBtn) {
+                closeBtn.addEventListener('click', close);
+            }
+            
             window.addEventListener('click', (e) => {
                 if (e.target === modal) {
                     close();
                 }
             });
+        
         });
+    
     </script>
 
 </body>
