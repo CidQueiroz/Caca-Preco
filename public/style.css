@@ -1,0 +1,892 @@
+:root {
+    --navbar-height: 80px; /* Altura da sua navbar. Ajuste se necessário */
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden; /* CRÍTICO: Impede scroll horizontal */
+}
+
+body.pagina-inicial {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+    min-height: 100vh;
+    font-family: 'Arial', orbitron;
+    position: relative;
+    overflow-x: hidden; /* CRÍTICO: Impede scroll horizontal */
+    overflow-y: hidden; /* Impede scroll vertical */
+}
+
+/* Partículas flutuantes de fundo */
+.particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: rgba(0, 255, 255, 0.6);
+    border-radius: 50%;
+    animation: float 6s infinite linear;
+}
+
+@keyframes float {
+    0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+
+}
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    position: relative;
+    z-index: 10;
+    width: 100%; /* Garante que o container ocupe toda a largura */
+}
+
+.logo-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 90vw;
+    max-width: 600px;
+    aspect-ratio: 1 / 1;
+}
+
+.brain-core {
+    width: 100%; 
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    animation: pulse 4s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { 
+        filter: drop-shadow(0 0 20px rgba(78, 205, 196, 0.4));
+    }
+    50% { 
+        filter: drop-shadow(0 0 40px rgba(78, 205, 196, 0.8));
+    }
+}
+
+.logo-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+/* Circuitos conectores */
+.circuit {
+    position: absolute;
+    background: linear-gradient(90deg, 
+        rgba(255, 107, 53, 0.8), 
+        rgba(78, 205, 196, 0.8), 
+        rgba(255, 107, 53, 0.8)
+    );
+    height: 4px;
+    transform-origin: center;
+    animation: circuitFlow 3s infinite;
+    border-radius: 2px;
+    box-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
+}
+
+@keyframes circuitFlow {
+    0%, 100% { 
+        background: linear-gradient(90deg, 
+            rgba(255, 107, 53, 0.6), 
+            rgba(78, 205, 196, 0.6), 
+            rgba(255, 107, 53, 0.6)
+        );
+        box-shadow: 0 0 10px rgba(78, 205, 196, 0.3);
+    }
+    50% { 
+        background: linear-gradient(90deg, 
+            rgba(255, 107, 53, 1), 
+            rgba(78, 205, 196, 1), 
+            rgba(255, 107, 53, 1)
+        );
+        box-shadow: 0 0 20px rgba(78, 205, 196, 0.8);
+    }
+}
+
+/* Botões nos pontos dos circuitos */
+.circuit-point {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #00ffff, #4ecdc4, #2980b9);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 
+        0 0 15px rgba(0, 255, 255, 0.6),
+        inset 0 2px 4px rgba(255, 255, 255, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 10px;
+    color: white;
+    font-weight: bold;
+    border: 3px solid rgba(0, 255, 255, 0.5);
+    z-index: 100;
+}
+
+.circuit-point:hover {
+    transform: scale(1.4);
+    box-shadow: 
+        0 0 30px rgba(0, 255, 255, 1),
+        inset 0 2px 8px rgba(255, 255, 255, 0.3);
+    background: radial-gradient(circle, #ffffff, #00ffff, #4ecdc4);
+}
+
+.circuit-point:active {
+    transform: scale(1.2);
+}
+
+/* --- ESTILOS CORRIGIDOS PARA ANIMAÇÃO DAS LOGOS LATERAIS --- */
+.animated-logo {
+    position: fixed; /* Mudança para fixed para posicionamento absoluto na tela */
+    top: 50%;
+    max-width: 200px;
+    height: auto;
+    opacity: 0;
+    z-index: 100;
+    transition: all 5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.cdk-logo {
+    left: 10%; /* Posição final à esquerda */
+    transform: translateX(-300%) translateY(-50%); /* Começa fora da tela */
+}
+
+.teck-logo {
+    right: 10%; /* Posição final à direita */
+    transform: translateX(300%) translateY(-50%); /* Começa fora da tela */
+}
+
+body.loaded .cdk-logo {
+    opacity: 1;
+    transform: translateX(0%) translateY(-50%); /* Desliza para a posição final */
+}
+
+body.loaded .teck-logo {
+    opacity: 1;
+    transform: translateX(0%) translateY(-50%); /* Desliza para a posição final */
+}
+
+/* Título */
+.title {
+    position: absolute;
+    bottom: -80px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 42px;
+    font-weight: bold;
+    background: linear-gradient(45deg, #FF8C00, #4ecdc4, #3498db);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(78, 205, 196, 0.5);
+    letter-spacing: 8px;
+    animation: titleGlow 3s infinite alternate;
+}
+
+@keyframes titleGlow {
+    from { filter: drop-shadow(0 0 10px rgba(78, 205, 196, 0.3)); }
+    to { filter: drop-shadow(0 0 20px rgba(78, 205, 196, 0.6)); }
+}
+
+.modal-content {
+    position: relative;
+    margin: 8vh auto; /* Centraliza verticalmente com margem */
+    background: linear-gradient(135deg, #1a1a2e, #16213e, #2c3e50);
+    padding: 40px;
+    border-radius: 25px;
+    border: 2px solid #4ecdc4;
+    width: 95%; /* Largura fluida */
+    max-width: 650px; /* Maior no desktop */
+    text-align: center;
+    box-shadow: 
+        0 0 60px rgba(78, 205, 196, 0.3),
+        inset 0 0 50px rgba(0, 0, 0, 0.5);
+    transform: scale(0.95); /* Efeito de entrada */
+    transition: transform 0.4s ease;
+}
+
+/* Estado VISÍVEL: quando o modal tem a classe .show */
+.modal.show {
+    opacity: 1; /* Fica totalmente visível */
+}
+
+.modal.show .modal-content {
+    transform: scale(1); /* Volta ao tamanho normal */
+}
+
+.modal.show .modal-content .contact-modal-content{
+    transform: scale(1);
+}
+
+.modal h2 {
+    color: #4ecdc4;
+    margin-bottom: 20px;
+    font-size: 28px;
+    text-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
+}
+
+.modal p {
+    color: #ffffff;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    font-size: 16px;
+}
+
+/* Responsivo */
+@media (max-width: 900px) {
+    .logo-container {
+        width: 95vw; /* Ocupa quase toda a largura */
+        max-width: 450px; /* Um bom tamanho máximo para mobile */
+    }
+
+    .animated-logo {
+        position: absolute;
+        max-width: 120px;
+        opacity: 0;
+        transition: all 2s ease;
+    }
+    
+    .cdk-logo {
+        top: -5%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-100%);
+    }
+
+    .teck-logo {
+        bottom: -5%;
+        right: 50%;
+        top: auto;
+        transform: translateX(50%) translateY(100%);
+    }
+
+    /* Regras para a animação de entrada em mobile */
+    body.loaded .cdk-logo {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0%);
+    }
+
+    body.loaded .teck-logo {
+        opacity: 1;
+        transform: translateX(50%) translateY(0%);
+    }
+    
+    .title {
+        font-size: 24px;
+        letter-spacing: 4px;
+    }
+}
+
+.circuit-point.pulse {
+    animation: initialPulse 1s ease-in-out; /* Duração e tipo de animação */
+}
+
+@keyframes initialPulse {
+    0% { box-shadow: 0 0 10px rgba(78, 205, 196, 0.5); } /* Brilho inicial */
+    50% { box-shadow: 0 0 50px rgba(78, 205, 196, 0.8); } /* Brilho máximo */
+    100% { box-shadow: 0 0 10px rgba(78, 205, 196, 0.5); } /* Retorna ao brilho normal do hover */
+}
+
+ body.portfolio {
+    background:
+        /* Camada 1: Sua logo (com opacidade na própria imagem) */
+        url('PBI/Assets/circuitos2.png') no-repeat center calc(50% + 50px),
+        
+        /* Camada 2: Seu gradiente escuro (a base) */
+        linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+    background-size: 100vw, contain;
+    background-attachment: fixed;
+    background-position: center calc(100% + 50px); 
+    min-height: 100vh;
+    font-family: 'Arial', sans-serif;
+    color: #f0f0f0;
+    overflow-x: hidden;
+}
+
+
+.header {
+    text-align: center;
+    padding: 100px 20px;
+    padding-bottom: 40px;
+}
+
+/* Regra específica para o TÍTULO PRINCIPAL (H1) */
+.header h1 {
+    font-size: 42px; /* Mantém o tamanho grande para o título */
+    font-family: 'Orbitron', sans-serif;
+    margin-bottom: 15px; /* Adiciona um espaçamento abaixo do título */
+
+    /* Efeito de texto metálico CIANO (versão limpa) */
+    background: linear-gradient(180deg, #3AA198, #4ecdc4, #B8FBF5, #4ecdc4, #2E8B84);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    -webkit-text-stroke: 0.5px #2E8B84;
+    text-shadow: 0 0 20px rgba(78, 205, 196, 0.4);
+}
+
+/* Regra específica para o SUBTÍTULO (P) */
+.header p {
+    font-size: 18px; /* Tamanho menor e mais apropriado para um subtítulo */
+    font-family: 'Orbitron', sans-serif;
+    max-width: 800px; /* Evita que o texto fique muito largo em telas grandes */
+    margin: 0 auto; /* Centraliza o parágrafo */
+    line-height: 1.5;
+
+    /* Efeito de texto metálico LARANJA (para criar contraste e usar nossa cor de ação) */
+    background: linear-gradient(180deg, #D97800, #FF8C00, #FFE0B8, #FF8C00, #CC7A00);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    -webkit-text-stroke: 0.5px #A66100;
+    text-shadow: 0 0 10px rgba(255, 107, 53, 0.3);
+}
+
+.gallery-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
+    padding: 0 40px 60px 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.project-card {
+    border-radius: 17px; /* Um pouco maior que o conteúdo interno */
+    padding: 2px; /* A 'espessura' da nossa borda */
+    background: linear-gradient(to right, #4A5568, #E0E0E0, #4A5568); /* Gradiente metálico inicial */
+    
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+}
+
+/* No hover, a 'MOLDURA' muda de cor */
+.project-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 0 40px rgba(78, 205, 196, 0.5);
+    background: linear-gradient(to right, #FF8C00, #4ecdc4, #FF8C00); /* Gradiente de energia */
+}
+
+/* A nova div interna que segura o conteúdo */
+.card-content {
+    background: linear-gradient(145deg, #1a1a2e, #16213e);
+    border-radius: 15px; /* Arredondamento do conteúdo */
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* Garante que a imagem e o texto respeitem o arredondamento */
+    display: flex;
+    flex-direction: column;
+}
+
+/* A imagem continua com os cantos superiores arredondados */
+.project-card img {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    display: block;
+}
+
+/* A área de texto agora está dentro do .card-content */
+.project-info {
+    padding: 20px;
+    flex-grow: 1;
+}
+
+.dashboard-modal-content {
+    /* Define um tamanho muito maior, ideal para dashboards */
+    max-width: 95%;
+    margin: 0px auto; /* Centraliza com uma pequena margem */
+    max-height: 95vh; /* Ocupa quase toda a altura disponível */
+    overflow-y: auto; /* Permite rolar se o conteúdo for muito grande */
+
+    /* Usa Flexbox para organizar o conteúdo verticalmente */
+    display: flex;  
+    flex-direction: column;
+
+    /* Remove o padding padrão para o iframe colar nas bordas */
+    padding: 0;
+    position: relative;
+    background: linear-gradient(135deg, #1a1a2e, #16213e, #2c3e50);
+    border-radius: 15px;
+    border: 2px solid #4ecdc4;
+    box-shadow: 0 0 60px rgba(78, 205, 196, 0.3), inset 0 0 50px rgba(0, 0, 0, 0.5);
+}
+
+/* Ajusta o conteúdo interno para o novo layout flex */
+.dashboard-modal-content #modal-title {
+    padding: 30px 40px; /* Adiciona padding de volta apenas para o título */
+    flex-shrink: 0; /* Impede que o título encolha */
+    text-align: center;
+    color: #4ecdc4;
+}
+
+.dashboard-modal-content .responsive-iframe {
+    overflow: hidden;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
+/* Garante que o iframe preencha o container */
+.dashboard-modal-content .responsive-iframe iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+.dashboard-modal-content .modal-actions {
+    padding: 20px 40px; /* Adiciona padding de volta para a área dos botões */
+    flex-shrink: 0; /* Impede que a área de ações encolha */
+    border-top: 1px solid rgba(78, 205, 196, 0.2);
+    gap: 100px;
+    display: flex; /* Garante que ele seja um flex container */
+    justify-content: center; /* Mantém os botões centralizados */
+}
+
+.dashboard-modal-content .close-button {
+    /* Garante que o botão 'X' fique visível sobre o conteúdo */
+    top: 20px; /* Ajusta a posição vertical */
+    right: 30px; /* Ajusta a posição horizontal */
+}
+
+.project-info p {
+    font-size: 15px;
+    line-height: 1.5;
+    color: #c0c0d0;
+}
+
+/* O conteúdo do modal (para o efeito de "pop-up") */
+.modal .modal-content {
+    transform: scale(0.95); /* Começa um pouco menor */
+    transition: transform 0.4s ease; /* Transição suave de escala */
+}
+
+#modal-description {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #c0c0d0;
+}
+
+.modal-actions {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center; /* Centraliza os botões */
+    /*gap: 20px; /* Espaçamento entre os botões */
+    margin-top: 1px;
+}
+
+.modal-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(45deg, #FF8C00, #4ecdc4);
+    border: 1px solid #A66100;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    padding: 12px 25px;
+    border-radius: 25px;
+    cursor: pointer;
+    color: white;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+}
+
+.modal-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+
+.modal-button.primary {
+    background: linear-gradient(45deg, #FF8C00, #4ecdc4);
+    border: 1px solid #A66100;
+    padding: 12px 25px;
+    border-radius: 25px;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    display: inline-flex;
+    text-decoration: none;
+}
+
+.modal-button.primary:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(78, 205, 196, 0.5);
+}
+
+.modal-button.secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(45deg, #FF8C00, #4ecdc4);
+    border: 1px solid #A66100;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    padding: 12px 25px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    color: white;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+}
+
+.modal-button.secondary:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(78, 205, 196, 0.5);
+}
+
+.close-button {
+    position: absolute;
+    top: 15px;
+    right: 25px;
+    font-size: 35px;
+    color: #aaa;
+    cursor: pointer;
+    z-index: 1010;
+}
+
+.close-button:hover, .close-button:focus { color: #fff; }
+
+.site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 2000;
+    /*height: 100%;*/
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    background-color: rgba(10, 10, 30, 0.6);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(78, 205, 196, 0.2);
+}
+
+.header-logo {
+    font-family: 'Orbitron', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    font-size: 20px;
+    font-weight: bold;
+    color: #c0c0d0;
+}
+
+.header-logo img {
+    height: 60px;
+    width: 60px;
+    background: linear-gradient(180deg, #D97800, #FF8C00, #FFE0B8, #FF8C00, #CC7A00);
+    border-radius: 50%; /* Garante que seja perfeitamente redondo */
+    border: 2px solid #555; /* Uma base para a borda metálica sutil */
+    /*background-color: rgba(133, 235, 228, 0.3); /* Seu fundo atual */
+    padding: 3px; /* Um pequeno espaçamento interno */
+    transition: all 0.3s ease;
+}
+
+.header-logo img:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(78, 205, 196, 0.8); /* Efeito de brilho ciano */
+    border-color: #999; /* Borda fica um pouco mais clara */
+}
+
+.header-logo span:hover{
+    color: #4ecdc4;
+    transform: scale(1.1);
+}
+
+.main-nav a {
+    font-family: 'Orbitron', sans-serif;
+    color: #c0c0d0;
+    text-decoration: none;
+    margin-left: 25px;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.main-nav a:hover {
+    color: #4ecdc4; /* Cor ciano da sua marca */
+    transform: scale(1.1);
+}
+
+.content-wrapper {
+    max-width: 1400px;
+    margin: auto auto; /* Espaçamento no topo/baixo */
+    /*padding: 40px; */
+    background-color: rgba(10, 26, 62, 0.4); /* Azul escuro da sua paleta, com 40% de opacidade */
+    backdrop-filter: blur(3px); /* Efeito de vidro fosco */
+    /*border-radius: 20px;*/
+    /*border: 1px solid rgba(78, 205, 196, 0.1);*/
+}
+
+.cta-button {
+    background: linear-gradient(45deg, #FF8C00, #e65c29);
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 16px;
+    margin-left: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.2);
+}
+
+.cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+}
+
+#contact-modal .contact-modal-content {
+    display: flex; /* ATIVA O FLEXBOX */
+    flex-direction: column; /* Organiza os itens em uma coluna vertical */
+    align-items: center; /* Centraliza todos os itens horizontalmente */
+    padding: 40px;
+    padding-top: 80px; /* Aumenta o espaço no topo para a foto */
+    position: relative; /* Necessário para a foto se posicionar corretamente */
+    /*margin-bottom: 50px; /* ADICIONE ESTA LINHA */
+}
+
+.contact-modal-content .profile-pic {
+    width: 120px; /* Reduzindo o tamanho da foto */
+    height: 120px; /* Reduzindo o tamanho da foto */
+    border-radius: 50%;
+    border: 4px solid #4ecdc4;
+    box-shadow: 0 0 20px rgba(78, 205, 196, 0.5);
+
+    /* Posicionamento Mágico */
+    position: absolute;
+    top: -50px; /* Ajustando a posição para cima */
+    left: 50%;
+    transform: translateX(-50%);
+
+    object-fit: contain; /* Garante que a imagem não se deforme */
+    background-color: #16213e; /* Cor de fundo caso a imagem demore a carregar */
+}
+
+.contact-modal-content #contact-title {
+    margin-bottom: 30px;
+    color: #4ecdc4;
+    font-size: 28px;
+}
+
+.contact-modal-content #contact-description {
+    /* AJUSTES NO TEXTO */
+    text-align: justify; /* Alinhamento justificado como você pediu */
+    max-width: 90%; /* Evita que o texto fique muito largo */
+    line-height: 1.7; /* Melhora a legibilidade */
+    margin-bottom: 30px; /* Espaço abaixo do parágrafo */
+    color: #E0E0E0;
+}
+
+/* Container dos Links Sociais */
+.contact-modal-content .social-links {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap; /* Permite que os ícones quebrem a linha em telas menores */
+    gap: 15px 20px; /* Reduzindo o espaçamento entre os ícones */
+    width: 100%;
+    margin-bottom: 30px; /* Reduzindo a margem inferior */
+}
+
+/* Estilo de cada Item de Link Social */
+.contact-modal-content .social-link-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    width: 70px;
+    transition: all 0.3s ease;
+}
+
+/* Ícone dentro do Link */
+.contact-modal-content .social-link-item i {
+    font-size: 2.2em; /* Reduzindo o tamanho do ícone */
+    margin-bottom: 8px; /* Reduzindo a margem inferior */
+    color: #a0a0b0;
+    transition: all 0.3s ease;
+}
+
+.contact-modal-content .social-link-item span {
+    font-size: 11px;
+    color: #a0a0b0;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+/* Efeito Hover Aprimorado */
+.social-link-item:hover i,
+.social-link-item:hover span {
+    color: #FF8C00;
+    transform: scale(1.1);
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    width: 100%;
+    left: 0;
+    top: 0;
+    height: 100%;
+    z-index: 2001;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+
+    align-items: center;     /* Centraliza verticalmente */
+    justify-content: center; /* Centraliza horizontalmente */
+}
+
+/* Botão "Fechar" */
+.close-modal {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(45deg, #FF8C00, #4ecdc4);
+    border: 1px solid #A66100;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    padding: 12px 25px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    color: white;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+}
+
+.contact-modal-content .close-modal:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(78, 205, 196, 0.5);
+}
+
+.info-modal-content {
+    max-width: 850px;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding-top: 20px;
+    /*text-align: left;*/
+}
+
+.info-section {
+    margin-bottom: 20px;
+    border-left: 3px solid #4ecdc4; /* Detalhe visual para separar seções */
+    padding-left: 16px;
+    text-align: left
+}
+
+#info-section-desafio {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+#info-modal-title {
+    text-align: center;
+    color: #4ecdc4;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 28px;
+}
+
+.info-section h3 {
+    font-family: 'Orbitron', sans-serif;
+    color: #4ecdc4; /* Cor de destaque */
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 1.2rem;
+}
+
+.info-section p {
+    margin: 0;
+    line-height: 1.6;
+    color: #cccccc; /* Cinza claro para boa legibilidade */
+}
+
+#view-dashboard-btn { /* Ou a classe correspondente */
+
+    background: linear-gradient(45deg, #FF8C00, #4ecdc4);
+    border: 1px solid #A66100;
+    color: white;
+    margin-top: 20px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* ======================================================= */
+/* --- ESTILIZAÇÃO GLOBAL DA BARRA DE ROLAGEM --- */
+/* ======================================================= */
+
+/* Para Firefox */
+* {
+  scrollbar-width: thin; /* Pode ser 'auto', 'thin' ou 'none' */
+  scrollbar-color: #4ecdc4 #1a1a2e; /* Cor do polegar (thumb) e da trilha (track) */
+}
+
+/* Para Chrome, Safari, Edge e outros baseados em WebKit */
+
+/* Define a largura da barra de rolagem */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Define o fundo da trilha (a área por onde a barra corre) */
+::-webkit-scrollbar-track {
+  background: #1a1a2e; /* Um dos azuis escuros da sua paleta */
+  border-radius: 10px;
+}
+
+/* Define o estilo do polegar (a parte que você arrasta) */
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #4ecdc4, #3AA198); /* Gradiente ciano da marca */
+  border-radius: 10px;
+  border: 2px solid #1a1a2e; /* Cria um efeito de "borda" interna */
+}
+
+/* Efeito ao passar o mouse sobre o polegar */
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #FF8C00, #D97800); /* Fica laranja ao passar o mouse */
+}
