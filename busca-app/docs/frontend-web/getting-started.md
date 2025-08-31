@@ -1,49 +1,42 @@
 # Guia de Início Rápido (Frontend Web)
 
-Este guia irá ajudá-lo a configurar e executar o frontend web do Caça-Preço.
+Siga estas instruções para configurar e executar o ambiente de desenvolvimento do frontend web.
 
 ## Pré-requisitos
-
-- Node.js (versão 14 ou superior)
-- npm ou yarn
-
-## Instalação
-
-1. Clone o repositório.
-2. Navegue até o diretório `frontend`.
-3. Instale as dependências:
-
-   ```bash
-   npm install
-   ```
-
-   ou
-
-   ```bash
-   yarn install
-   ```
+- Node.js e npm instalados.
+- O backend Django deve estar em execução.
 
 ## Configuração
 
-1. Crie um arquivo `.env.development` na raiz do diretório `frontend`.
-2. Adicione as seguintes variáveis de ambiente ao arquivo `.env.development`:
+1.  **Navegue até a pasta do frontend:**
+    ```bash
+    cd frontend
+    ```
 
-   ```
-   REACT_APP_API_URL=http://localhost:3001/api
-   ```
+2.  **Instale as dependências:**
+    ```bash
+    npm install
+    ```
 
-## Executando a Aplicação
+3.  **Configure as Variáveis de Ambiente:**
+    O projeto utiliza Vite, que carrega variáveis de ambiente de arquivos `.env`. A URL da API não deve ser fixada no código.
 
-Para iniciar o servidor de desenvolvimento, execute o seguinte comando:
+    Crie um arquivo chamado `.env.local` na raiz da pasta `frontend/` e adicione a seguinte variável:
 
-```bash
-npm start
-```
+    ```env
+    # .env.local
+    VITE_API_URL=http://127.0.0.1:8000/api
+    ```
+    O código em `src/api.js` deve ser atualizado para usar esta variável em vez de uma URL fixa.
 
-ou
+4.  **Execute o servidor de desenvolvimento:**
+    ```bash
+    npm run dev
+    ```
+    A aplicação estará disponível em `http://localhost:5173` (ou outra porta indicada pelo Vite).
 
-```bash
-yarn start
-```
-
-A aplicação estará disponível em `http://localhost:3001`.
+## Scripts Disponíveis
+- `npm run dev`: Inicia o servidor de desenvolvimento.
+- `npm run build`: Gera a versão de produção da aplicação na pasta `dist/`.
+- `npm run lint`: Executa o linter para verificar a qualidade do código.
+- `npm run preview`: Inicia um servidor local para visualizar a build de produção.

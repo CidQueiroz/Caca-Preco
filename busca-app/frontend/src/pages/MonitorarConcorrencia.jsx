@@ -17,7 +17,7 @@ const MonitorarConcorrencia = () => {
 
     try {
       // ATENÇÃO: Corrigindo a URL do endpoint para a que definimos no Django
-      const response = await axios.post('/api/monitoramento/', { url }, {
+      const response = await axios.post('/api/monitorar/', { url }, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json' // Boa prática adicionar
@@ -34,11 +34,17 @@ const MonitorarConcorrencia = () => {
   };
 
   return (
-    <div className="monitor-container">
-      <h1 className="apresentacao__conteudo__titulo">Monitorar Produto Concorrente</h1>
-      <p className="subtitle">Insira a URL do produto que deseja monitorar e nós faremos o trabalho pesado para você.</p>
+    <div className="form-container" style={{ maxWidth: '700px', margin: '40px auto' }}>
+      <h1 className="dashboard-title" style={{ fontSize: '2rem', marginBottom: '10px' }}>
+        Monitorar Produto Concorrente
+      </h1>
+      
+      <p style={{ textAlign: 'center', marginBottom: '30px', color: 'var(--cor-texto)' }}>
+        Insira a URL do produto que deseja monitorar e nós faremos o trabalho pesado para você.
+      </p>
 
-      <form onSubmit={handleSubmit} className="monitor-form">
+      <form onSubmit={handleSubmit}>
+        
         <div className="form-group">
           <label htmlFor="urlInput">URL do Produto:</label>
           <input
@@ -50,12 +56,16 @@ const MonitorarConcorrencia = () => {
             required
           />
         </div>
-        <button type="submit" className="btn btn-primary" disabled={loading}>
-          {loading ? 'Monitorando...' : 'Monitorar Produto'}
-        </button>
+
+        <div className="form-actions" style={{justifyContent: 'center'}}>
+          <button type="submit" className="btn btn-primary" disabled={loading}>
+              {loading ? 'Monitorando...' : 'Monitorar Produto'}
+          </button>
+        </div>
+
       </form>
 
-      {erro && <p className="message-error">{erro}</p>}
+      {erro && <p className="message-error" style={{marginTop: '20px'}}>{erro}</p>}
       {/* Ajustando a exibição dos resultados para bater com o serializer do Django */}
       {resultado && (
         <div className="monitor-resultado">
@@ -65,6 +75,7 @@ const MonitorarConcorrencia = () => {
           <p><strong>Última Atualização:</strong> {new Date(resultado.ultima_coleta).toLocaleString()}</p>
           <p className="message-success">Produto adicionado para monitoramento contínuo!</p>
         </div>
+
       )}
     </div>
   );

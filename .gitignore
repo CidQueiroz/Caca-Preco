@@ -11,3 +11,17 @@ venv/
 busca-app/Portfolio HTML/
 busca-app/backend_node/
 backups/
+.coverage
+media_test/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+busca-app/backend/.pytest_cache
+busca-app/backend/.venv
+busca-app/backend/htmlcov
+busca-app/frontend/node_modules
+busca-app/frontend/venv
+busca-app/mobile/.expo
+busca-app/mobile/node_modules
+

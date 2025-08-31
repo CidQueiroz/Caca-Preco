@@ -26,12 +26,14 @@ const AnaliseMercadoSaaS = () => {
         <div className="saas-cta-section">
           <h3>Acesse agora o seu Dashboard de Análise</h3>
           <p>Comece a explorar os dados e insights que preparamos para você.</p>
-          <button onClick={() => navigate('/dashboard-analise')} className="btn btn-primary" style={{marginTop: '20px'}}>
-            Acessar Análises
-          </button>
-          <button onClick={() => navigate('/monitorar-concorrencia')} className="btn btn-secondary" style={{marginTop: '10px'}}>
-            Monitorar Nova URL
-          </button>
+          <div className="saas-cta-buttons">
+            <button onClick={() => navigate('/dashboard-analise')} className="btn btn-secondary" >
+              Acessar Análises
+            </button>
+            <button onClick={() => navigate('/monitorar-concorrencia')} className="btn btn-primary">
+              Monitorar Nova URL
+            </button>
+          </div>
         </div>
       </div>
     </div>

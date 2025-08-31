@@ -2,10 +2,33 @@ from rest_framework import serializers
 
 from .models import (
     Usuario, CategoriaLoja, SubcategoriaProduto, Produto, Atributo, ValorAtributo, SKU, ImagemSKU,
-    OfertaProduto, Vendedor, AvaliacaoLoja, Cliente, Endereco, ProdutosMonitoradosExternos, Sugestao
+    OfertaProduto, Vendedor, AvaliacaoLoja, Cliente, Endereco, ProdutosMonitoradosExternos, Sugestao, HistoricoPrecos
 )
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.conf import settings # Importar settings
+
+class HistoricoPrecosSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HistoricoPrecos
+        fields = ['preco', 'data_coleta']
+
+class ProdutosMonitoradosExternosComHistoricoSerializer(serializers.ModelSerializer):
+    historico = HistoricoPrecosSerializer(many=True, read_only=True)
+    variacao = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ProdutosMonitoradosExternos
+        fields = ['id', 'vendedor', 'url_produto', 'nome_produto', 'preco_atual', 'ultima_coleta', 'historico', 'variacao']
+
+    def get_variacao(self, obj):
+        historico = obj.historico.order_by('-data_coleta')[:2]
+        if len(historico) == 2:
+            preco_atual = historico[0].preco
+            preco_anterior = historico[1].preco
+            if preco_anterior > 0:
+                return ((preco_atual - preco_anterior) / preco_anterior) * 100
+        return None
+
 
 class UserSerializer(serializers.ModelSerializer):
     senha = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
@@ -23,6 +46,11 @@ class UserSerializer(serializers.ModelSerializer):
         user = Usuario.objects.create_user(password=password, **validated_data)
         return user
 
+    def validate_senha(self, value):
+        if len(value) < 8:
+            raise serializers.ValidationError("A senha deve ter pelo menos 8 caracteres.")
+        return value
+
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer): # CORRIGIDO: Era TokenObtainPairView
     username_field = 'email'
     @classmethod
@@ -34,8 +62,14 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer): # CORRIGIDO: Era T
 
     def validate(self, attrs):
         data = super().validate(attrs)
+        # 1. Checa a verificação de email
         if not self.user.email_verificado:
             raise serializers.ValidationError({'detail': 'EMAIL_NAO_VERIFICADO'})
+        
+        # 2. Checa se o perfil está completo (ignora para Admins)
+        if self.user.tipo_usuario != 'Administrador' and not self.user.perfil_completo:
+            raise serializers.ValidationError({'detail': 'PERFIL_INCOMPLETO'})
+
         # Adiciona dados do usuário à resposta do login
         data['user'] = {
             'id': self.user.id,
@@ -63,7 +97,7 @@ class ImagemSKUSerializer(serializers.ModelSerializer):
         fields = ['id', 'imagem', 'ordem']
 
 class SKUSerializer(serializers.ModelSerializer):
-    valores = ValorAtributoSerializer(many=True, read_only=True)
+    valores = serializers.PrimaryKeyRelatedField(many=True, queryset=ValorAtributo.objects.all())
     imagens = ImagemSKUSerializer(many=True, read_only=True)
 
     class Meta:
@@ -143,6 +177,8 @@ class ClienteSerializer(serializers.ModelSerializer):
                 instance.save()
         elif instance.endereco: # If endereco_data is None but instance.endereco exists, delete it
             instance.endereco.delete()
+            instance.endereco = None # Add this line
+            instance.save() # Add this line
 
         return instance
 
@@ -184,6 +220,8 @@ class VendedorSerializer(serializers.ModelSerializer):
                 instance.save()
         elif instance.endereco: # If endereco_data is None but instance.endereco exists, delete it
             instance.endereco.delete()
+            instance.endereco = None # Add this line
+            instance.save() # Add this line
 
         return instance
 
@@ -238,3 +276,13 @@ class MeusProdutosSerializer(serializers.ModelSerializer):
         # Use a imagem padrão se nenhuma imagem específica for encontrada
         default_image_url = request.build_absolute_uri(settings.MEDIA_URL + 'ia.png')
         return default_image_url
+
+
+class RecuperarSenhaSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+class RedefinirSenhaSerializer(serializers.Serializer):
+    password = serializers.CharField(write_only=True)
+
+class ReenviarVerificacaoSerializer(serializers.Serializer):
+    email = serializers.EmailField()

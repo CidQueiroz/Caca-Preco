@@ -1,55 +1,60 @@
-# Gerenciamento de Estado (React Native)
+# Gerenciamento de Estado (Mobile)
 
-Assim como na aplicação web, o gerenciamento do estado de autenticação no aplicativo móvel é centralizado com a **Context API** do React, garantindo uma fonte única de verdade para os dados do usuário.
+Assim como na aplicação web, o gerenciamento de estado global no aplicativo mobile é feito com a **Context API** do React.
 
-## `AuthContext.js`
+## Consistência
 
-O `AuthProvider` no mobile é conceitualmente idêntico ao do frontend web, mas adaptado para o ambiente do React Native.
+Manter a mesma estratégia de gerenciamento de estado entre as plataformas web e mobile simplifica o raciocínio e o compartilhamento de lógica.
 
-### Armazenamento Persistente
+## Implementação
 
-A principal diferença é o mecanismo de armazenamento. Em vez de `localStorage`, o `AuthContext` do mobile utiliza `@react-native-async-storage/async-storage` para persistir o token e os dados do usuário no dispositivo. Isso garante que o usuário permaneça logado mesmo após fechar e reabrir o aplicativo.
+A implementação é idêntica à da web. Um `AuthContext` é criado para prover informações de autenticação para toda a árvore de componentes.
 
-### Estado Gerenciado
+1.  **Criação do Contexto (`src/context/AuthContext.js`):**
+    O código é o mesmo da versão web, gerenciando `user` e `token`. O `localStorage` é substituído por `AsyncStorage` do React Native para persistir os dados no dispositivo.
 
-- **`token`**: Armazena o JWT `access token` do usuário, lido e salvo no `AsyncStorage`.
-- **`usuario`**: O objeto com os dados do usuário logado, também persistido no `AsyncStorage`.
-- **`carregando`**: Um booleano que controla a exibição da `TelaSplash` durante a verificação inicial do token no `AsyncStorage`.
+    ```javascript
+    import { createContext, useState, useContext } from 'react';
+    import AsyncStorage from '@react-native-async-storage/async-storage';
 
-### Funções e Lógica
+    const AuthContext = createContext(null);
 
-As funções `login` e `logout` operam de forma semelhante à versão web:
+    export const AuthProvider = ({ children }) => {
+      // ... (lógica para carregar o token do AsyncStorage na inicialização)
+      const [user, setUser] = useState(null);
 
-- **`login(novoToken, dadosUsuario)`**: Salva os dados no `AsyncStorage` e atualiza o estado do React.
-- **`logout()`**: Remove os dados do `AsyncStorage` e limpa o estado.
+      const login = async (userData, authToken) => {
+        setUser(userData);
+        await AsyncStorage.setItem('authToken', authToken);
+      };
 
-Da mesma forma, uma verificação de expiração do token é feita para deslogar o usuário automaticamente se a sessão for inválida.
+      const logout = async () => {
+        setUser(null);
+        await AsyncStorage.removeItem('authToken');
+      };
 
-### Como Usar o Contexto
+      return (
+        <AuthContext.Provider value={{ user, login, logout }}>
+          {children}
+        </AuthContext.Provider>
+      );
+    };
 
-O uso do hook `useContext` nas telas e componentes do React Native é idêntico ao do React para a web.
+    export const useAuth = () => useContext(AuthContext);
+    ```
 
-**Exemplo em uma Tela:**
+2.  **Prover o Contexto (`App.js`):**
+    O `AppNavigator` ou o componente raiz da aplicação deve ser envolvido pelo `AuthProvider`.
 
-```jsx
-import React, { useContext } from 'react';
-import { View, Text, Button } from 'react-native';
-import { AuthContext } from '../context/AuthContext';
+    ```jsx
+    import { AuthProvider } from './src/context/AuthContext';
+    import AppNavigator from './src/navigation/AppNavigator';
 
-const TelaDashboard = () => {
-  const { usuario, logout } = useContext(AuthContext);
-
-  if (!usuario) {
-    // Esta lógica normalmente é tratada pelo AppNavigator,
-    // mas o acesso ao contexto é o mesmo.
-    return null;
-  }
-
-  return (
-    <View>
-      <Text>Bem-vindo, {usuario.email}!</Text>
-      <Button title="Sair" onPress={logout} />
-    </View>
-  );
-};
-```
+    export default function App() {
+      return (
+        <AuthProvider>
+          <AppNavigator />
+        </AuthProvider>
+      );
+    }
+    ```

@@ -35,8 +35,8 @@ body.pagina-inicial {
 
 .particle {
     position: absolute;
-    width: 4px;
-    height: 4px;
+    width: 5px;
+    height: 5px;
     background: rgba(0, 255, 255, 0.6);
     border-radius: 50%;
     animation: float 6s infinite linear;
@@ -77,6 +77,7 @@ body.pagina-inicial {
     align-items: center;
     position: relative;
     animation: pulse 4s infinite;
+    z-index: 20;
 }
 
 @keyframes pulse {
@@ -149,7 +150,7 @@ body.pagina-inicial {
     color: white;
     font-weight: bold;
     border: 3px solid rgba(0, 255, 255, 0.5);
-    z-index: 100;
+    z-index: 30;
 }
 
 .circuit-point:hover {
@@ -162,37 +163,6 @@ body.pagina-inicial {
 
 .circuit-point:active {
     transform: scale(1.2);
-}
-
-/* --- ESTILOS CORRIGIDOS PARA ANIMAÇÃO DAS LOGOS LATERAIS --- */
-.animated-logo {
-    position: fixed; /* Mudança para fixed para posicionamento absoluto na tela */
-    top: 50%;
-    max-width: 200px;
-    height: auto;
-    opacity: 0;
-    z-index: 100;
-    transition: all 5s cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-.cdk-logo {
-    left: 10%; /* Posição final à esquerda */
-    transform: translateX(-300%) translateY(-50%); /* Começa fora da tela */
-}
-
-.teck-logo {
-    right: 10%; /* Posição final à direita */
-    transform: translateX(300%) translateY(-50%); /* Começa fora da tela */
-}
-
-body.loaded .cdk-logo {
-    opacity: 1;
-    transform: translateX(0%) translateY(-50%); /* Desliza para a posição final */
-}
-
-body.loaded .teck-logo {
-    opacity: 1;
-    transform: translateX(0%) translateY(-50%); /* Desliza para a posição final */
 }
 
 /* Título */
@@ -586,26 +556,23 @@ body.loaded .teck-logo {
 .close-button:hover, .close-button:focus { color: #fff; }
 
 .site-header {
-    position: fixed;
+    position: sticky;
     top: 0;
     left: 0;
     width: 100%;
     z-index: 2000;
-    /*height: 100%;*/
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 40px;
     background-color: rgba(10, 10, 30, 0.6);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid rgba(78, 205, 196, 0.2);
+    font-family: 'Orbitron', sans-serif;
 }
 
 .header-logo {
-    font-family: 'Orbitron', sans-serif;
     display: flex;
     align-items: center;
-    gap: 10px;
     text-decoration: none;
     font-size: 20px;
     font-weight: bold;
@@ -618,8 +585,8 @@ body.loaded .teck-logo {
     background: linear-gradient(180deg, #D97800, #FF8C00, #FFE0B8, #FF8C00, #CC7A00);
     border-radius: 50%; /* Garante que seja perfeitamente redondo */
     border: 2px solid #555; /* Uma base para a borda metálica sutil */
-    /*background-color: rgba(133, 235, 228, 0.3); /* Seu fundo atual */
-    padding: 3px; /* Um pequeno espaçamento interno */
+    margin: 15px;
+    padding: 1px; /* Um pequeno espaçamento interno */
     transition: all 0.3s ease;
 }
 
@@ -629,22 +596,32 @@ body.loaded .teck-logo {
     border-color: #999; /* Borda fica um pouco mais clara */
 }
 
+.header-logo span {
+    font-size: larger;
+    text-align: 50%;
+    color: #c0c0d0;
+    margin: 15px;
+    transition: all 0.3s ease;
+}
+
 .header-logo span:hover{
     color: #4ecdc4;
+    text-shadow: 0 0 15px rgba(78, 205, 196, 0.8); /* Efeito de brilho ciano */
     transform: scale(1.1);
 }
 
 .main-nav a {
-    font-family: 'Orbitron', sans-serif;
     color: #c0c0d0;
     text-decoration: none;
-    margin-left: 25px;
+    margin: 15px;
     font-weight: bold;
-    transition: color 0.3s ease;
+    transition: all 0.3s ease;
+    display: inline-block;
 }
 
 .main-nav a:hover {
     color: #4ecdc4; /* Cor ciano da sua marca */
+    text-shadow: 0 0 15px rgba(78, 205, 196, 0.8); /* Efeito de brilho ciano */
     transform: scale(1.1);
 }
 
@@ -889,4 +866,75 @@ body.loaded .teck-logo {
 /* Efeito ao passar o mouse sobre o polegar */
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, #FF8C00, #D97800); /* Fica laranja ao passar o mouse */
+}
+
+/* ======================================================= */
+/* NOVA ARQUITETURA PARA LOGOS LATERAIS (TEXTO + CSS) */
+/* ======================================================= */
+
+
+/* --- ESTILOS CORRIGIDOS PARA ANIMAÇÃO DAS LOGOS LATERAIS --- 
+.animated-logo {
+    position: fixed; /* Mudança para fixed para posicionamento absoluto na tela 
+    top: 50%;
+    max-width: 200px;
+    height: auto;
+    opacity: 0;
+    transition: all 5s cubic-bezier(0.23, 1, 0.32, 1);
+    z-index: 10;
+}*/
+
+.animated-logo {
+    position: fixed;
+    top: 50%;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 6vw; /* Tamanho fluido que se adapta à largura da tela */
+    font-weight: 900; /* O peso mais forte da fonte */
+    opacity: 0;
+    z-index: 10; /* Mantém atrás do logo central e dos botões */
+    transition: all 5s cubic-bezier(0.23, 1, 0.32, 1);
+
+    /* --- EFEITO DE ILUMINAÇÃO DIRECIONAL --- */
+    /* O gradiente simula a luz vindo do noroeste (superior esquerdo) */
+    background: linear-gradient(135deg, #FFDDAA 0%, #FF8C00 30%, #4ecdc4 70%, #2E8B84 90%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    /* --- EFEITO DE BORDA/STROKE --- */
+    -webkit-text-stroke: 1px rgba(255, 140, 0, 0.7); /* Borda laranja sutil */
+
+    /* --- EFEITO DE PROFUNDIDADE/3D (Chanfro) --- */
+    text-shadow: 
+        -1px -1px 2px rgba(0, 0, 0, 0.7),  /* Sombra interna superior esquerda */
+        1px 1px 2px rgba(255, 255, 255, 0.1); /* Brilho sutil inferior direito */
+}
+
+/* Posições de entrada e saída (sem alterações) */
+.cdk-logo {
+    left: 10%; /* Posição final à esquerda */
+    transform: translateX(-300%) translateY(-50%); /* Começa fora da tela */
+}
+
+.teck-logo {
+    right: 10%; /* Posição final à direita */
+    transform: translateX(300%) translateY(-50%); /* Começa fora da tela */
+}
+
+body.loaded .cdk-logo {
+    opacity: 1;
+    transform: translateX(0%) translateY(-50%); /* Desliza para a posição final */
+}
+
+body.loaded .teck-logo {
+    opacity: 1;
+    transform: translateX(0%) translateY(-50%); /* Desliza para a posição final */
+}
+
+/* Ajustes para mobile */
+@media (max-width: 900px) {
+    .animated-logo {
+        font-size: 10vw; /* Aumenta a proporção em telas menores */
+        /* A lógica de posicionamento de antes continua válida */
+    }
 }

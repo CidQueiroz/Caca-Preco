@@ -1,48 +1,56 @@
-# Navegação do Aplicativo (React Native)
+# Navegação (Mobile)
 
-A navegação no aplicativo móvel Caça-Preço é controlada pelo componente `AppNavigator` em `App.js`, utilizando a biblioteca **React Navigation** (`@react-navigation/native-stack`). A estrutura de navegação é dinâmica e se adapta ao estado de autenticação e ao tipo de usuário.
+A navegação no aplicativo mobile é gerenciada pela biblioteca **React Navigation**.
 
-## Estrutura do Navegador
+## Estrutura de Navegação
 
-O `AppNavigator` usa um `StackNavigator` para gerenciar a pilha de telas. A lógica de qual conjunto de telas mostrar é baseada na existência do objeto `usuario` no `AuthContext`.
+A estrutura de navegação é definida no arquivo `App.js` (ou em um arquivo dedicado como `src/navigation/AppNavigator.js`). A abordagem comum é separar a navegação em diferentes "stacks" (pilhas de telas).
 
-### 1. Tela de Carregamento (Splash Screen)
+### Exemplo de Estrutura
 
-- **Componente:** `<TelaSplash />`
-- **Condição:** Renderizada enquanto o `AuthContext` está no estado `carregando`. Isso acontece na inicialização do app, enquanto o token de autenticação está sendo verificado no `AsyncStorage`.
+1.  **Auth Stack:** Telas relacionadas à autenticação.
+    - `LoginScreen`
+    - `RegisterScreen`
+    - `ForgotPasswordScreen`
 
-### 2. Pilha de Navegação para Usuários Não Autenticados
+2.  **Main App Stack (Tab Navigator):** A interface principal da aplicação após o login, geralmente usando uma navegação por abas na parte inferior.
+    - `HomeScreen` (Tela inicial)
+    - `SearchScreen` (Tela de busca)
+    - `ProfileScreen` (Tela de perfil do usuário)
 
-- **Condição:** `usuario` é `null`.
-- **Telas Disponíveis:**
-  - `TelaInicial`: A primeira tela que o usuário vê.
-  - `TelaLogin`: Para usuários existentes fazerem login.
-  - `TelaCadastro`: Para novos usuários se registrarem.
-  - `TelaCompletarPerfil`: Parte do fluxo de registro.
-  - `TelaVerificarEmail`: Parte do fluxo de registro.
+### Implementação
 
-Este conjunto de telas guia o usuário através do processo de login e registro antes de dar acesso ao conteúdo principal do aplicativo.
+O `App.js` principal deve conter um `NavigationContainer` e, condicionalmente, renderizar o `AuthStack` ou o `MainAppStack` com base no estado de autenticação do usuário (obtido via Context API).
 
-### 3. Pilha de Navegação para Usuários Autenticados
+```jsx
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useAuth } from './src/context/AuthContext'; // Supondo que exista
 
-- **Condição:** O objeto `usuario` existe.
-- **Lógica de Roteamento:** Após a autenticação, o navegador verifica o `usuario.tipoUsuario` para decidir qual dashboard e conjunto de ferramentas apresentar.
+// Importe suas telas aqui
+import LoginScreen from './src/screens/LoginScreen';
+import HomeScreen from './src/screens/HomeScreen';
 
-#### a) Pilha do Vendedor (`usuario.tipoUsuario === 'vendedor'`)
-- `DashboardVendedor`: Tela principal com métricas e atalhos.
-- `CadastroProduto`: Formulário para adicionar novos produtos.
-- `MeusProdutos`: Lista de produtos e ofertas do vendedor.
-- `EditarPerfilVendedor`: Para atualizar informações da loja.
-- `AnaliseMercadoSaaS`: Acesso às ferramentas de análise de concorrência.
-- E outras telas relacionadas ao ecossistema do vendedor.
+const Stack = createNativeStackNavigator();
 
-#### b) Pilha do Cliente (`usuario.tipoUsuario === 'cliente'`)
-- `BemVindo` / `DashboardCliente`: Tela principal do cliente.
-- `BuscaProdutos`: Ferramenta para pesquisar produtos.
-- `Produtos`: Tela para visualizar detalhes de produtos.
-- `MinhasAvaliacoesDetalhe`: Para ver o histórico de avaliações.
-- `IndicarVendedor`: Funcionalidade social.
+function AppNavigator() {
+  const { user } = useAuth(); // Hook para verificar se o usuário está logado
 
-### 4. Telas Comuns
+  return (
+    <NavigationContainer>
+      <Stack.Navigator>
+        {user ? (
+          // Telas para usuários logados
+          <Stack.Screen name="Home" component={HomeScreen} />
+        ) : (
+          // Telas para usuários não logados
+          <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+        )}
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
 
-Algumas telas, como `TelaPrivacidade`, `TelaTermos` e `TelaContato`, estão disponíveis para todos os usuários, independentemente do estado de autenticação, e são envolvidas pelo layout principal `MainLayout` para manter a consistência visual.
+export default AppNavigator;
+```
+Este é um exemplo básico. A estrutura pode ser mais complexa, com navegadores aninhados (Stack dentro de Tab).

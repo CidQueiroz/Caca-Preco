@@ -1,38 +1,48 @@
 # Guia de Início Rápido (Frontend Mobile)
 
-Este guia irá ajudá-lo a configurar e executar o frontend mobile do Caça-Preço.
+Siga estas instruções para configurar e executar o ambiente de desenvolvimento do aplicativo mobile com React Native e Expo.
 
 ## Pré-requisitos
-
-- Node.js (versão 14 ou superior)
-- npm
-- Expo CLI
-
-## Instalação
-
-1. Clone o repositório.
-2. Navegue até o diretório `mobile`.
-3. Instale as dependências:
-
-   ```bash
-   npm install
-   ```
+- Node.js e npm instalados.
+- Expo Go instalado no seu dispositivo móvel (Android/iOS) ou um emulador configurado.
+- O backend Django deve estar em execução e acessível pela sua rede local.
 
 ## Configuração
 
-1. Crie um arquivo `.env` na raiz do diretório `mobile`.
-2. Adicione as seguintes variáveis de ambiente ao arquivo `.env`:
+1.  **Navegue até a pasta do mobile:**
+    ```bash
+    cd mobile
+    ```
 
-   ```
-   API_URL=http://localhost:3001/api
-   ```
+2.  **Instale as dependências:**
+    ```bash
+    npm install
+    ```
 
-## Executando a Aplicação
+3.  **Configure a URL da API:**
+    O aplicativo precisa saber o endereço de IP da sua máquina na rede local para se comunicar com o backend. **Nunca fixe o IP no código.** Use o campo `extra` no arquivo `app.json`.
 
-Para iniciar o servidor de desenvolvimento, execute o seguinte comando:
+    Abra o arquivo `app.json` e adicione a seguinte configuração, **substituindo `192.168.0.101` pelo IP da sua máquina:**
+    ```json
+    {
+      "expo": {
+        // ... outras configurações
+        "extra": {
+          "apiUrl": "http://192.168.0.101:8000/api"
+        }
+      }
+    }
+    ```
+    Para obter o IP da sua máquina no Windows, use o comando `ipconfig` no terminal.
 
-```bash
-npm start
-```
+    No código do `apiClient.js`, acesse essa variável da seguinte forma:
+    ```javascript
+    import Constants from 'expo-constants';
+    const baseURL = Constants.expoConfig.extra.apiUrl;
+    ```
 
-Isso iniciará o Metro Bundler. Você pode então executar a aplicação em um emulador ou em seu dispositivo físico usando o aplicativo Expo Go.
+4.  **Execute o servidor de desenvolvimento:**
+    ```bash
+    npx expo start
+    ```
+    Isso abrirá o Metro Bundler no seu navegador. Escaneie o QR code com o aplicativo Expo Go no seu celular para abrir o app.

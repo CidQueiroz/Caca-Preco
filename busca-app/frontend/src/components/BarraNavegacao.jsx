@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import '../styles/Global.css';
+import ThemeToggle from './ThemeToggle';
 
 const BarraNavegacao = () => {
     const { usuario, logout } = useContext(AuthContext);
@@ -49,6 +50,9 @@ const BarraNavegacao = () => {
                             <Link className="cabecalho_menu_link" to="/cadastro">Cadastrar</Link>
                         </>
                     )}
+
+                    <ThemeToggle />
+
                 </div>
             </nav>
         </header>

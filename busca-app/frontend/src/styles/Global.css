@@ -2,17 +2,45 @@
 
 :root {
     --cor-primaria: #FF8383;
-    --cor-secundaria: #FFF574;
+    --cor-secundaria: #A19AD3;
     --cor-terciaria: #A1D6CB;
-    --cor-hover: #A19AD3;
+    --cor-hover: #A0E7E5;
     --cor-fundo: #fdeff2;
-    --cor-texto: #333;
-    --cor-sucesso: #28a745;
-    --cor-perigo: #dc3545;
+    --cor-texto: #FF8383;
     --cor-borda: #ccc;
-    --cor-container: #e2ebf1;
+    --cor-container: rgba(226, 235, 241, 0.8);;
+    --cor-card-fundo: #ffffff; 
+    --cor-titulo: var(--cor-primaria);
+    --cor-res: #000;
+    --borda-form-color: var(--cor-primaria);
+    --borda-form-shadow: 0 4px 12px rgba(255, 131, 131, 0.2); 
     --fonte-primaria: 'Krona One', sans-serif;
     --fonte-secundaria: 'Montserrat', sans-serif;
+    --sombra-padrao: 0 8px 16px rgba(0, 0, 0, 0.1);
+    --sombra-hover: 0 12px 24px rgba(0, 0, 0, 2);
+    --sombra-logo: 0 0 15px rgba(255, 131, 131, 0.4);
+}
+
+body[data-theme='dark'] {
+    --cor-primaria: #FF8C00;
+    --cor-secundaria: #A0AEC0;
+    --cor-terciaria: #4ecdc4;
+    --cor-hover: #4ecdc4;
+    --cor-fundo: #1a1a2e;
+    --cor-container: rgba(22, 33, 62, 0.8);
+    --cor-texto: #A0AEC0;
+    --cor-borda: rgba(78, 205, 196, 0.2);
+    --cor-res: #fff;
+    --cor-card-fundo: rgba(28, 28, 30, 0.75); 
+    --cor-titulo: var(--cor-terciaria);
+    --borda-form-color: var(--cor-terciaria);
+    --borda-form-shadow: 0 0 15px rgba(78, 205, 196, 0.4);
+    --sombra-padrao: 0 8px 32px rgba(78, 205, 196, 0.2);
+    --sombra-hover: 0 12px 32px rgba(78, 205, 196, 0.3);
+    --sombra-logo: 0 0 20px rgba(78, 205, 196, 0.6);
+
+    --cor-sucesso: #28a745;
+    --cor-perigo: #dc3545;
 }
 
 * {
@@ -21,12 +49,14 @@
     box-sizing: border-box;
 }
 
-/* --- ESTILOS GLOBAIS CORRIGIDOS --- */
 html {
     scroll-behavior: smooth;
 }
 
 body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
     background-color: var(--cor-fundo);
     color: var(--cor-texto);
     font-family: var(--fonte-secundaria);
@@ -35,23 +65,24 @@ body {
 #root {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    min-height: 100%;
 }
 
 main.apresentacao {
-    flex: 1; /* Faz o conteúdo principal crescer e empurrar o footer para baixo */
-    padding: 5% 5%;
+    padding: 2rem 5%;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     gap: 82px;
+    overflow-y: auto;
+    flex-grow: 1;
 }
 
 main.layout-logado-background {
     flex: 1;
     position: relative;
     width: 100%;
-    background-color: #FFFFFF;
+    background-color: var(--cor-fundo);
     padding: 40px 20px;
     display: flex;
     flex-direction: column;
@@ -65,10 +96,10 @@ main.layout-logado-background::before {
     left: 0;
     right: 0;
     bottom: 0;
-    background-image: url('/public/assets/ia.png'); /* CAMINHO CORRIGIDO */
+    background-image: url('/public/assets/ia.png');
     background-repeat: repeat;
     background-size: 150px;
-    opacity: 0.2; /* OPACIDADE AJUSTADA */
+    opacity: 0.2;
     z-index: 1;
 }
 
@@ -76,31 +107,37 @@ main.layout-logado-background::before {
     position: relative;
     z-index: 2;
     width: 100%;
-    max-width: 1140px; /* LARGURA AJUSTADA */
+    max-width: 1140px;
     background-color: var(--cor-container);
     border-radius: 16px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
     padding: 40px;
     text-align: center;
+    border: 2px solid var(--borda-form-color);
+    box-shadow: var(--borda-form-shadow);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
-
-/* --- RESTANTE DOS ESTILOS (Cabeçalho, Formulários, Cards, etc.) --- */
 
 @keyframes fadeInAnimation {
     0% { opacity: 0; }
     100% { opacity: 1; }
 }
 
+
+
 .cabecalho {
-    padding: 1% 0;
-    background-color: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--cor-terciaria);
-    display: flex;
-    justify-content: center;
     position: sticky;
     top: 0;
+    left: 0;
+    padding: 1% 0;
+    width: 100%;
     z-index: 1000;
+    display: flex;
+    justify-content: center;
+    background-color: var(--cor-container);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--cor-borda);
+    flex-shrink: 0;
 }
 
 .cabecalho_menu {
@@ -111,8 +148,20 @@ main.layout-logado-background::before {
 }
 
 .cabecalho_logo_imagem {
+    height: 55px;
     width: 60px;
-    height: auto;
+    border-radius: 50%;
+    padding: 1px;
+    transition: all 0.3s ease;
+
+    background-color: var(--cor-secundaria);
+    border: 2px solid #555;
+    box-shadow: var(--sombra-padrao), var(--sombra-logo);
+}
+
+.cabecalho_logo_imagem:hover {
+    transform: scale(1.1);
+    box-shadow: var(--sombra-hover), var(--sombra-logo);
 }
 
 .cabecalho_links {
@@ -123,9 +172,9 @@ main.layout-logado-background::before {
 
 .cabecalho_menu_link {
     font-family: var(--fonte-secundaria);
-    font-size: 1.1rem;
+    font-size: 1.5rem;
     font-weight: 600;
-    color: var(--cor-primaria);
+    color: var(--cor-texto);
     text-decoration: none;
     position: relative;
     transition: color 0.3s ease-in-out;
@@ -145,6 +194,8 @@ main.layout-logado-background::before {
 
 .cabecalho_menu_link:hover {
     color: var(--cor-hover);
+    transform: scale(1.1);
+    transition: all 0.3s ease;
 }
 
 .cabecalho_menu_link:hover::after {
@@ -187,9 +238,11 @@ main.layout-logado-background::before {
 }
 
 .apresentacao__links__subtitulo {
-    font-family: var(--fonte-primaria);
-    font-weight: 400;
+    font-family: var(--cor-secundaria);
+    font-weight: 500;
+    font-weight: bold;
     font-size: 1.5rem;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 .apresentacao__links__navegacao {
@@ -200,8 +253,9 @@ main.layout-logado-background::before {
     padding: 15px 0;
     width: 250px;
     text-align: center;
-    border-radius: 16px;
+    border-radius: 25px;
     font-size: 1.2rem;
+    font-weight: bold;
     text-decoration: none;
     color: var(--cor-primaria);
     font-family: var(--fonte-secundaria);
@@ -209,6 +263,7 @@ main.layout-logado-background::before {
     transition: all 0.3s ease-in-out;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     white-space: nowrap;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 .apresentacao__links__navegacao:hover {
@@ -226,23 +281,24 @@ main.layout-logado-background::before {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 15px; /* Espaçamento entre o texto e os links */
+    gap: 15px;
+    flex-shrink: 0;
 }
 
 .rodape_texto {
-    color: var(--cor-texto);
+    color: var(--cor-res);
     font-size: 0.85rem;
     margin: 0;
 }
 
 .rodape_links {
     display: flex;
-    gap: 30px; /* Espaçamento entre os links */
+    gap: 30px;
     justify-content: center;
 }
 
 .rodape_link {
-    color: var(--cor-primaria); /* Cor rosa */
+    color: var(--cor-primaria);
     font-size: 0.9rem;
     font-family: var(--fonte-secundaria);
     font-weight: 600;
@@ -251,10 +307,9 @@ main.layout-logado-background::before {
 }
 
 .rodape_link:hover {
-    color: var(--cor-hover); /* Cor azul claro/roxo para hover */
+    color: var(--cor-hover);
 }
 
-/* Estilos para Páginas Estáticas (Termos, Privacidade, etc.) */
 .static-page-container {
     max-width: 800px;
     margin: 40px auto;
@@ -306,15 +361,14 @@ main.layout-logado-background::before {
     color: var(--cor-hover);
 }
 
-/* Estilos para a Página de Contato Interativa */
 .contact-page h1 {
-    font-size: 3rem; /* Título maior */
+    font-size: 3rem;
 }
 
 .contact-subtitle {
     text-align: center;
     max-width: 600px;
-    margin: 0 auto 40px auto; /* Centraliza e adiciona espaço abaixo */
+    margin: 0 auto 40px auto;
     font-size: 1.2rem;
 }
 
@@ -324,7 +378,7 @@ main.layout-logado-background::before {
     gap: 25px;
     width: 100%;
     max-width: 700px;
-    margin: 0 auto; /* Centraliza o grid */
+    margin: 0 auto;
 }
 
 .social-link {
@@ -348,23 +402,22 @@ main.layout-logado-background::before {
     transform: translateY(-8px);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     border-color: var(--cor-primaria);
-    color: var(--cor-primaria); /* Mantém a cor do texto no hover */
+    color: var(--cor-primaria);
     text-decoration: none;
 }
 
 .social-link img {
-    width: 50px; /* Tamanho do ícone */
+    width: 50px;
     height: 50px;
 }
 
-/* --- MEDIA QUERIES PARA PÁGINA DE CONTATO -- */
 @media (max-width: 768px) {
     .contact-page h1 {
-        font-size: 2.5rem; /* Reduz o título em tablets */
+        font-size: 2.5rem;
     }
 
     .charts-grid {
-        grid-template-columns: 1fr; /* Uma coluna em telas menores */
+        grid-template-columns: 1fr;
     }
 
     .static-page-container.contact-page {
@@ -389,11 +442,11 @@ main.layout-logado-background::before {
 
 @media (max-width: 480px) {
     .contact-page h1 {
-        font-size: 2rem; /* Reduz ainda mais em celulares */
+        font-size: 2rem;
     }
 
     .charts-grid {
-        grid-template-columns: 1fr; /* Uma coluna em telas menores */
+        grid-template-columns: 1fr;
     }
 
     .contact-subtitle {
@@ -401,7 +454,7 @@ main.layout-logado-background::before {
     }
 
     .social-links-container {
-        grid-template-columns: 1fr 1fr; /* Duas colunas fixas em telas pequenas */
+        grid-template-columns: 1fr 1fr;
         gap: 15px;
     }
 
@@ -409,17 +462,6 @@ main.layout-logado-background::before {
         font-size: 0.9rem;
     }
 }
-
-
-/* rdp_teste {
-    padding: 24px;
-    color: var(--cor-texto);
-    background-color: var(--cor-terciaria);
-    text-align: center;
-    font-family: var(--fonte-secundaria);
-    font-size: 1rem;
-    font-weight: 400;
-} */
 
 .apresentacao_imagem {
     width: 50%;
@@ -437,15 +479,24 @@ main.layout-logado-background::before {
 }
 
 .form-container {
-    background-color: #fff;
+    background-color: var(--cor-container);
     padding: 30px;
     border-radius: 16px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     max-width: 500px;
-    margin: 50px auto;
+    margin: 30px auto;
     display: flex;
     flex-direction: column;
     gap: 20px;
+    border: 2px solid var(--borda-form-color);
+    box-shadow: var(--borda-form-shadow);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-container h2 {
+    color: var(--cor-texto);
+    font-family: var(--fonte-primaria);
+    text-align: center;
 }
 
 .form-group {
@@ -456,7 +507,7 @@ main.layout-logado-background::before {
     display: block;
     margin-bottom: 8px;
     font-weight: 600;
-    color: var(--cor-primaria);
+    color: var(--cor-texto);
     font-size: 1.1rem;
 }
 
@@ -508,12 +559,53 @@ main.layout-logado-background::before {
     align-items: center;
     justify-content: center;
     gap: 8px;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
+    -webkit-text-stroke: 0.5px rgba(0, 0, 0, 0.2);
 }
 
-.btn-primary { background-color: var(--cor-primaria); color: #fff; }
-.btn-primary:hover { background-color: #e07373; transform: translateY(-2px); }
-.btn-secondary { background-color: var(--cor-terciaria); color: #fff; }
-.btn-secondary:hover { background-color: #8ec2b7; transform: translateY(-2px); }
+.product-row {
+    align-items: center;
+    background-color: var(--cor-fundo);
+    border-bottom: 1px solid var(--cor-borda);
+    color: var(--cor-res);
+    font-weight: bold;
+}
+
+.btn-primary {
+    border: 2px solid var(--cor-hover);
+    color: white;
+    background-color: var(--cor-primaria);
+    background-size: 200% auto;
+    transition: background-position 0.4s ease-in-out;
+}
+
+.btn-primary:hover {
+    border: 2px solid var(--cor-terciaria);
+    box-shadow: var(--sombra-padrao);
+    background-position: right center; 
+    filter: none; 
+    transform: translateY(-2px);
+    background-color: var(--cor-hover);
+}
+
+.btn-secondary {
+    background-color: var(--cor-secundaria);
+    color: white;
+    font-weight: bold;
+    border: 2px solid var(--cor-primaria);
+    box-shadow: var(--sombra-padrao);
+    transition: background-position 0.4s ease-in-out;
+}
+
+.btn-secondary:hover {
+    border: 2px solid var(--cor-terciaria);
+    box-shadow: var(--sombra-padrao);
+    transform: translateY(-2px);
+    background-position: right center; 
+    filter: none; 
+    background-color: var(--cor-hover);
+}
+
 .btn-success { background-color: var(--cor-sucesso); color: #fff; }
 .btn-success:hover { background-color: #218838; transform: translateY(-2px); }
 .btn-danger { background-color: var(--cor-perigo); color: #fff; }
@@ -538,6 +630,14 @@ main.layout-logado-background::before {
     border: 1px solid #f5c6cb;
 }
 
+.static-page-container {
+    background-color: var(--cor-fundo);
+}
+
+.static-page-container h2{
+    color: var(--cor-primaria);
+}
+
 .dashboard-title {
     font-family: var(--fonte-primaria);
     font-size: 2.5rem;
@@ -545,6 +645,13 @@ main.layout-logado-background::before {
     text-align: center;
     margin-bottom: 40px;
     text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+}
+
+.layout-logado-content p {
+    font-family: var(--fonte-primaria);
+    font-size: 1rem;
+    color: var(--cor-hover);
+    text-align: center;
 }
 
 .card-grid {
@@ -555,20 +662,25 @@ main.layout-logado-background::before {
 }
 
 .card {
-    background-color: #fff;
+    background-color: var(--cor-card-fundo);
     border-radius: 16px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--sombra-padrao);
     padding: 25px;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--sombra-hover);
 }
 
 .card-icon {
@@ -600,7 +712,6 @@ main.layout-logado-background::before {
     margin-bottom: 15px;
 }
 
-/* Estilos para a página SaaS */
 .saas-page-container {
     color: var(--cor-texto);
 }
@@ -642,12 +753,37 @@ main.layout-logado-background::before {
     padding-left: 20px;
 }
 
+.monitor-resultado {
+    margin-top: 30px;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--cor-borda);
+    background-color: var(--cor-fundo);
+    text-align: left;
+    color: var(--cor-texto);
+}
+
+.monitor-resultado h3 {
+    color: var(--cor-titulo);
+    margin-bottom: 15px;
+}
+
 .saas-cta-section {
     margin-top: 40px;
     padding: 30px;
-    background-color: #f9f9f9;
+    background-color: var(--card-container);
+    justify-content: space-between;
     border-radius: 8px;
     text-align: center;
+}
+
+.saas-cta-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 10px;
+    border-radius: 15px;
 }
 
 .saas-form {
@@ -661,9 +797,7 @@ main.layout-logado-background::before {
     max-width: 300px;
 }
 
-/* Estilos para o Dashboard de Análise */
 .analytics-dashboard {
-    /* Garante um espaçamento consistente entre as seções */
     display: flex;
     flex-direction: column;
     gap: 40px;
@@ -714,17 +848,15 @@ main.layout-logado-background::before {
 
 .charts-grid {
     display: grid;
-    /* grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* 3 colunas */
-    grid-template-columns: 1fr 1fr; /* Começa com 2 colunas */
+    grid-template-columns: 1fr 1fr;
     gap: 30px;
 }
 
-/* O card do gráfico, agora com mais "graciosidade" */
 .chart-card {
     padding: 25px;
-    border-radius: 16px; /* Borda mais arredondada como seus outros cards */
+    border-radius: 16px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
-    background-color: #fff; /* Destaque com sua cor */
+    background-color: #fff;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     border-left:  5px solid var(--cor-primaria);
 }
@@ -762,8 +894,6 @@ main.layout-logado-background::before {
     color: var(--cor-texto);
 }
 
-
-/* --- MEDIA QUERIES --- */
 @media (max-width: 1200px) {
     main.apresentacao {
         flex-direction: column-reverse;
@@ -790,7 +920,7 @@ main.layout-logado-background::before {
     }
 
     .charts-grid {
-        grid-template-columns: 1fr; /* Uma coluna em telas menores */
+        grid-template-columns: 1fr;
     }
 
     .card-grid {
@@ -829,7 +959,6 @@ main.layout-logado-background::before {
     }
 }
 
-/* Estilos de Notificação Flutuante */
 .notification {
     position: fixed;
     bottom: 20px;
@@ -873,11 +1002,6 @@ main.layout-logado-background::before {
     }
 }
 
-/* =============================================== */
-/* --- ESTILOS PARA A PÁGINA "MEUS PRODUTOS" --- */
-/* =============================================== */
-
-/* Controles de filtro e visualização */
 .view-controls {
     display: flex;
     justify-content: space-between;
@@ -892,7 +1016,6 @@ main.layout-logado-background::before {
     gap: 0.5rem;
 }
 
-/* Tabela da Visualização em Lista */
 .list-view-container {
     overflow-x: auto;
 }
@@ -900,19 +1023,18 @@ main.layout-logado-background::before {
 .product-table {
     width: 100%;
     border-collapse: collapse;
-    background-color: #fff; /* Mantendo fundo branco para contraste */
+    background-color: #fff;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    border-radius: 16px; /* Borda arredondada como seus cards */
+    border-radius: 16px;
     overflow: hidden;
 }
 
 .product-table th, .product-table td {
     padding: 1rem;
     text-align: left;
-    border-bottom: 1px solid var(--cor-fundo); /* Usando a cor de fundo como borda suave */
+    border-bottom: 1px solid var(--cor-fundo);
 }
 
-/* Cabeçalho da tabela usando suas fontes e cores */
 .product-table th {
     background-color: var(--cor-container);
     font-family: var(--fonte-primaria);
@@ -933,20 +1055,18 @@ main.layout-logado-background::before {
     text-overflow: ellipsis;
 }
 
-/* Botão de expandir (seta) usando suas cores */
 .expand-btn {
     background: none;
     border: none;
     cursor: pointer;
     padding: 0;
     display: flex;
-    color: var(--cor-primaria); /* Cor primária */
+    color: var(--cor-primaria);
 }
 .expand-btn:hover {
-    color: var(--cor-hover); /* Cor de hover */
+    color: var(--cor-hover);
 }
 
-/* Linha da imagem expandida */
 .image-expansion-row td {
     padding: 1rem;
     background-color: var(--cor-fundo);
@@ -961,7 +1081,6 @@ main.layout-logado-background::before {
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
-/* Links de ação na tabela (Editar/Excluir) */
 .action-links a {
     font-weight: 600;
     text-decoration: none;
@@ -977,10 +1096,6 @@ main.layout-logado-background::before {
     color: var(--cor-perigo);
 }
 
-/* =============================================== */
-/* --- ESTILOS PARA EDIÇÃO NA TABELA --- */
-/* =============================================== */
-
 .product-row-editing {
     background-color: var(--cor-fundo) !important;
 }
@@ -990,10 +1105,10 @@ main.layout-logado-background::before {
 }
 
 .form-input-table {
-    width: 80px; /* Um tamanho bom para preço e estoque */
+    width: 80px;
     padding: 8px;
     border: 1px solid var(--cor-borda);
-    border-radius: 8px; /* Borda igual aos seus outros inputs */
+    border-radius: 8px;
     font-size: 1rem;
     font-family: var(--fonte-secundaria);
 }
@@ -1042,7 +1157,6 @@ main.layout-logado-background::before {
     background-color: rgba(108, 117, 125, 0.1);
 }
 
-/* Em Global.css */
 .search-results-list {
     list-style: none;
     margin-top: 1rem;
@@ -1089,8 +1203,8 @@ main.layout-logado-background::before {
     color: var(--cor-texto);
     font-size: 1rem;
     text-align: 'center';
-    height: 100%; /* Faz o conteúdo preencher o card */
-    flex-grow: 1; /* A mágica acontece aqui! */
+    height: 100%;
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
     text-align: jus;
@@ -1099,17 +1213,28 @@ main.layout-logado-background::before {
 }
 
 .ai-analysis-content strong {
-    color: var(--cor-hover); /* Usa sua cor primária para dar destaque */
+    color: var(--cor-hover);
     font-weight: 600;
 }
 
 .ai-button {
    padding: 10px 20px;
-   margin-top: auto; /* Empurra para o final do espaço criado pelo flex-grow */
-   text-align: center; /* Centraliza o botão horizontalmente */
+   margin-top: auto;
+   text-align: center;
 }
 
 .chart-card.ai-card {
     display: flex;
     flex-direction: column;
+}
+
+.theme-toggle-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+.theme-toggle-btn:hover {
+    transform: scale(1.2);
 }

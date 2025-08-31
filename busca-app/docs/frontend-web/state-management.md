@@ -1,52 +1,82 @@
-# Gerenciamento de Estado com Context API
+# Gerenciamento de Estado (Web)
 
-O gerenciamento do estado de autenticação do usuário na aplicação web é centralizado usando a **Context API** do React. O `AuthContext` é o responsável por armazenar e compartilhar os dados do usuário e o token de autenticação entre todos os componentes.
+O gerenciamento de estado global da aplicação web é feito utilizando a **Context API** nativa do React.
 
-## `AuthContext.jsx`
+## Por que Context API?
 
-Este arquivo exporta um `AuthProvider` que envolve a árvore de componentes da aplicação, disponibilizando o contexto de autenticação para qualquer componente que precise dele.
+Para o escopo atual do projeto, a Context API é suficiente para compartilhar estado global (como informações de autenticação do usuário) sem a necessidade de adicionar bibliotecas externas como Redux ou MobX.
 
-### Estado Gerenciado
+## Contexto Principal: `AuthContext`
 
-O `AuthProvider` mantém os seguintes estados:
+O contexto mais importante é o `AuthContext`, responsável por gerenciar os dados do usuário logado e o status da autenticação.
 
-- **`token`**: Armazena o JWT `access token` do usuário. É lido e salvo no `localStorage` para persistir a sessão entre recargas da página.
-- **`usuario`**: Um objeto contendo as informações do usuário logado (ex: `email`, `tipo_usuario`, `perfil_completo`). Também é persistido no `localStorage`.
-- **`carregando`**: Um booleano que indica se a verificação inicial do token ainda está em andamento. É útil para exibir uma tela de splash ou um indicador de carregamento ao iniciar a aplicação.
+### Estrutura Sugerida
 
-### Funções Expostas
+1.  **Criação do Contexto (`src/context/AuthContext.js`):**
+    ```javascript
+    import { createContext, useState, useContext } from 'react';
 
-O contexto também expõe funções para modificar o estado de autenticação:
+    const AuthContext = createContext(null);
 
-- **`login(novoToken, dadosUsuario)`**: Chamada após uma autenticação bem-sucedida. Ela salva o token e os dados do usuário no `localStorage` e atualiza o estado do React, propagando a mudança para toda a aplicação.
-- **`logout()`**: Remove o token e os dados do usuário do `localStorage` e do estado, efetivamente deslogando o usuário.
+    export const AuthProvider = ({ children }) => {
+      const [user, setUser] = useState(null);
+      const [token, setToken] = useState(localStorage.getItem('authToken'));
 
-### Verificação de Token
+      // Funções de login, logout, etc.
+      const login = (userData, authToken) => {
+        setUser(userData);
+        setToken(authToken);
+        localStorage.setItem('authToken', authToken);
+      };
 
-Um `useEffect` dentro do `AuthProvider` monitora o estado do `token`. Ao carregar a aplicação, ele decodifica o token para verificar sua data de expiração. Se o token estiver expirado, a função `logout()` é chamada automaticamente para limpar a sessão inválida.
+      const logout = () => {
+        setUser(null);
+        setToken(null);
+        localStorage.removeItem('authToken');
+      };
 
-### Como Usar o Contexto
+      return (
+        <AuthContext.Provider value={{ user, token, login, logout }}>
+          {children}
+        </AuthContext.Provider>
+      );
+    };
 
-Qualquer componente que precise acessar os dados de autenticação pode usar o hook `useContext`.
+    export const useAuth = () => useContext(AuthContext);
+    ```
 
-**Exemplo em um componente:**
+2.  **Prover o Contexto (`src/App.jsx`):**
+    Envolver a aplicação com o `AuthProvider` para que todos os componentes filhos tenham acesso a ele.
+    ```jsx
+    import { AuthProvider } from './context/AuthContext';
+    import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-```jsx
-import React, { useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
+    function App() {
+      return (
+        <AuthProvider>
+          <Router>
+            {/* ... Rotas ... */}
+          </Router>
+        </AuthProvider>
+      );
+    }
+    ```
 
-const MeuComponente = () => {
-  const { usuario, logout } = useContext(AuthContext);
+3.  **Consumir o Contexto:**
+    Use o hook customizado `useAuth` em qualquer componente que precise de informações do usuário.
+    ```jsx
+    import { useAuth } from '../context/AuthContext';
 
-  if (!usuario) {
-    return <p>Por favor, faça o login.</p>;
-  }
+    function UserProfile() {
+      const { user, logout } = useAuth();
 
-  return (
-    <div>
-      <p>Bem-vindo, {usuario.email}!</p>
-      <button onClick={logout}>Sair</button>
-    </div>
-  );
-};
-```
+      if (!user) return <p>Por favor, faça o login.</p>;
+
+      return (
+        <div>
+          <h1>Bem-vindo, {user.nome_completo}!</h1>
+          <button onClick={logout}>Sair</button>
+        </div>
+      );
+    }
+    ```

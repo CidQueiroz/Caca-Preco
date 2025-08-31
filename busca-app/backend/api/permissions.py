@@ -24,15 +24,19 @@ class IsCliente(BasePermission):
 class IsOwnerOrReadOnly(BasePermission):
     """
     Permissão personalizada para permitir que apenas os proprietários de um objeto o editem.
+    Administradores podem editar qualquer objeto.
     """
     def has_object_permission(self, request, view, obj):
-        # Permissões de leitura são permitidas para qualquer solicitação,
-        # então sempre permitiremos solicitações GET, HEAD ou OPTIONS.
+        # Admin users can edit anything
+        if request.user and request.user.is_authenticated and request.user.tipo_usuario == 'Administrador':
+            return True
+
+        # Read permissions are allowed to any request,
+        # so we'll always allow GET, HEAD or OPTIONS requests.
         if request.method in SAFE_METHODS:
             return True
 
-        # A permissão de escrita só é concedida ao proprietário do objeto.
-        # Verificamos se o objeto tem um atributo 'usuario' ou 'vendedor.usuario'.
+        # Write permissions are only allowed to the owner of the object.
         if hasattr(obj, 'usuario'):
             return obj.usuario == request.user
         if hasattr(obj, 'vendedor') and hasattr(obj.vendedor, 'usuario'):

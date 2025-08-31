@@ -13,7 +13,19 @@ class UsuarioManager(BaseUserManager):
         if not email:
             raise ValueError("O email deve ser definido")
         email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
+        # Ensure password is not passed to the model constructor
+        # It's already handled by set_password later
+        
+        # Create a copy of extra_fields to safely modify it
+        model_extra_fields = extra_fields.copy() 
+        
+        # If 'password' is somehow in extra_fields, remove it
+        # (though it shouldn't be if passed as a named argument)
+        # This is a defensive check.
+        if 'password' in model_extra_fields:
+            del model_extra_fields['password']
+
+        user = self.model(email=email, **model_extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
@@ -47,6 +59,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     # Campos para verificação de email e reset de senha
     email_verificado = models.BooleanField(default=False)
     token_verificacao = models.UUIDField(null=True, blank=True)
+    token_verificacao_expiracao = models.DateTimeField(null=True, blank=True)
     token_redefinir_senha = models.UUIDField(null=True, blank=True)
     token_redefinir_senha_expiracao = models.DateTimeField(null=True, blank=True)
 
@@ -203,9 +216,27 @@ class Administrador(models.Model):
 class ProdutosMonitoradosExternos(models.Model):
     vendedor = models.ForeignKey(Vendedor, on_delete=models.CASCADE)
     url_produto = models.URLField(max_length=2048)
+    url_hash = models.CharField(max_length=64, blank=True, help_text="Hash SHA-256 da URL canônica para garantir unicidade.")
     nome_produto = models.CharField(max_length=255, blank=True, null=True)
     preco_atual = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     ultima_coleta = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('vendedor', 'url_hash')
+
+    def __str__(self):
+        return f'{self.nome_produto} ({self.vendedor.nome_loja})'
+
+class HistoricoPrecos(models.Model):
+    produto_monitorado = models.ForeignKey(ProdutosMonitoradosExternos, related_name='historico', on_delete=models.CASCADE)
+    preco = models.DecimalField(max_digits=10, decimal_places=2)
+    data_coleta = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-data_coleta']
+
+    def __str__(self):
+        return f'{self.produto_monitorado.nome_produto} - R${self.preco} em {self.data_coleta.strftime("%d/%m/%Y %H:%M")}'
 
 class Sugestao(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)

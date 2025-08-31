@@ -23,8 +23,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # Qualquer URL que comece com 'api/' será redirecionada para o arquivo urls.py do nosso app api
     path('api/', include('api.urls')),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-# Adiciona as URLs de mídia em ambiente de desenvolvimento
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

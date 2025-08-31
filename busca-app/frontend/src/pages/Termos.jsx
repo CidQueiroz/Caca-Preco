@@ -33,7 +33,7 @@ const Termos = () => {
       <p>Em nenhuma circunstância o Caça-Preço, nem seus diretores, funcionários, parceiros, agentes, fornecedores ou afiliados, serão responsáveis por quaisquer danos indiretos, incidentais, especiais, consequenciais ou punitivos, incluindo, sem limitação, perda de lucros, dados, uso, ágio ou outras perdas intangíveis, resultantes de (i) seu acesso ou uso ou incapacidade de acessar ou usar o Serviço; (ii) qualquer conduta ou conteúdo de terceiros no Serviço; (iii) qualquer conteúdo obtido do Serviço; e (iv) acesso não autorizado, uso ou alteração de suas transmissões ou conteúdo, seja com base em garantia, contrato, ato ilícito (incluindo negligência) ou qualquer outra teoria jurídica, tenhamos ou não sido informados da possibilidade de tais danos, e mesmo que uma solução aqui estabelecida tenha falhado em seu propósito essencial.</p>
 
       <h2>8. Contato</h2>
-      <p>Se você tiver alguma dúvida sobre estes Termos, entre em contato conosco em: <a href="mailto:termos@cacapreco.com">termos@cacapreco.com</a>.</p>
+      <p>Se você tiver alguma dúvida sobre estes Termos, entre em contato conosco em: <a href="mailto:contato@cdkteck.com.br">contato@cdkteck.com.br</a>.</p>
     </div>
   );
 };

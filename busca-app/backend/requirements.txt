@@ -1,0 +1,14 @@
+Scrapy
+Playwright
+scrapy-playwright
+playwright-stealth
+django
+djangorestframework
+django-cors-headers
+mysqlclient
+undetected-chromedriver
+Pillow
+pytest
+coverage
+pytest-cov
+pytest-asyncio

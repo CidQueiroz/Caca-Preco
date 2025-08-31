@@ -40,7 +40,7 @@ const Privacidade = () => {
       <p>Usamos medidas de segurança administrativas, técnicas e físicas para ajudar a proteger suas informações pessoais. Embora tenhamos tomado medidas razoáveis para proteger as informações pessoais que você nos fornece, esteja ciente de que, apesar de nossos esforços, nenhuma medida de segurança é perfeita ou impenetrável, e nenhum método de transmissão de dados pode ser garantido contra qualquer interceptação ou outro tipo de uso indevido.</p>
 
       <h2>6. Contato</h2>
-      <p>Se você tiver alguma dúvida sobre esta Política de Privacidade, entre em contato conosco em: <a href="mailto:privacidade@cacapreco.com">privacidade@cacapreco.com</a>.</p>
+      <p>Se você tiver alguma dúvida sobre esta Política de Privacidade, entre em contato conosco em: <a href="mailto:contato@cdkteck.com.br">contato@cdkteck.com.br</a>.</p>
     </div>
   );
 };

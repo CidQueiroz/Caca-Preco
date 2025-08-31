@@ -48,6 +48,10 @@ INSTALLED_APPS = [
     'corsheaders',
 ]
 
+DJANGO_SETTINGS_MODULE = [
+    'core.settings',
+]
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'corsheaders.middleware.CorsMiddleware', # Adicione aqui

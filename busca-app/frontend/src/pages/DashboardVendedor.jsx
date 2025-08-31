@@ -103,7 +103,7 @@ const DashboardVendedor = () => {
           <span className="card-icon">📦</span>
           <h2 className="card-title">Gerenciamento de Produtos</h2>
           <p className="card-text">Visualize, edite e adicione novos produtos.</p>
-          <button onClick={() => navigate('/meus-produtos')} className="btn btn-primary">Gerenciar Meus Produtos</button>
+          <button onClick={() => navigate('/meus-produtos')} className="btn btn-secondary">Gerenciar Meus Produtos</button>
         </div>
 
         {/* Seção de Análise e SaaS */}
@@ -181,7 +181,7 @@ const DashboardVendedor = () => {
 
           <button 
             onClick={() => navigate('/indicar-vendedor')}
-            className="btn btn-primary"
+            className="btn btn-secondary"
             style={{ marginTop: '10px' }}
           >
             Indicar Novo Vendedor
@@ -190,7 +190,7 @@ const DashboardVendedor = () => {
       </div>
 
       <div style={{ textAlign: 'center', marginTop: '30px' }}>
-        <button onClick={() => navigate('/')} className="btn btn-secondary">Voltar ao Início</button>
+        <button onClick={() => navigate('/')} className="btn btn-primary">Voltar ao Início</button>
       </div>
     </>
   );
