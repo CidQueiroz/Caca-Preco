@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch, MagicMock, AsyncMock, call
 from decimal import Decimal
 import hashlib
-from api.models import Vendedor, ProdutosMonitoradosExternos, Usuario, CategoriaLoja
+from api.models import Vendedor, ProdutosMonitoradosExternos, Usuario, CategoriaLoja, HistoricoPrecos
 from cacapreco_scraper.cacapreco_scraper.pipelines import DjangoPipeline
 
 # Fixtures síncronas para uma configuração de banco de dados limpa e segura por teste
@@ -104,16 +104,28 @@ async def test_process_item_vendedor_not_found():
     # Verifica se o erro foi logado corretamente
     spider.logger.error.assert_called_with("Vendedor com usuário ID 999 não encontrado no banco.")
 
-@patch('api.models.Vendedor.objects.get')
-@patch('api.models.ProdutosMonitoradosExternos.objects.update_or_create')
+@patch('cacapreco_scraper.cacapreco_scraper.pipelines.sync_to_async')
 @pytest.mark.django_db
 @pytest.mark.asyncio
-async def test_process_item_updates_product(mock_update_or_create, mock_vendedor_get, vendedor):
+async def test_process_item_updates_product(mock_sync_to_async, vendedor):
     """Testa se o pipeline atualiza um produto existente."""
-    mock_vendedor_get.return_value = vendedor
-    # Simulate that the product was not created (it was updated)
-    mock_update_or_create.return_value = (ProdutosMonitoradosExternos(id=1), False)
     
+    # Configure the side effects of the async mocks
+    async def get_vendedor(*args, **kwargs):
+        return vendedor
+
+    async def update_or_create(*args, **kwargs):
+        return (ProdutosMonitoradosExternos(id=1), False)
+
+    async def create_historico(*args, **kwargs):
+        return None
+
+    mock_sync_to_async.side_effect = [
+        get_vendedor,
+        update_or_create,
+        create_historico
+    ]
+
     pipeline = DjangoPipeline()
     spider = MagicMock()
     item = {
@@ -125,8 +137,7 @@ async def test_process_item_updates_product(mock_update_or_create, mock_vendedor
 
     await pipeline.process_item(item, spider)
 
-    mock_update_or_create.assert_called_once()
-    spider.logger.info.assert_any_call("Produto atualizado")
+    spider.logger.info.assert_any_call(f"Produto ID 1 atualizado com sucesso para o vendedor (usuário ID {vendedor.pk})!")
 
 @patch('api.models.Vendedor.objects.get')
 @patch('api.models.ProdutosMonitoradosExternos.objects.update_or_create')

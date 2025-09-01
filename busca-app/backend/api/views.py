@@ -3,7 +3,7 @@ from django.http import Http404
 from rest_framework import viewsets, status, generics, serializers
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser, IsAdminUserOrReadOnly
 from .permissions import IsVendedor, IsCliente, IsOwnerOrReadOnly 
 from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
@@ -26,8 +26,6 @@ import subprocess
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.http import JsonResponse
-from playwright.sync_api import sync_playwright
-from playwright_stealth.stealth import Stealth
 import json
 import hashlib
 import re
@@ -86,7 +84,7 @@ class MyTokenObtainPairView(TokenObtainPairView):
 class CategoriaLojaViewSet(viewsets.ModelViewSet):
     queryset = CategoriaLoja.objects.all()
     serializer_class = CategoriaLojaSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminUserOrReadOnly]
 
 class SubcategoriaProdutoViewSet(viewsets.ModelViewSet):
     queryset = SubcategoriaProduto.objects.all()

@@ -27,17 +27,6 @@ class DjangoPipeline:
             canonical_url = self.get_canonical_url(original_url)
             url_hash = hashlib.sha256(canonical_url.encode('utf-8')).hexdigest()
 
-            # Print da URL limpa, conforme solicitado
-            print(f"URL Original: {original_url}")
-            print(f"URL Canônica (Limpa): {canonical_url}")
-            print(f"Hash SHA-256: {url_hash}")
-
-            # Print da URL limpa, conforme solicitado
-            print(f"URL Original: {original_url}")
-            print(f"URL Canônica (Limpa): {canonical_url}")
-            print(f"Hash SHA-256: {url_hash}")
-
-
             # Limpa o preço para garantir que seja um número flutuante válido
             preco_final = None
             if item.get('preco_str'):
@@ -56,7 +45,6 @@ class DjangoPipeline:
                     spider.logger.warning(f"Não foi possível converter o preço '{item['preco_str']}' para float.")
                     preco_final = None
 
-            print(f"PRECO FINAL: {preco_final}")
             # Atualiza ou cria o objeto no banco de dados de forma assíncrona
             produto, created = await sync_to_async(ProdutosMonitoradosExternos.objects.update_or_create)(
                 vendedor=vendedor,
@@ -79,7 +67,7 @@ class DjangoPipeline:
             if created:
                 spider.logger.info(f"Produto novo criado com ID {produto.id} para o vendedor (usuário ID {vendedor.pk}).")
             else:
-                spider.logger.info("Produto atualizado")
+                spider.logger.info(f"Produto ID {produto.id} atualizado com sucesso para o vendedor (usuário ID {vendedor.pk})!")
 
         except Vendedor.DoesNotExist:
             spider.logger.error(f"Vendedor com usuário ID {item['usuario_id']} não encontrado no banco.")

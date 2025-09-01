@@ -237,3 +237,179 @@ class MonitoramentoViewTest(BaseSetup):
         self.assertEqual(response.data['message'], 'Ocorreu um erro inesperado no servidor.')
         mock_popen.assert_called_once()
         mock_get_canonical_url.assert_called_once_with('http://example.com/product')
+
+class ObterPerfilViewTest(BaseSetup):
+    def setUp(self):
+        super().setUp()
+        self.url = reverse('meu_perfil')
+
+    def test_get_cliente_perfil(self):
+        self.client.force_authenticate(user=self.cliente_user)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['nome'], self.cliente.nome)
+
+    def test_get_vendedor_perfil(self):
+        self.client.force_authenticate(user=self.vendedor_user)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['nome_loja'], self.vendedor.nome_loja)
+
+    def test_update_cliente_perfil(self):
+        self.client.force_authenticate(user=self.cliente_user)
+        data = {'nome': 'Novo Nome Cliente'}
+        response = self.client.patch(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.cliente.refresh_from_db()
+        self.assertEqual(self.cliente.nome, 'Novo Nome Cliente')
+
+    def test_update_vendedor_perfil(self):
+        self.client.force_authenticate(user=self.vendedor_user)
+        data = {'nome_loja': 'Nova Loja Teste'}
+        response = self.client.patch(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.vendedor.refresh_from_db()
+        self.assertEqual(self.vendedor.nome_loja, 'Nova Loja Teste')
+
+    def test_unauthenticated_get_perfil(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+class RecuperarSenhaViewTest(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(email='test@example.com', password='password123', is_active=True)
+        self.url = reverse('recuperar_senha')
+
+    def test_recuperar_senha_success(self):
+        data = {'email': 'test@example.com'}
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(mail.outbox), 1)
+        self.user.refresh_from_db()
+        self.assertIsNotNone(self.user.token_redefinir_senha)
+
+    def test_recuperar_senha_non_existent_user(self):
+        data = {'email': 'nonexistent@example.com'}
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(mail.outbox), 0)
+
+class RedefinirSenhaViewTest(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(
+            email='test@example.com', password='password123', is_active=True,
+            token_redefinir_senha=uuid.uuid4(),
+            token_redefinir_senha_expiracao=timezone.now() + datetime.timedelta(hours=1)
+        )
+        self.valid_token_url = reverse('redefinir_senha', args=[self.user.token_redefinir_senha])
+
+    def test_redefinir_senha_success(self):
+        data = {'password': 'newpassword123'}
+        response = self.client.post(self.valid_token_url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password('newpassword123'))
+        self.assertIsNone(self.user.token_redefinir_senha)
+
+    def test_redefinir_senha_invalid_token(self):
+        invalid_url = reverse('redefinir_senha', args=[uuid.uuid4()])
+        data = {'password': 'newpassword123'}
+        response = self.client.post(invalid_url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_redefinir_senha_expired_token(self):
+        self.user.token_redefinir_senha_expiracao = timezone.now() - datetime.timedelta(hours=1)
+        self.user.save()
+        data = {'password': 'newpassword123'}
+        response = self.client.post(self.valid_token_url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_redefinir_senha_missing_password(self):
+        response = self.client.post(self.valid_token_url, {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+class ReenviarVerificacaoViewTest(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.verified_user = User.objects.create_user(email='verified@example.com', password='password123', is_active=True, email_verificado=True)
+        self.unverified_user = User.objects.create_user(email='unverified@example.com', password='password123', is_active=False, email_verificado=False)
+        self.url = reverse('reenviar_verificacao')
+
+    def test_reenviar_verificacao_success(self):
+        data = {'email': 'unverified@example.com'}
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_reenviar_verificacao_already_verified(self):
+        data = {'email': 'verified@example.com'}
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_reenviar_verificacao_missing_email(self):
+        response = self.client.post(self.url, {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_reenviar_verificacao_non_existent_user(self):
+        data = {'email': 'nonexistent@example.com'}
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+class VariacaoCreateViewTest(BaseSetup):
+    def setUp(self):
+        super().setUp()
+        self.subcategoria = SubcategoriaProduto.objects.create(nome='Smartphones', categoria_loja=self.categoria_loja)
+        self.produto = Produto.objects.create(nome='iPhone 13', subcategoria=self.subcategoria)
+        self.url = reverse('criar_variacao')
+
+    def test_criar_variacao_success(self):
+        self.client.force_authenticate(user=self.vendedor_user)
+        variacoes = json.dumps([{'nome': 'Cor', 'valor': 'Azul'}, {'nome': 'Memória', 'valor': '128GB'}])
+        data = {'produto': self.produto.id, 'variacoes': variacoes}
+        response = self.client.post(self.url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(SKU.objects.count(), 1)
+
+    def test_criar_variacao_with_image(self):
+        self.client.force_authenticate(user=self.vendedor_user)
+        variacoes = json.dumps([{'nome': 'Cor', 'valor': 'Azul'}, {'nome': 'Memória', 'valor': '128GB'}])
+        image = SimpleUploadedFile("test_image.jpg", b"file_content", content_type="image/jpeg")
+        data = {'produto': self.produto.id, 'variacoes': variacoes, 'imagem': image}
+        response = self.client.post(self.url, data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(ImagemSKU.objects.count(), 1)
+
+    def test_criar_variacao_produto_nao_existe(self):
+        self.client.force_authenticate(user=self.vendedor_user)
+        variacoes = json.dumps([{'nome': 'Cor', 'valor': 'Azul'}])
+        data = {'produto': 999, 'variacoes': variacoes}
+        response = self.client.post(self.url, data)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_criar_variacao_duplicada(self):
+        self.client.force_authenticate(user=self.vendedor_user)
+        variacoes = json.dumps([{'nome': 'Cor', 'valor': 'Azul'}])
+        data = {'produto': self.produto.id, 'variacoes': variacoes}
+        self.client.post(self.url, data) # First time
+        response = self.client.post(self.url, data) # Second time
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+
+    def test_criar_variacao_missing_fields(self):
+        self.client.force_authenticate(user=self.vendedor_user)
+        response = self.client.post(self.url, {})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_criar_variacao_as_cliente(self):
+        self.client.force_authenticate(user=self.cliente_user)
+        variacoes = json.dumps([{'nome': 'Cor', 'valor': 'Azul'}])
+        data = {'produto': self.produto.id, 'variacoes': variacoes}
+        response = self.client.post(self.url, data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_criar_variacao_unauthenticated(self):
+        variacoes = json.dumps([{'nome': 'Cor', 'valor': 'Azul'}])
+        data = {'produto': self.produto.id, 'variacoes': variacoes}
+        response = self.client.post(self.url, data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)

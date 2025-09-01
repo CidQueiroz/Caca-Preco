@@ -97,7 +97,7 @@ class ImagemSKUSerializer(serializers.ModelSerializer):
         fields = ['id', 'imagem', 'ordem']
 
 class SKUSerializer(serializers.ModelSerializer):
-    valores = serializers.PrimaryKeyRelatedField(many=True, queryset=ValorAtributo.objects.all())
+    valores = ValorAtributoSerializer(many=True, read_only=True)
     imagens = ImagemSKUSerializer(many=True, read_only=True)
 
     class Meta:
