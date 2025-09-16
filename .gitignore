@@ -7,7 +7,7 @@
 /GEMINI.md
 /layout.jpg
 /SUBCATEGORIASPRODUTO.sql
-venv/
+busca-app/backend/.venv_linux/
 busca-app/Portfolio HTML/
 busca-app/backend_node/
 backups/
@@ -16,11 +16,17 @@ media_test/
 __pycache__/
 *.pyc
 *.pyo
-*.pyd
+*.pyd/
 busca-app/backend/.pytest_cache
 busca-app/backend/.venv
 busca-app/backend/htmlcov
-busca-app/frontend/node_modules
+busca-app/frontend/node_modules/
 busca-app/frontend/venv
 busca-app/mobile/.expo
 busca-app/mobile/node_modules
+htmlcov
+deploy.bat
+scrapy_output.log
+trello_import.csv
+rag_chunks
+agente_ai/

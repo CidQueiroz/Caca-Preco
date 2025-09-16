@@ -77,6 +77,10 @@ ITEM_PIPELINES = {
    "cacapreco_scraper.pipelines.DjangoPipeline": 300,
 }
 
+# --- API Settings ---
+DJANGO_API_URL = "http://localhost:8000"
+SCRAPY_API_KEY = "your_secret_api_key"
+
 # --- Codificação de Saída ---
 FEED_EXPORT_ENCODING = "utf-8"
 FEED_FORMAT = 'json'

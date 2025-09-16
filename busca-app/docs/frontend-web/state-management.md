@@ -80,3 +80,9 @@ O contexto mais importante é o `AuthContext`, responsável por gerenciar os dad
       );
     }
     ```
+
+## Outros Contextos
+
+Se a aplicação crescer, outros contextos podem ser criados para gerenciar estados específicos, como:
+- `ThemeContext`: Para alternar entre temas claro e escuro.
+- **Observação:** O `CartContext` para o carrinho de compras é uma funcionalidade planejada, mas ainda não implementada.

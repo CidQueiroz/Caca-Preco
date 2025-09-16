@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from .models import (
     Usuario, CategoriaLoja, SubcategoriaProduto, Produto, Atributo, ValorAtributo, SKU, ImagemSKU,
-    OfertaProduto, Vendedor, AvaliacaoLoja, Cliente, Endereco, ProdutosMonitoradosExternos, Sugestao, HistoricoPrecos
+    OfertaProduto, Vendedor, AvaliacaoLoja, Cliente, Endereco, ProdutosMonitoradosExternos, Sugestao, HistoricoPrecos, Administrador
 )
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.conf import settings # Importar settings
@@ -51,33 +51,32 @@ class UserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("A senha deve ter pelo menos 8 caracteres.")
         return value
 
-class MyTokenObtainPairSerializer(TokenObtainPairSerializer): # CORRIGIDO: Era TokenObtainPairView
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     username_field = 'email'
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-        # Adiciona claims customizadas
         token['tipo_usuario'] = user.tipo_usuario
         return token
 
     def validate(self, attrs):
         data = super().validate(attrs)
-        # 1. Checa a verificação de email
+
         if not self.user.email_verificado:
             raise serializers.ValidationError({'detail': 'EMAIL_NAO_VERIFICADO'})
         
-        # 2. Checa se o perfil está completo (ignora para Admins)
         if self.user.tipo_usuario != 'Administrador' and not self.user.perfil_completo:
-            raise serializers.ValidationError({'detail': 'PERFIL_INCOMPLETO'})
+           raise serializers.ValidationError({'detail': 'PERFIL_INCOMPLETO'})
 
-        # Adiciona dados do usuário à resposta do login
         data['user'] = {
             'id': self.user.id,
             'email': self.user.email,
             'tipo_usuario': self.user.tipo_usuario,
-            'email_verificado': self.user.email_verificado, # Adicionado
-            'perfil_completo': self.user.perfil_completo, # Adicionado
+            'email_verificado': self.user.email_verificado,
+            'perfil_completo': self.user.perfil_completo,
         }
+        if data['user']['tipo_usuario'] == 'Admin':
+            data['user']['tipo_usuario'] = 'Administrador'
         return data
 
 class AtributoSerializer(serializers.ModelSerializer):
@@ -86,10 +85,14 @@ class AtributoSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ValorAtributoSerializer(serializers.ModelSerializer):
-    atributo = serializers.StringRelatedField()
+    atributo = serializers.StringRelatedField(read_only=True)
+    atributo_id = serializers.PrimaryKeyRelatedField(
+        queryset=Atributo.objects.all(), source='atributo', write_only=True
+    )
+
     class Meta:
         model = ValorAtributo
-        fields = ['id', 'atributo', 'valor']
+        fields = ['id', 'atributo', 'atributo_id', 'valor']
 
 class ImagemSKUSerializer(serializers.ModelSerializer):
     class Meta:
@@ -130,9 +133,11 @@ class CategoriaLojaSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class SubcategoriaProdutoSerializer(serializers.ModelSerializer):
+    categoria_loja_nome = serializers.CharField(source='categoria_loja.nome', read_only=True)
+
     class Meta:
         model = SubcategoriaProduto
-        fields = '__all__'
+        fields = ['id', 'nome', 'categoria_loja', 'categoria_loja_nome']
 
 class EnderecoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -224,6 +229,19 @@ class VendedorSerializer(serializers.ModelSerializer):
             instance.save() # Add this line
 
         return instance
+
+class AdminSerializer(serializers.ModelSerializer):
+    usuario = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Administrador
+        fields = '__all__'
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        admin = Administrador.objects.create(usuario=user, **validated_data)
+        return admin
+
 
 class AvaliacaoLojaSerializer(serializers.ModelSerializer):
     class Meta:

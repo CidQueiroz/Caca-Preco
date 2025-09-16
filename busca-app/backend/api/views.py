@@ -1,10 +1,11 @@
 from rest_framework.exceptions import PermissionDenied
+from .task import run_spider_task
 from django.http import Http404
-from rest_framework import viewsets, status, generics, serializers
+from rest_framework import viewsets, status, generics, serializers, mixins
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser, IsAdminUserOrReadOnly
-from .permissions import IsVendedor, IsCliente, IsOwnerOrReadOnly 
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
+from .permissions import IsVendedor, IsCliente, IsOwnerOrReadOnly, IsAdminUserOrReadOnly
 from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
 from django.db import transaction
@@ -15,44 +16,84 @@ from datetime import timedelta
 from django.core.mail import send_mail
 import uuid
 from django.conf import settings
-from rest_framework.filters import SearchFilter, OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.parsers import MultiPartParser, FormParser
 import os
 from rest_framework import status
-from .models import Vendedor, ProdutosMonitoradosExternos
-from .serializers import ProdutosMonitoradosExternosSerializer
-
-import subprocess
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework_simplejwt.views import TokenObtainPairView
-from django.http import JsonResponse
 import json
-import hashlib
-import re
-from urllib.parse import urlparse, urlunparse
-
-# Modelos atualizados
+from celery.result import AsyncResult
 from .models import (
     Usuario, CategoriaLoja, SubcategoriaProduto, Produto, Atributo, ValorAtributo, SKU, OfertaProduto, ImagemSKU,
-    Vendedor, Cliente, Endereco, AvaliacaoLoja, Sugestao, ProdutosMonitoradosExternos, HistoricoPrecos
+    Vendedor, Cliente, Endereco, AvaliacaoLoja, Sugestao, ProdutosMonitoradosExternos, HistoricoPrecos, get_canonical_url, Administrador
 )
-
-# Serializers atualizados
 from .serializers import (
     UserSerializer, MyTokenObtainPairSerializer, CategoriaLojaSerializer, SubcategoriaProdutoSerializer,
     ProdutoSerializer, AtributoSerializer, ValorAtributoSerializer, SKUSerializer, OfertaProdutoSerializer,
     VendedorSerializer, ClienteSerializer, EnderecoSerializer, AvaliacaoLojaSerializer, SugestaoSerializer,
     ProdutosMonitoradosExternosSerializer,
     MeusProdutosSerializer,
-    ProdutosMonitoradosExternosComHistoricoSerializer
+    ProdutosMonitoradosExternosComHistoricoSerializer,
+    AdminSerializer
 )
 
-def get_canonical_url(url):
-    """Gera uma URL canônica removendo parâmetros de consulta e fragmentos."""
-    parsed_url = urlparse(url)
-    # Reconstrói a URL apenas com scheme, netloc e path
-    canonical_url = urlunparse((parsed_url.scheme, parsed_url.netloc, parsed_url.path, '', '', ''))
-    return canonical_url
+
+class ProdutosMonitoradosExternosViewSet(mixins.ListModelMixin,
+                                         mixins.RetrieveModelMixin,
+                                         mixins.DestroyModelMixin,
+                                         viewsets.GenericViewSet):
+    serializer_class = ProdutosMonitoradosExternosSerializer
+    permission_classes = [IsAuthenticated, IsVendedor]
+
+    def get_queryset(self) -> QuerySet[ProdutosMonitoradosExternos]: # type: ignore
+        return ProdutosMonitoradosExternos.objects.filter(vendedor=self.request.user.vendedor) # type: ignore
+
+
+class MonitorarProdutoView(APIView):
+
+    """
+    Inicia a tarefa assíncrona para monitorar um produto externo.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        url_concorrente = data.get('url')
+        usuario_id = request.user.id
+
+        if not url_concorrente:
+            return Response({'error': 'URL não fornecida.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            vendedor = Vendedor.objects.get(usuario=request.user)
+        except Vendedor.DoesNotExist:
+            return Response({'error': 'Apenas vendedores podem monitorar produtos.'}, status=status.HTTP_403_FORBIDDEN)
+
+        # Chama a tarefa do Celery e captura o resultado
+        task = run_spider_task.delay(url_concorrente, usuario_id) # type: ignore
+
+        return Response({
+            'message': 'Monitoramento iniciado em segundo plano.',
+            'task_id': task.id
+        }, status=status.HTTP_202_ACCEPTED)
+
+
+class TaskStatusView(APIView):
+    """
+    Verifica o status de uma tarefa do Celery.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, task_id, *args, **kwargs):
+        task_result = AsyncResult(task_id)
+        result = {
+            'task_id': task_id,
+            'status': task_result.status,
+            'result': task_result.result if task_result.ready() else None
+        }
+        return Response(result, status=status.HTTP_200_OK)
+
 
 class HistoricoPrecosView(generics.RetrieveAPIView):
     queryset = ProdutosMonitoradosExternos.objects.all()
@@ -68,6 +109,7 @@ class UserCreateView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.validated_data['token_verificacao'] = uuid.uuid4()
+        serializer.validated_data['token_verificacao_expiracao'] = timezone.now() + timedelta(minutes=15)
         user = serializer.save()
         verification_url = f"{settings.FRONTEND_BASE_URL}/verificar-email/{user.token_verificacao}"
         send_mail(
@@ -78,33 +120,56 @@ class UserCreateView(generics.CreateAPIView):
             fail_silently=False,
         )
 
+
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
+
 
 class CategoriaLojaViewSet(viewsets.ModelViewSet):
     queryset = CategoriaLoja.objects.all()
     serializer_class = CategoriaLojaSerializer
     permission_classes = [IsAdminUserOrReadOnly]
 
+
 class SubcategoriaProdutoViewSet(viewsets.ModelViewSet):
     queryset = SubcategoriaProduto.objects.all()
     serializer_class = SubcategoriaProdutoSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminUserOrReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['categoria_loja']
+
+    def perform_create(self, serializer):
+        nome = serializer.validated_data.get('nome')
+        if nome:
+            # Padroniza o nome: remove espaços extras e capitaliza a primeira letra.
+            serializer.validated_data['nome'] = nome.strip().capitalize()
+        super().perform_create(serializer)
+
+    def perform_update(self, serializer):
+        nome = serializer.validated_data.get('nome')
+        if nome:
+            # Garante a mesma padronização na atualização.
+            serializer.validated_data['nome'] = nome.strip().capitalize()
+        super().perform_update(serializer)
+
 
 class AtributoViewSet(viewsets.ModelViewSet):
     queryset = Atributo.objects.all()
     serializer_class = AtributoSerializer
     permission_classes = [IsAdminUser]
 
+
 class ValorAtributoViewSet(viewsets.ModelViewSet):
     queryset = ValorAtributo.objects.all()
     serializer_class = ValorAtributoSerializer
     permission_classes = [IsAdminUser]
 
+
 class SKUViewSet(viewsets.ModelViewSet):
     queryset = SKU.objects.all()
     serializer_class = SKUSerializer
     permission_classes = [IsAuthenticated, IsVendedor]
+
 
 class ProdutoViewSet(viewsets.ModelViewSet):
     queryset = Produto.objects.all()
@@ -125,6 +190,7 @@ class ProdutoViewSet(viewsets.ModelViewSet):
             ofertas = ofertas.filter(sku__produto__subcategoria__categoria_loja__id=id_categoria)
         serializer = MeusProdutosSerializer(ofertas, many=True, context={'request': request})
         return Response(serializer.data)
+
 
 class OfertaProdutoViewSet(viewsets.ModelViewSet):
     queryset = OfertaProduto.objects.all()
@@ -159,15 +225,46 @@ class OfertaProdutoViewSet(viewsets.ModelViewSet):
             sku = serializer.instance.sku
             imagem_sku_instance = ImagemSKU.objects.filter(sku=sku).order_by('ordem').first()
             if imagem_sku_instance:
-                imagem_sku_instance.imagem = imagem
+                imagem_sku_instance.imagem = imagem # type: ignore
                 imagem_sku_instance.save()
             else:
                 ImagemSKU.objects.create(sku=sku, imagem=imagem, ordem=0)
 
+
 class VendedorViewSet(viewsets.ModelViewSet):
     queryset = Vendedor.objects.all()
     serializer_class = VendedorSerializer
-    permission_classes = [IsOwnerOrReadOnly]
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['status_aprovacao']
+
+    def get_queryset(self): # type: ignore
+        user = self.request.user
+        if user.is_staff or user.tipo_usuario == 'Administrador': # type: ignore
+            return Vendedor.objects.all()
+        if user.tipo_usuario == 'Vendedor': # type: ignore
+            return Vendedor.objects.filter(usuario=user)
+        return Vendedor.objects.filter(status_aprovacao='Aprovado')
+
+    @action(detail=True, methods=['post'], url_path='atualizar-status', permission_classes=[IsAdminUser])
+    def atualizar_status(self, request, pk=None):
+        vendedor = self.get_object()
+        novo_status = request.data.get('status')
+        
+        if novo_status not in ['Aprovado', 'Rejeitado', 'Pendente']:
+            return Response({'error': 'Status inválido.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        vendedor.status_aprovacao = novo_status
+        vendedor.save(update_fields=['status_aprovacao'])
+        
+        return Response({'status': f'Status do vendedor atualizado para {novo_status}'})
+
+
+class AdminViewSet(viewsets.ModelViewSet):
+    queryset = Administrador.objects.all()
+    serializer_class = AdminSerializer
+    permission_classes = [IsAdminUser] # Only admins can manage other admins
+
 
 class ClienteViewSet(viewsets.ModelViewSet):
     queryset = Cliente.objects.all()
@@ -179,15 +276,18 @@ class ClienteViewSet(viewsets.ModelViewSet):
             raise PermissionDenied("Authentication credentials were not provided.")
         return super().list(request, *args, **kwargs)
 
+
 class EnderecoViewSet(viewsets.ModelViewSet):
     queryset = Endereco.objects.all()
     serializer_class = EnderecoSerializer
     permission_classes = [IsAuthenticated]
 
+
 class AvaliacaoLojaViewSet(viewsets.ModelViewSet):
     queryset = AvaliacaoLoja.objects.all()
     serializer_class = AvaliacaoLojaSerializer
     permission_classes = [IsAuthenticated]
+
 
 class SugestaoCreateView(generics.CreateAPIView):
     queryset = Sugestao.objects.all()
@@ -197,108 +297,6 @@ class SugestaoCreateView(generics.CreateAPIView):
     def perform_create(self, serializer):
         serializer.save(usuario=self.request.user)
 
-class ProdutosMonitoradosExternosViewSet(viewsets.ModelViewSet):
-    queryset = ProdutosMonitoradosExternos.objects.all()
-    serializer_class = ProdutosMonitoradosExternosSerializer
-    permission_classes = [IsAuthenticated]
-
-    def create(self, request, *args, **kwargs):
-        url = request.data.get('url')
-        if not url:
-            return Response({'message': 'A URL do produto é obrigatória.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        canonical_url = get_canonical_url(url)
-
-        try:
-            vendedor = Vendedor.objects.get(usuario=request.user)
-        except Vendedor.DoesNotExist:
-            return Response({'message': 'Apenas vendedores podem monitorar produtos.'}, status=status.HTTP_403_FORBIDDEN)
-
-        if ProdutosMonitoradosExternos.objects.filter(vendedor=vendedor, url_produto=canonical_url).exists():
-            return Response({'message': 'Você já está monitorando este produto.'}, status=status.HTTP_409_CONFLICT)
-
-        scrapy_project_path = os.path.join(settings.BASE_DIR, 'cacapreco_scraper')
-        comando = [
-            'scrapy', 'crawl', 'selenium_spider',
-            '-a', f'url={url}',
-            '-a', f'usuario_id={vendedor.pk}',
-            '-o', '-:json'
-        ]
-
-        try:
-            process = subprocess.Popen(comando, cwd=scrapy_project_path, 
-                                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            stdout_bytes, stderr_bytes = process.communicate()
-
-            if process.returncode != 0:
-                error_message = stderr_bytes.decode('latin-1', errors='ignore')
-                print(f"DEBUG: Erro ao executar o Scrapy (código de saída: {process.returncode}). stderr: {error_message}")
-                return Response({'message': 'A coleta de dados falhou. Verifique o console do servidor para mais detalhes.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-            try:
-                stdout_decoded = stdout_bytes.decode('utf-8')
-                stderr_decoded = stderr_bytes.decode('utf-8')
-            except UnicodeDecodeError:
-                stdout_decoded = stdout_bytes.decode('latin-1', errors='ignore')
-                stderr_decoded = stderr_bytes.decode('latin-1', errors='ignore')
-                print("DEBUG: Fallback de decodificação para latin-1 foi utilizado no stdout.")
-
-            scraped_data = {}
-            try:
-                json_start = stdout_decoded.find('[')
-                json_end = stdout_decoded.rfind(']')
-                if json_start != -1 and json_end != -1:
-                    json_string = stdout_decoded[json_start : json_end + 1]
-                    scraped_items = json.loads(json_string)
-                    if scraped_items:
-                        scraped_data = scraped_items[0]
-                
-            except json.JSONDecodeError as e:
-                print(f"DEBUG: Falha ao decodificar o JSON completo do stdout: {e}. stdout: [{stdout_decoded}]")
-                return Response({'message': 'Erro ao processar dados do scraper.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-            if not scraped_data or 'preco_atual' not in scraped_data:
-                print(f"DEBUG: Dados não encontrados ou preço ausente. stdout: [{stdout_decoded}] stderr: [{stderr_decoded}]")
-                return Response({'message': 'Não foi possível extrair os dados do produto. O site pode ser incompatível ou estar indisponível.'}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
-
-            nome_produto = scraped_data.get('nome_produto', 'Nome não encontrado')
-            preco_final = scraped_data.get('preco_atual')
-
-            with transaction.atomic():
-                produto, created = ProdutosMonitoradosExternos.objects.update_or_create(
-                    vendedor=vendedor,
-                    url_produto=canonical_url, 
-                    defaults={
-                        'nome_produto': nome_produto.strip(),
-                        'preco_atual': preco_final,
-                        'ultima_coleta': timezone.now()
-                    }
-                )
-
-                HistoricoPrecos.objects.update_or_create(
-                    produto_monitorado=produto,
-                    preco=preco_final,
-                    data_coleta=produto.ultima_coleta
-                )
-
-            serializer = self.get_serializer(produto)
-            return Response(serializer.data, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
-
-        except FileNotFoundError:
-            print(f"ERRO CRÍTICO: O comando 'scrapy' não foi encontrado. Verifique se o Scrapy está instalado e no PATH do ambiente do servidor.")
-            return Response({'message': 'Erro de configuração no servidor que impede a execução do scraper.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        except Exception as e:
-            print(f"Erro inesperado: {e}")
-            return Response({'message': 'Ocorreu um erro inesperado no servidor.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    def get_queryset(self) -> QuerySet[ProdutosMonitoradosExternos]:
-        if self.request.user.is_authenticated and self.request.user.tipo_usuario == 'Vendedor':
-            return ProdutosMonitoradosExternos.objects.filter(vendedor__usuario=self.request.user)
-        return ProdutosMonitoradosExternos.objects.none()
-
-    def perform_create(self, serializer):
-        vendedor = get_object_or_404(Vendedor, usuario=self.request.user)
-        serializer.save(vendedor=vendedor)
 
 class RecuperarSenhaView(generics.GenericAPIView):
     permission_classes = [AllowAny]
@@ -321,6 +319,7 @@ class RecuperarSenhaView(generics.GenericAPIView):
         )
         return Response({'status': 'ok'}, status=status.HTTP_200_OK)
 
+
 class RedefinirSenhaView(generics.GenericAPIView):
     permission_classes = [AllowAny]
 
@@ -341,6 +340,7 @@ class RedefinirSenhaView(generics.GenericAPIView):
         except Usuario.DoesNotExist:
             return Response({'error': 'Token inválido.'}, status=status.HTTP_400_BAD_REQUEST)
 
+
 class VerificarEmailView(generics.GenericAPIView):
     permission_classes = [AllowAny]
 
@@ -355,10 +355,12 @@ class VerificarEmailView(generics.GenericAPIView):
             user.email_verificado = True
             user.is_active = True
             user.token_verificacao = None
-            user.save(update_fields=['email_verificado', 'is_active', 'token_verificacao'])
+            user.token_verificacao_expiracao = None
+            user.save(update_fields=['email_verificado', 'is_active', 'token_verificacao', 'token_verificacao_expiracao'])
             return Response({'status': 'Email verificado com sucesso.'}, status=status.HTTP_200_OK)
         except Usuario.DoesNotExist:
             return Response({'error': 'Token de verificação inválido.'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class ReenviarVerificacaoView(generics.GenericAPIView):
     """
@@ -375,6 +377,7 @@ class ReenviarVerificacaoView(generics.GenericAPIView):
         if user.email_verificado:
             return Response({'message': 'Esta conta já foi verificada e está ativa.'}, status=status.HTTP_400_BAD_REQUEST)
         user.token_verificacao = uuid.uuid4()
+        user.token_verificacao_expiracao = timezone.now() + timedelta(minutes=15)
         user.save()
         verification_url = request.build_absolute_uri(
             reverse('verificar_email', kwargs={'token': user.token_verificacao})
@@ -385,25 +388,26 @@ class ReenviarVerificacaoView(generics.GenericAPIView):
         send_mail(subject, message, from_email, [user.email])
         return Response({'message': 'Um novo e-mail de verificação foi enviado para o seu endereço.'}, status=status.HTTP_200_OK)
 
+
 class ObterPerfilView(generics.RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated]
     
-    def get_object(self):
+    def get_object(self): # type: ignore
         print("ObterPerfilView: get_object chamado")
         try:
-            if self.request.user.tipo_usuario == 'Cliente':
+            if self.request.user.tipo_usuario == 'Cliente': # type: ignore
                 return Cliente.objects.get(usuario=self.request.user)
-            elif self.request.user.tipo_usuario == 'Vendedor':
+            elif self.request.user.tipo_usuario == 'Vendedor': # type: ignore
                 return Vendedor.objects.get(usuario=self.request.user)
         except (Cliente.DoesNotExist, Vendedor.DoesNotExist):
             raise Http404
         raise Http404
 
-    def get_serializer_class(self):
+    def get_serializer_class(self): # type: ignore
         print("ObterPerfilView: get_serializer_class chamado")
-        if self.request.user.tipo_usuario == 'Cliente':
+        if self.request.user.tipo_usuario == 'Cliente': # type: ignore
             return ClienteSerializer
-        elif self.request.user.tipo_usuario == 'Vendedor':
+        elif self.request.user.tipo_usuario == 'Vendedor': # type: ignore
             return VendedorSerializer
         return serializers.Serializer 
 
@@ -422,6 +426,7 @@ class ObterPerfilView(generics.RetrieveUpdateAPIView):
         print("ObterPerfilView: perform_update chamado.")
         return Response(serializer.data)
 
+
 class VariacaoCreateView(generics.CreateAPIView):
     """
     View para criar uma nova variação (SKU) e sua imagem (opcional).
@@ -439,12 +444,12 @@ class VariacaoCreateView(generics.CreateAPIView):
 
         if not produto_id or not variacoes_data_str:
             return Response({"error": "Os campos 'produto' e 'variacoes' são obrigatórios."},
-                            status=status.HTTP_400_BAD_REQUEST)
+                            status=status.HTTP_400_BAD_REQUEST) 
         
         try:
             variacoes_data = json.loads(variacoes_data_str)
         except json.JSONDecodeError:
-            return Response({"error": "O campo 'variacoes' não é um JSON válido."},
+            return Response({"error": "O campo 'variacoes' não é um JSON válido."}, 
                             status=status.HTTP_400_BAD_REQUEST)
 
         produto = get_object_or_404(Produto, id=produto_id)
@@ -482,11 +487,47 @@ class VariacaoCreateView(generics.CreateAPIView):
         serializer = self.get_serializer(novo_sku)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+
+class DebugUserView(APIView):
+    """
+    View temporária para depurar as informações do usuário logado.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        
+        # Tenta obter o perfil de vendedor
+        try:
+            vendedor_profile = Vendedor.objects.get(usuario=user)
+            vendedor_info = {
+                'nome_loja': vendedor_profile.nome_loja,
+                'status_aprovacao': vendedor_profile.status_aprovacao,
+            }
+        except Vendedor.DoesNotExist:
+            vendedor_profile = None
+            vendedor_info = "Nenhum perfil de Vendedor encontrado."
+
+        # Monta o dicionário de depuração
+        debug_data = {
+            'user_id': user.id,
+            'user_email': user.email,
+            'user_tipo_usuario': user.tipo_usuario,
+            'is_authenticated': user.is_authenticated,
+            'is_staff': user.is_staff,
+            'is_active': user.is_active,
+            'vendedor_profile': vendedor_info,
+        }
+        
+        return Response(debug_data)
+
+
 class AdminTestView(APIView):
     permission_classes = [IsAdminUser]
 
     def get(self, request):
         return Response({"message": "You are an admin"})
+
 
 class ClienteTestView(APIView):
     permission_classes = [IsCliente]
@@ -494,168 +535,54 @@ class ClienteTestView(APIView):
     def get(self, request):
         return Response({"message": "You are a cliente"})
 
-class MonitoramentoView(APIView):
-    permission_classes = [IsAuthenticated]
 
-    def post(self, request):
-        url = request.data.get('url')
-        if not url:
-            return Response({'message': 'A URL do produto é obrigatória.'}, status=status.HTTP_400_BAD_REQUEST)
+class SalvarDadosMonitoramentoView(APIView):
+    """
+    Endpoint para receber os dados raspados do Scrapy e salvar no banco de dados.
+    Esta view não requer autenticação, pois a chamada virá de um worker do Celery.
+    A segurança será garantida através de uma chave de API interna ou token, se necessário.
+    """
+    permission_classes = [AllowAny]
 
-        # Gera uma URL canônica para usar como chave única e evitar duplicatas
-        canonical_url = get_canonical_url(url)
-
-        try:
-            vendedor = Vendedor.objects.get(usuario=request.user)
-        except Vendedor.DoesNotExist:
-            return Response({'message': 'Apenas vendedores podem monitorar produtos.'}, status=status.HTTP_403_FORBIDDEN)
-
-        if ProdutosMonitoradosExternos.objects.filter(vendedor=vendedor, url_produto=canonical_url).exists():
-            return Response({'message': 'Você já está monitorando este produto.'}, status=status.HTTP_409_CONFLICT)
-
-        # O scraper deve usar a URL original completa para encontrar a página corretamente
-        scrapy_project_path = os.path.join(settings.BASE_DIR, 'cacapreco_scraper')
-        comando = [
-            'scrapy', 'crawl', 'selenium_spider',
-            '-a', f'url={url}',
-            '-a', f'usuario_id={vendedor.pk}',
-            '-o', '-:json' # Output to stdout as JSON
-        ]
-
-        try:
-            # Etapa 1: Executar o scraper capturando a saída como bytes brutos para evitar erros de decodificação.
-            process = subprocess.Popen(comando, cwd=scrapy_project_path, 
-                                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            stdout_bytes, stderr_bytes = process.communicate()
-
-            # Etapa 2: Verificar se o processo em si falhou.
-            if process.returncode != 0:
-                # Tenta decodificar o erro para exibição, mas o foco é o código de falha.
-                error_message = stderr_bytes.decode('latin-1', errors='ignore')
-                print(f"DEBUG: Erro ao executar o Scrapy (código de saída: {process.returncode}). stderr: {error_message}")
-                return Response({'message': 'A coleta de dados falhou. Verifique o console do servidor para mais detalhes.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-            # Etapa 3: Decodificar a saída de forma segura, com fallback.
-            try:
-                stdout_decoded = stdout_bytes.decode('utf-8')
-                stderr_decoded = stderr_bytes.decode('utf-8')
-            except UnicodeDecodeError:
-                stdout_decoded = stdout_bytes.decode('latin-1', errors='ignore')
-                stderr_decoded = stderr_bytes.decode('latin-1', errors='ignore')
-                print("DEBUG: Fallback de decodificação para latin-1 foi utilizado no stdout.")
-
-            scraped_data = {}
-            try:
-                # Scrapy with -o - -t json outputs a single JSON array to stdout
-                # We need to find the actual JSON array within the stdout_decoded
-                # as there might be other log messages.
-                # A more robust way is to find the first and last curly braces
-                # that enclose a valid JSON array.
-                json_start = stdout_decoded.find('[')
-                json_end = stdout_decoded.rfind(']')
-                if json_start != -1 and json_end != -1:
-                    json_string = stdout_decoded[json_start : json_end + 1]
-                    scraped_items = json.loads(json_string)
-                    if scraped_items:
-                        scraped_data = scraped_items[0] # Assuming only one item is scraped per URL
-                
-            except json.JSONDecodeError as e:
-                print(f"DEBUG: Falha ao decodificar o JSON completo do stdout: {e}. stdout: [{stdout_decoded}]")
-                return Response({'message': 'Erro ao processar dados do scraper.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-            if not scraped_data or 'preco_atual' not in scraped_data:
-                print(f"DEBUG: Dados não encontrados ou preço ausente. stdout: [{stdout_decoded}] stderr: [{stderr_decoded}]")
-                return Response({'message': 'Não foi possível extrair os dados do produto. O site pode ser incompatível ou estar indisponível.'}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
-
-            nome_produto = scraped_data.get('nome_produto', 'Nome não encontrado')
-            preco_final = scraped_data.get('preco_atual') # Directly use preco_atual (already a float)
-
-            # Removed price cleaning and float conversion, as it's now handled in the spider
-
-            with transaction.atomic():
-                produto, created = ProdutosMonitoradosExternos.objects.update_or_create(
-                    vendedor=vendedor,
-                    url_produto=canonical_url, 
-                    defaults={
-                        'nome_produto': nome_produto.strip(),
-                        'preco_atual': preco_final,
-                        'ultima_coleta': timezone.now()
-                    }
-                )
-
-                HistoricoPrecos.objects.update_or_create(
-                    produto_monitorado=produto,
-                    preco=preco_final,
-                    data_coleta=produto.ultima_coleta
-                )
-
-            serializer = ProdutosMonitoradosExternosSerializer(produto)
-            return Response(serializer.data, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
-
-        except FileNotFoundError:
-            print(f"ERRO CRÍTICO: O comando 'scrapy' não foi encontrado. Verifique se o Scrapy está instalado e no PATH do ambiente do servidor.")
-            return Response({'message': 'Erro de configuração no servidor que impede a execução do scraper.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        except Exception as e:
-            print(f"Erro inesperado: {e}")
-            return Response({'message': 'Ocorreu um erro inesperado no servidor.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-def scrape_page(request):
-    """Exemplo de view Django usando playwright-stealth"""
-    
-    if request.method == 'POST':
-        try:
-            # Obter URL do request
-            data = json.loads(request.body)
-            url = data.get('url', 'https://example.com')
+    def post(self, request, *args, **kwargs):
+        # A API Key não foi implementada, para um ambiente de produção a validação seria essencial
+        # if request.headers.get('X-API-KEY') != 'SUA_CHAVE_SECRETA_AQUI':
+        #    return Response({'error': 'Chave de API inválida.'}, status=status.HTTP_403_FORBIDDEN)
             
-            with sync_playwright() as p:
-                # Configurar navegador
-                browser = p.chromium.launch(
-                    headless=True,  # True para produção
-                    args=[
-                        '--no-sandbox',
-                        '--disable-dev-shm-usage',
-                        '--disable-blink-features=AutomationControlled',
-                        '--disable-features=VizDisplayCompositor'
-                    ]
-                )
-                
-                # Criar contexto do navegador
-                context = browser.new_context(
-                    viewport={'width': 1920, 'height': 1080},
-                    user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-                )
-                
-                # Criar página
-                page = context.new_page()
-                
-                # Aplicar stealth - IMPORTANTE: fazer antes de navegar
-                stealth = Stealth()
-                stealth.apply(page)
-                
-                # Navegar para a página
-                response = page.goto(url, wait_until='networkidle')
-                
-                # Aguardar carregamento se necessário
-                page.wait_for_timeout(2000)
-                
-                # Extrair dados (exemplo)
-                title = page.title()
-                content = page.content()
-                
-                # Fechar browser
-                browser.close()
-                
-                return JsonResponse({
-                    'success': True,
-                    'title': title,
-                    'status': response.status
-                })
-                
-        except Exception as e:
-            return JsonResponse({
-                'success': False,
-                'error': str(e)
-            })
-    
-    return JsonResponse({'error': 'Método não permitido'})
+        url_produto = request.data.get('url_produto')
+        nome_produto = request.data.get('nome_produto')
+        preco_atual = request.data.get('preco_atual')
+        usuario_id = request.data.get('usuario_id')
+        
+        # Validação básica dos dados recebidos
+        if not all([url_produto, nome_produto, preco_atual, usuario_id]):
+            return Response({'error': 'Dados incompletos.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            vendedor = Vendedor.objects.get(usuario_id=usuario_id)
+        except Vendedor.DoesNotExist:
+            return Response({'error': 'Vendedor não encontrado.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Encontra ou cria o registro de monitoramento
+        # A URL canônica garante que a mesma URL seja sempre a mesma entrada no banco
+        url_canonico = get_canonical_url(url_produto)
+        monitoramento, created = ProdutosMonitoradosExternos.objects.get_or_create(
+            vendedor=vendedor,
+            url_concorrente=url_canonico,
+            defaults={
+                'nome_produto_concorrente': nome_produto,
+                'ultima_atualizacao': timezone.now(),
+            }
+        )
+
+        # Salva o histórico de preços
+        HistoricoPrecos.objects.create(
+            monitoramento=monitoramento,
+            preco=preco_atual,
+            data_registro=timezone.now()
+        )
+
+        return Response({
+            'message': 'Dados de monitoramento salvos com sucesso.',
+            'monitoramento_id': monitoramento.id # type: ignore
+        }, status=status.HTTP_201_CREATED)

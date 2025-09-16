@@ -1,4 +1,5 @@
 import unittest
+import os
 from unittest.mock import Mock, patch
 from scrapy.http import HtmlResponse
 from bs4 import BeautifulSoup
@@ -7,9 +8,11 @@ from cacapreco_scraper.cacapreco_scraper.spiders.selenium_spider import Selenium
 class ScraperTest(unittest.TestCase):
     def setUp(self):
         self.selenium_spider = SeleniumSpider()
+        self.base_path = os.path.dirname(os.path.abspath(__file__))
 
     def test_selenium_spider_casasbahia(self):
-        with open("busca-app/backend/cacapreco_scraper/casasbahia.html", "r", encoding="utf-8") as f:
+        file_path = os.path.join(self.base_path, '..', 'casasbahia.html')
+        with open(file_path, "r", encoding="utf-8") as f:
             html_content = f.read()
         
         response = HtmlResponse(url="http://www.casasbahia.com.br", body=html_content, encoding="utf-8")
@@ -21,7 +24,8 @@ class ScraperTest(unittest.TestCase):
             self.assertEqual(result['preco_atual'], 1849.0)
 
     def test_selenium_spider_css_fallback(self):
-        with open("busca-app/backend/cacapreco_scraper/casasbahia.html", "r", encoding="utf-8") as f:
+        file_path = os.path.join(self.base_path, '..', 'casasbahia.html')
+        with open(file_path, "r", encoding="utf-8") as f:
             html_content = f.read()
         
         soup = BeautifulSoup(html_content, 'html.parser')
@@ -37,7 +41,8 @@ class ScraperTest(unittest.TestCase):
             self.assertEqual(result['preco_atual'], 1849.0)
 
     def test_selenium_spider_invalid_price(self):
-        with open("busca-app/backend/cacapreco_scraper/casasbahia_invalid_price.html", "r", encoding="utf-8") as f:
+        file_path = os.path.join(self.base_path, '..', 'casasbahia_invalid_price.html')
+        with open(file_path, "r", encoding="utf-8") as f:
             html_content = f.read()
         
         response = HtmlResponse(url="http://www.casasbahia.com.br", body=html_content, encoding="utf-8")
@@ -49,7 +54,8 @@ class ScraperTest(unittest.TestCase):
         mock_driver.save_screenshot.assert_called_once_with('screenshot_falha_preco.png')
 
     def test_selenium_spider_no_data(self):
-        with open("busca-app/backend/cacapreco_scraper/empty.html", "r", encoding="utf-8") as f:
+        file_path = os.path.join(self.base_path, '..', 'empty.html')
+        with open(file_path, "r", encoding="utf-8") as f:
             html_content = f.read()
         
         response = HtmlResponse(url="http://www.casasbahia.com.br", body=html_content, encoding="utf-8")
@@ -61,7 +67,8 @@ class ScraperTest(unittest.TestCase):
         mock_driver.save_screenshot.assert_called_once_with('screenshot_falha.png')
 
     def test_selenium_spider_jsonld_error(self):
-        with open("busca-app/backend/cacapreco_scraper/casasbahia_malformed_jsonld.html", "r", encoding="utf-8") as f:
+        file_path = os.path.join(self.base_path, '..', 'casasbahia_malformed_jsonld.html')
+        with open(file_path, "r", encoding="utf-8") as f:
             html_content = f.read()
         
         response = HtmlResponse(url="http://www.casasbahia.com.br", body=html_content, encoding="utf-8")

@@ -153,6 +153,8 @@ class UsuarioModelPropertyTests(TestCase):
         """
         Test that perfil_completo is True after a Vendedor profile is associated.
         """
+        self.user.tipo_usuario = 'Vendedor'
+        self.user.save()
         categoria = CategoriaLoja.objects.create(nome='Roupas')
         Vendedor.objects.create(
             usuario=self.user,

@@ -20,7 +20,8 @@ Contém componentes responsáveis pela estrutura visual principal da página.
 
 ### `src/components/feature/` (Sugestão)
 Para componentes mais complexos e específicos de uma funcionalidade.
-- **Exemplos:** `ProductCard.jsx`, `ShoppingCart.jsx`, `PriceChart.jsx`.
+- **Exemplos:** `ProductCard.jsx`, `PriceChart.jsx`.
+- **Observação:** O componente `ShoppingCart.jsx` é uma funcionalidade planejada, mas ainda não implementada.
 
 ## Boas Práticas
 - **Props:** Use `PropTypes` para documentar e validar as props dos componentes.

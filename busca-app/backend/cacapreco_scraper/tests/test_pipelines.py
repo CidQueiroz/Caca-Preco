@@ -18,6 +18,59 @@ def user(db):
 def vendedor(db, user, categoria_loja):
     return Vendedor.objects.create(usuario=user, nome_loja='Loja Teste', categoria_loja=categoria_loja)
 
+@pytest.mark.parametrize("url_input, expected_output", [
+    ("http://example.com/produto1?param=1&utm_source=google", "http://example.com/produto1"),
+    ("https://www.example.com/product/123#details", "https://www.example.com/product/123"),
+    ("http://example.com/", "http://example.com/"),
+])
+def test_get_canonical_url(url_input, expected_output):
+    """Testa a função get_canonical_url com diferentes URLs."""
+    pipeline = DjangoPipeline()
+    assert pipeline.get_canonical_url(url_input) == expected_output
+
+@pytest.mark.parametrize("price_str, expected_float", [
+    ("R$ 1.234,56", 1234.56),
+    ("R$ 99,90", 99.90),
+    ("1.000", 1000.0),
+    ("789", 789.0),
+    ("Preço sob consulta", None),
+    ("", None),
+    (None, None),
+    ("1,2,3,4.56", None), # Invalid format
+    ("R$ 1,234.56", 1234.56) # American format
+])
+@patch('api.models.Vendedor.objects.get')
+@patch('api.models.ProdutosMonitoradosExternos.objects.update_or_create')
+@patch('api.models.HistoricoPrecos.objects.create') # Also patch historico
+@pytest.mark.django_db
+@pytest.mark.asyncio
+async def test_price_cleaning_logic(mock_historico_create, mock_update_or_create, mock_vendedor_get, price_str, expected_float, vendedor):
+    """Testa a lógica de limpeza de preço com vários formatos."""
+    mock_vendedor_get.return_value = vendedor
+    mock_update_or_create.return_value = (ProdutosMonitoradosExternos(), True)
+
+    pipeline = DjangoPipeline()
+    spider = MagicMock()
+    item = {
+        'usuario_id': vendedor.pk,
+        'url_produto': 'http://example.com/produto-preco',
+        'nome_produto': 'Produto com Preco',
+        'preco_str': price_str
+    }
+
+    await pipeline.process_item(item, spider)
+
+    # Check that update_or_create was called with the correctly cleaned price
+    args, kwargs = mock_update_or_create.call_args
+    assert kwargs['defaults']['preco_atual'] == expected_float
+
+    # Check that HistoricoPrecos is created only if the price is valid
+    if expected_float is not None:
+        mock_historico_create.assert_called_once()
+    else:
+        mock_historico_create.assert_not_called()
+
+
 @patch('api.models.Vendedor.objects.get')
 @patch('api.models.ProdutosMonitoradosExternos.objects.update_or_create')
 @pytest.mark.django_db
@@ -160,3 +213,30 @@ async def test_process_item_generic_exception(mock_update_or_create, mock_vended
     await pipeline.process_item(item, spider)
 
     spider.logger.error.assert_called_with("Erro ao salvar no banco: Erro de teste")
+
+@patch('api.models.Vendedor.objects.get')
+@patch('api.models.ProdutosMonitoradosExternos.objects.update_or_create')
+@patch('api.models.HistoricoPrecos.objects.create')
+@pytest.mark.django_db
+@pytest.mark.asyncio
+async def test_process_item_logs_creation(mock_historico_create, mock_update_or_create, mock_vendedor_get, vendedor):
+    """Testa se o pipeline loga a criação de um novo produto."""
+    # Setup mocks
+    mock_vendedor_get.return_value = vendedor
+    # The first element of the tuple is the object, the second is the 'created' boolean
+    mock_product = ProdutosMonitoradosExternos(id=99)
+    mock_update_or_create.return_value = (mock_product, True)
+
+    pipeline = DjangoPipeline()
+    spider = MagicMock()
+    item = {
+        'usuario_id': vendedor.pk,
+        'url_produto': 'http://example.com/new-product',
+        'nome_produto': 'Produto Novo',
+        'preco_str': 'R$ 50,00'
+    }
+
+    await pipeline.process_item(item, spider)
+
+    # Check for the specific info log message
+    spider.logger.info.assert_any_call(f"Produto novo criado com ID {mock_product.id} para o vendedor (usuário ID {vendedor.pk}).")

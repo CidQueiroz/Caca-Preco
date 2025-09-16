@@ -20,7 +20,7 @@ class PermissionsTest(TestCase):
         # Create some objects to test ownership
         self.cliente_profile = Cliente.objects.create(usuario=self.cliente_user, nome='Cliente Teste', cpf='111.111.111-11')
         cat_loja = CategoriaLoja.objects.create(nome='Test Category')
-        self.vendedor_profile = Vendedor.objects.create(usuario=self.vendedor_user, nome_loja='Loja Teste', categoria_loja=cat_loja)
+        self.vendedor_profile = Vendedor.objects.create(usuario=self.vendedor_user, nome_loja='Loja Teste', categoria_loja=cat_loja, status_aprovacao='Aprovado')
 
 
     def test_is_admin_user_permission(self):

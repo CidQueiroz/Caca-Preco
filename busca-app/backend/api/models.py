@@ -34,6 +34,7 @@ class UsuarioManager(BaseUserManager):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_active", True)
+        extra_fields.setdefault("tipo_usuario", "Administrador")
 
         if extra_fields.get("is_staff") is not True:
             raise ValueError("Superuser must have is_staff=True.")
@@ -76,10 +77,16 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
 
     @property
     def perfil_completo(self):
-        # Verifica se existe um perfil de Cliente ou Vendedor associado
-        has_cliente = hasattr(self, 'cliente') and self.tipo_usuario is not None
-        has_vendedor = hasattr(self, 'vendedor') and self.tipo_usuario is not None
-        return has_cliente or has_vendedor
+        try:
+            if self.tipo_usuario == 'Cliente':
+                return self.cliente is not None # type: ignore
+            elif self.tipo_usuario == 'Vendedor':
+                return self.vendedor is not None # type: ignore
+            elif self.tipo_usuario in ['Administrador', 'Admin']:
+                return self.administrador is not None # type: ignore
+        except AttributeError:
+            return False
+        return False
 
 class Endereco(models.Model):
     logradouro = models.CharField(max_length=255)
@@ -213,6 +220,16 @@ class Administrador(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, primary_key=True)
     nome = models.CharField(max_length=255)
 
+import hashlib
+from urllib.parse import urlparse, urlunparse
+
+def get_canonical_url(url):
+    """Gera uma URL canônica removendo parâmetros de consulta e fragmentos."""
+    parsed_url = urlparse(url)
+    # Reconstrói a URL apenas com scheme, netloc e path
+    canonical_url = urlunparse((parsed_url.scheme, parsed_url.netloc, parsed_url.path, '', '', ''))
+    return canonical_url
+
 class ProdutosMonitoradosExternos(models.Model):
     vendedor = models.ForeignKey(Vendedor, on_delete=models.CASCADE)
     url_produto = models.URLField(max_length=2048)
@@ -223,6 +240,12 @@ class ProdutosMonitoradosExternos(models.Model):
 
     class Meta:
         unique_together = ('vendedor', 'url_hash')
+
+    def save(self, *args, **kwargs):
+        if not self.url_hash:
+            canonical_url = get_canonical_url(self.url_produto)
+            self.url_hash = hashlib.sha256(canonical_url.encode()).hexdigest()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.nome_produto} ({self.vendedor.nome_loja})'
