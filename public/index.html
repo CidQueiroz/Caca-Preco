@@ -30,8 +30,15 @@
     </head>
 
     <body class="pagina-inicial">
+        
         <div class="particles" id="particles"></div>
         
+        <div class="search-container">
+            <button id="search-toggle" class="search-toggle-btn"><i class="fas fa-search"></i></button>
+            <input type="text" id="search-input" placeholder="O que você procura?">
+            <ul id="search-results"></ul>
+        </div>
+
         <div class="container">
             
             <div class="logo-container">
@@ -46,30 +53,34 @@
                 </div>
 
                 <!-- Pontos clicáveis -->
-                <div class="circuit-point animated-circuit-point" id="automacao-button" title="Automação RPA" style="top: 12%; left: 50%; transform: translate(-50%, -50%);" onclick="openModal('automacao')">🤖</div>
+                <div class="circuit-point animated-circuit-point" id="automacao-button" title="Automação RPA" style="top: 12%; left: 50%; transform: translate(-50%, -50%);">🤖</div>
                 
-                <div class="circuit-point animated-circuit-point" id="dados-button" title="Análise de Dados" style="top: 24%; left: 84%; transform: translate(-50%, -50%);" onclick="openModal('dados')">📊</div>
+                <div class="circuit-point animated-circuit-point" id="dados-button" title="Análise de Dados" style="top: 24%; left: 84%; transform: translate(-50%, -50%);">📊</div>
                 
-                <div class="circuit-point animated-circuit-point" id="python-button" title="Python/Django" style="top: 42%; left: 91%; transform: translate(-50%, -50%);" onclick="openModal('python')">PY</div>
+                <div class="circuit-point animated-circuit-point" id="python-button" title="Python/Django" style="top: 42%; left: 91%; transform: translate(-50%, -50%);">PY</div>
                 
-                <div class="circuit-point animated-circuit-point" id="contato-button" title="Contato" style="top: 70%; left: 85%; transform: translate(-50%, -50%);" onclick="openContactModal()">👤</div>
+                <div class="circuit-point animated-circuit-point" id="contato-button" title="Contato" style="top: 70%; left: 85%; transform: translate(-50%, -50%);">👤</div>
                 
-                <div class="circuit-point animated-circuit-point" id="BI-button" title="Business Intelligence" style="top: 89%; left: 53%; transform: translate(-50%, -50%);" onclick="openModal('bi')">📊</div>
+                <div class="circuit-point animated-circuit-point" id="BI-button" title="Business Intelligence" style="top: 89%; left: 53%; transform: translate(-50%, -50%);">📊</div>
                 
-                <div class="circuit-point animated-circuit-point" id="integracao-button" title="Integrações" style="top: 80%; left: 23%; transform: translate(-50%, -50%);" onclick="openModal('integracao')">🔗</div>
+                <div class="circuit-point animated-circuit-point" id="integracao-button" title="Integrações" style="top: 80%; left: 23%; transform: translate(-50%, -50%);">🔗</div>
                 
-                <div class="circuit-point animated-circuit-point" id="infra-button" title="Infraestrutura TI" style="top: 48%; left: 11%; transform: translate(-50%, -50%);" onclick="openModal('infraestrutura')">🖥️</div>
+                <div class="circuit-point animated-circuit-point" id="infra-button" title="Infraestrutura TI" style="top: 48%; left: 11%; transform: translate(-50%, -50%);">🖥️</div>
                 
-                <div class="circuit-point animated-circuit-point" id="suporte-button" title="Suporte Técnico" style="top: 30%; left: 18%; transform: translate(-50%, -50%);" onclick="openModal('suporte')">🛠️</div>
+                <div class="circuit-point animated-circuit-point" id="suporte-button" title="Suporte Técnico" style="top: 30%; left: 18%; transform: translate(-50%, -50%);">🛠️</div>
             
             </div>
         
         </div>
 
+        <div class="modal-container" id="animated-modal"></div>
+
         <!-- Modal -->
         <div class="modal" id="modal">
             
             <div class="modal-content">
+
+                <span class="close-button">&times;</span>
                 
                 <h2 id="modal-title"></h2>
                 
@@ -86,95 +97,180 @@
         </div>
 
         <script>
-            // Criar partículas de fundo
-            function createParticles() {
-                const particles = document.getElementById('particles');
-                for (let i = 0; i < 60; i++) {
-                    const particle = document.createElement('div');
-                    particle.className = 'particle';
-                    particle.style.left = Math.random() * 100 + '%';
-                    particle.style.animationDelay = Math.random() * 6 + 's';
-                    particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
-                    particles.appendChild(particle);
-                }
-            }
 
-            // Dados para cada seção
+            // Seus dados de modal
             const modalData = {
-                python: {
+                'python-button': {
+                    id: 'python-button',
                     title: "Python & Django",
-                    description: "Desenvolvimento de aplicações web robustas e escaláveis usando Python e Django. Criação de APIs REST, sistemas de gestão e automação de processos com as melhores práticas de programação.",
+                    description: "Desenvolvemos aplicações web robustas, escaláveis e seguras utilizando Python e Django. Nossa expertise inclui criação de APIs RESTful, sistemas de gestão personalizados, automação de processos empresariais e integração com bancos de dados modernos. Utilizamos as melhores práticas de desenvolvimento para garantir performance, segurança e facilidade de manutenção, entregando soluções sob medida para o seu negócio.",
+                    keywords: ['python', 'django', 'web', 'aplicacoes', 'api', 'backend', 'desenvolvimento'],
+                    redirectUrl: "caca_preco/caca_preco.html"
+                },
+                'dados-button': {
+                    id: 'dados-button',
+                    title: "Análise de Dados",
+                    description: "Transforme dados brutos em insights estratégicos! Utilizamos ferramentas como Pandas, NumPy e Power BI para coletar, tratar e analisar grandes volumes de dados. Criamos dashboards interativos, relatórios personalizados e visualizações que facilitam a tomada de decisão. Nossa abordagem orientada a dados permite identificar oportunidades, otimizar processos e impulsionar resultados para sua empresa.",
+                    keywords: ['dados', 'analise', 'insights', 'pandas', 'relatorios', 'dashboard', 'visualizacao'],
+                    redirectUrl: ""
+                },
+                'automacao-button': {
+                    id: 'automacao-button',
+                    title: "Automação RPA",
+                    description: "Automatize tarefas repetitivas e ganhe produtividade! Desenvolvemos soluções de RPA (Automação Robótica de Processos) que integram sistemas, executam rotinas administrativas, extraem dados de sites e preenchem formulários automaticamente. Nossos bots são projetados para reduzir erros, liberar sua equipe para atividades estratégicas e acelerar fluxos de trabalho em qualquer área do seu negócio.",
+                    keywords: ['automacao', 'rpa', 'robô', 'bot', 'processos', 'produtividade', 'automatizar'],
+                    redirectUrl: ""
+                },
+                'suporte-button': {
+                    id: 'suporte-button',
+                    title: "Suporte Técnico",
+                    description: "Conte com suporte técnico especializado para manter sua infraestrutura de TI sempre disponível e segura. Oferecemos atendimento ágil para resolução de problemas, manutenção preventiva, atualização de sistemas e consultoria em tecnologia. Nossa equipe está pronta para garantir o funcionamento contínuo dos seus sistemas, minimizando riscos e paradas inesperadas.",
+                    keywords: ['suporte', 'tecnico', 'manutencao', 'helpdesk', 'infraestrutura', 'atendimento', 'problemas'],
                     redirectUrl: "https://registrosqueiroz.streamlit.app/"
                 },
-                dados: {
-                    title: "Análise de Dados",
-                    description: "Transformação de dados em insights valiosos usando Pandas, NumPy e ferramentas de visualização. Criação de dashboards e relatórios que auxiliam na tomada de decisões estratégicas."
-                },
-                automacao: {
-                    title: "Automação RPA",
-                    description: "Automação de processos repetitivos e integração de sistemas. Desenvolvimento de bots e scripts que otimizam workflows e aumentam a produtividade empresarial."
-                },
-                suporte: {
-                    title: "Suporte Técnico",
-                    description: "Suporte técnico especializado em infraestrutura de TI, resolução de problemas e manutenção de sistemas. Atendimento ágil e soluções eficazes para manter sua operação funcionando."
-                },
-                infraestrutura: {
+                'infra-button': {
+                    id: 'infra-button',
                     title: "Infraestrutura TI",
-                    description: "Planejamento, implementação e manutenção de infraestrutura tecnológica. Servidores, redes, segurança e backup para garantir a continuidade do seu negócio."
+                    description: "Planejamos, implementamos e gerenciamos toda a infraestrutura tecnológica do seu negócio. Atuamos em servidores, redes, segurança da informação, backup e recuperação de desastres. Nossas soluções garantem alta disponibilidade, escalabilidade e proteção dos dados, permitindo que sua empresa cresça com tecnologia confiável e eficiente.",
+                    keywords: ['infraestrutura', 'servidores', 'redes', 'seguranca', 'backup', 'ti', 'gestao'],
+                    redirectUrl: ""
                 },
-                integracao: {
+                'integracao-button': {
+                    id: 'integracao-button',
                     title: "Integrações",
-                    description: "Integração de sistemas e APIs para conectar diferentes plataformas. Sincronização de dados e automação de fluxos entre aplicações empresariais.",
+                    description: "Conecte sistemas e potencialize seus processos! Desenvolvemos integrações entre plataformas, APIs e bancos de dados, promovendo a troca automática de informações entre diferentes aplicações. Automatize fluxos, evite retrabalho e garanta que seus dados estejam sempre sincronizados, independentemente das tecnologias utilizadas.",
+                    keywords: ['integracao', 'api', 'sistemas', 'conexao', 'automatizacao', 'plataformas'],
                     redirectUrl: "Projeto2/index.html"
                 },
-                bi: {
+                'BI-button': {
+                    id: 'BI-button',
                     title: "Business Intelligence",
-                    description: "Desenvolvimento de soluções de BI com Power BI e ferramentas de análise. Criação de dashboards executivos e relatórios que transformam dados em estratégia.",
+                    description: "Transforme dados em estratégia com soluções de Business Intelligence! Desenvolvemos dashboards executivos, relatórios dinâmicos e análises avançadas utilizando Power BI e outras ferramentas líderes de mercado. Auxiliamos sua empresa a monitorar indicadores-chave, identificar tendências e tomar decisões baseadas em dados confiáveis e atualizados.",
+                    keywords: ['bi', 'business', 'powerbi', 'inteligencia', 'dashboard', 'analise', 'estrategia'],
                     redirectUrl: "PBI/portfolio.html"
                 },
-                consultoria: {
-                    title: "Consultoria Tech",
-                    description: "Consultoria especializada em transformação digital e otimização de processos. Análise de necessidades e implementação de soluções tecnológicas customizadas."
+                'contato-button': {
+                    id: 'contato-button',
+                    title: "Consultoria",
+                    description: "Olá! 👋 Sou Cidirclay Queiroz, especialista em soluções tecnológicas, análise de dados e automação. Com formação em Ciências da Computação e experiência em projetos de transformação digital, ajudo empresas a inovar, otimizar processos e extrair valor dos dados. Entre em contato para uma consultoria personalizada e descubra como a tecnologia pode impulsionar o seu negócio!",
+                    keywords: ['consultoria', 'contato', 'falar', 'orcamento', 'ajuda', 'tecnologia', 'especialista'],
+                    isContact: true // Indica que é o modal de contato
                 }
             };
+            // Mapeia os dados por ID para facilitar a busca
+            const dataById = Object.values(modalData).reduce((acc, item) => {
+                acc[item.id] = item;
+                return acc;
+            }, {});
 
-            function openModal(section) {
-                const modal = document.getElementById('modal');
-                const data = modalData[section];
+            const searchInput = document.getElementById('search-input');
+            const searchResults = document.getElementById('search-results');
+            const circuitPoints = document.querySelectorAll('.circuit-point');
+            const mainContainer = document.querySelector('.container');
+            const mainModal = document.getElementById('modal');
+            const contactModal = document.getElementById('contact-modal');
 
-                modal.querySelector('#modal-title').textContent = data.title;
-                modal.querySelector('#modal-description').textContent = data.description;
+            // Lógica da busca
+            searchInput.addEventListener('input', (event) => {
+                const query = event.target.value.toLowerCase().trim();
+                searchResults.innerHTML = '';
+                searchResults.style.display = 'none';
 
-                const actionButton = modal.querySelector('#modal-action-button');
-                const newActionButton = actionButton.cloneNode(true);
-                actionButton.parentNode.replaceChild(newActionButton, actionButton);
+                if (query.length === 0) return;
 
-                if (data.redirectUrl) {
-                    newActionButton.textContent = 'Ir para a Página';
-                    newActionButton.addEventListener('click', () => { window.location.href = data.redirectUrl; });
-                } else {
-                    newActionButton.textContent = 'Fechar';
-                    newActionButton.addEventListener('click', () => closeModal(modal)); // CORRIGIDO: Passa o modal como argumento
+                const filteredItems = Object.values(modalData).filter(item => {
+                    const hasKeyword = Array.isArray(item.keywords) && item.keywords.some(keyword => keyword.includes(query));
+                    return item.title.toLowerCase().includes(query) || hasKeyword;
+                });
+
+                if (filteredItems.length > 0) {
+                    filteredItems.forEach(item => {
+                        const li = document.createElement('li');
+                        li.textContent = item.title;
+                        li.setAttribute('data-target-id', item.id);
+                        searchResults.appendChild(li);
+                    });
+                    searchResults.style.display = 'block';
                 }
+            });
 
-                modal.style.display = 'flex'; // Usando flex para consistência
-                setTimeout(() => modal.classList.add('show'), 10);
+            // Lógica para clicar no resultado da busca
+            searchResults.addEventListener('click', (event) => {
+                const clickedItem = event.target.closest('li');
+                if (!clickedItem) return;
+
+                const targetId = clickedItem.getAttribute('data-target-id');
+                const targetButton = document.getElementById(targetId);
+
+                searchInput.blur();
+                searchResults.style.display = 'none';
+
+                if (targetButton) {
+                    handleButtonClick(targetButton, targetId);
+                }
+            });
+
+            // Lógica para os cliques nos botões originais
+            circuitPoints.forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const targetId = event.currentTarget.id;
+                    handleButtonClick(event.currentTarget, targetId);
+                });
+            });
+
+            // Função unificada para abrir modal com a animação
+            function handleButtonClick(targetButton, targetId) {
+                const data = dataById[targetId];
+
+                // Animação de transição: Oculta a página principal
+                mainContainer.classList.add('hide-content');
+                targetButton.classList.add('grow-and-hide');
+
+                // Abre o modal após a animação
+                setTimeout(() => {
+                    if (data.isContact) {
+                        contactModal.style.display = 'flex';
+                        contactModal.classList.add('show');
+                        contactModal.querySelector('.modal-content').classList.add('transition-in');
+                    } else {
+                        mainModal.style.display = 'flex';
+                        mainModal.classList.add('show');
+                        mainModal.querySelector('#modal-title').textContent = data.title;
+                        mainModal.querySelector('#modal-description').textContent = data.description;
+                        mainModal.querySelector('.modal-content').classList.add('transition-in');
+                        
+                        // Adiciona o link no botão de ação do modal
+                        const actionButton = mainModal.querySelector('#modal-action-button');
+                        if (data.redirectUrl) {
+                            actionButton.textContent = 'Visitar Página';
+                            actionButton.onclick = () => {
+                                window.open(data.redirectUrl, '_blank');
+                                closeModal(mainModal);
+                            };
+                        } else {
+                            actionButton.textContent = 'Fechar';
+                            actionButton.onclick = () => {
+                                closeModal(mainModal);
+                            };
+                        }
+                    }
+                    
+                    // Reseta a animação e o container principal
+                    targetButton.classList.remove('grow-and-hide');
+                    mainContainer.classList.remove('hide-content');
+                }, 1100); // Ajuste o tempo para ser um pouco menor que a animação CSS (1.2s)
             }
 
-            function openContactModal() {
-                const modal = document.getElementById('contact-modal');
-                modal.style.display = 'flex';
-                setTimeout(() => modal.classList.add('show'), 10);
-            }
-
-            // Função de fechar unificada e animada
+            // Função para fechar modais
             function closeModal(modalElement) {
                 if (!modalElement) return;
                 modalElement.classList.remove('show');
-                setTimeout(() => { modalElement.style.display = 'none'; }, 400);
+                setTimeout(() => {
+                    modalElement.style.display = 'none';
+                }, 400);
             }
 
-            // --- Lógica de Inicialização da Página ---
+            // Lógica de Inicialização da Página
             document.addEventListener('DOMContentLoaded', function() {
                 // Partículas de fundo
                 const particles = document.getElementById('particles');
@@ -194,6 +290,16 @@
 
                 // Animação de entrada
                 setTimeout(() => { document.body.classList.add('loaded'); }, 500);
+
+                // Lógica para o botão de busca em mobile
+                const searchContainer = document.querySelector('.search-container');
+                const searchToggle = document.getElementById('search-toggle');
+
+                if (searchToggle) {
+                    searchToggle.addEventListener('click', () => {
+                        searchContainer.classList.toggle('search-active');
+                    });
+                }
             });
 
             // =======================================================
@@ -219,7 +325,6 @@
                 }
             });
 
-            
         </script>
 
     </body>

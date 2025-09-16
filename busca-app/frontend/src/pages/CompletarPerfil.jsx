@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
-import { jwtDecode } from 'jwt-decode';
-
+import Botao from '../components/Botao';
+import { useNotification } from '../context/NotificationContext';
+import FormularioAdmin from '../components/FormularioAdmin';
 
 // Formulário para dados do Cliente
-const FormularioCliente = ({ idUsuario, aoEnviar }) => {
+const FormularioCliente = ({ aoEnviar, initialData }) => {
     const [nome, setNome] = useState('');
     const [cpf, setCpf] = useState('');
     const [telefone, setTelefone] = useState('');
@@ -19,6 +20,24 @@ const FormularioCliente = ({ idUsuario, aoEnviar }) => {
     const [cep, setCep] = useState('');
     const [data_nascimento, setDataNascimento] = useState('');
     const [erros, setErros] = useState({});
+
+    useEffect(() => {
+        if (initialData) {
+            setNome(initialData.nome || '');
+            setCpf(initialData.cpf || '');
+            setTelefone(initialData.telefone || '');
+            setDataNascimento(initialData.data_nascimento || '');
+            if (initialData.endereco) {
+                setRua(initialData.endereco.logradouro || '');
+                setNumero(initialData.endereco.numero || '');
+                setComplemento(initialData.endereco.complemento || '');
+                setBairro(initialData.endereco.bairro || '');
+                setCidade(initialData.endereco.cidade || '');
+                setEstado(initialData.endereco.estado || '');
+                setCep(initialData.endereco.cep || '');
+            }
+        }
+    }, [initialData]);
 
     const validarCampos = () => {
         let novosErros = {};
@@ -43,7 +62,6 @@ const FormularioCliente = ({ idUsuario, aoEnviar }) => {
         e.preventDefault();
         if (validarCampos()) {
             aoEnviar({ 
-                idUsuario, 
                 nome, 
                 cpf, 
                 telefone, 
@@ -63,7 +81,7 @@ const FormularioCliente = ({ idUsuario, aoEnviar }) => {
 
     return (
         <form onSubmit={handleSubmit} className="form-container">
-            <h3>Complete seu Perfil de Cliente</h3>
+            <h3>Dados Pessoais</h3>
             {erros.nome && <p className="message-error">{erros.nome}</p>}
             <div className="form-group">
                 <label htmlFor="nomeCliente">Nome Completo</label>
@@ -121,13 +139,13 @@ const FormularioCliente = ({ idUsuario, aoEnviar }) => {
                 <label htmlFor="dataNascimentoCliente">Data de Nascimento</label>
                 <input type="date" id="dataNascimentoCliente" value={data_nascimento} onChange={(e) => setDataNascimento(e.target.value)} placeholder="Data de Nascimento" />
             </div>
-            <button type="submit" className="btn btn-primary">Salvar e Continuar</button>
+            <Botao type="submit" variante="primario">Salvar Alterações</Botao>
         </form>
     );
 };
 
 // Formulário para dados do Vendedor
-const FormularioVendedor = ({ idUsuario, aoEnviar }) => {
+const FormularioVendedor = ({ aoEnviar, initialData }) => {
     const [nome_loja, setNomeLoja] = useState('');
     const [cnpj, setCnpj] = useState('');
     const [rua, setRua] = useState('');
@@ -151,16 +169,37 @@ const FormularioVendedor = ({ idUsuario, aoEnviar }) => {
     const [erros, setErros] = useState({});
 
     useEffect(() => {
+        if (initialData) {
+            setNomeLoja(initialData.nome_loja || '');
+            setCnpj(initialData.cnpj || '');
+            setTelefone(initialData.telefone || '');
+            setFundacao(initialData.data_fundacao || '');
+            setHorarioFuncionamento(initialData.horario_funcionamento || '');
+            setNomeResponsavel(initialData.nome_responsavel || '');
+            setCpfResponsavel(initialData.cpf_responsavel || '');
+            setBreveDescricaoLoja(initialData.breve_descricao_loja || '');
+            setLogotipoLoja(initialData.logotipo_loja || '');
+            setSiteRedesSociais(initialData.site_redes_sociais || '');
+            setCategoriaLoja(initialData.categoria_loja || '');
+            if (initialData.endereco) {
+                setRua(initialData.endereco.logradouro || '');
+                setNumero(initialData.endereco.numero || '');
+                setComplemento(initialData.endereco.complemento || '');
+                setBairro(initialData.endereco.bairro || '');
+                setCidade(initialData.endereco.cidade || '');
+                setEstado(initialData.endereco.estado || '');
+                setCep(initialData.endereco.cep || '');
+            }
+        }
+    }, [initialData]);
+
+    useEffect(() => {
         const buscarCategorias = async () => {
             try {
-                                console.log('Buscando categorias de:', `${process.env.REACT_APP_API_URL}/api/categorias/`);
                 const token = localStorage.getItem('token');
                 const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/categorias/`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
+                    headers: { Authorization: `Bearer ${token}` }
                 });
-                console.log('Categorias recebidas:', response.data);
                 setCategorias(response.data);
             } catch (error) {
                 console.error('Erro ao buscar categorias:', error.response ? error.response.data : error.message);
@@ -171,11 +210,7 @@ const FormularioVendedor = ({ idUsuario, aoEnviar }) => {
 
     useEffect(() => {
         const categoriaSelecionada = categorias.find(cat => cat.id === parseInt(categoria_loja));
-        if (categoriaSelecionada) {
-            setDescricaoCategoria(categoriaSelecionada.descricao);
-        } else {
-            setDescricaoCategoria('');
-        }
+        setDescricaoCategoria(categoriaSelecionada ? categoriaSelecionada.descricao : '');
     }, [categoria_loja, categorias]);
 
     const validarCampos = () => {
@@ -207,34 +242,17 @@ const FormularioVendedor = ({ idUsuario, aoEnviar }) => {
             }
 
             aoEnviar({
-                idUsuario, 
-                nome_loja, 
-                cnpj, 
-                telefone, 
-                data_fundacao, 
-                horario_funcionamento,
-                nome_responsavel, 
-                cpf_responsavel, 
-                breve_descricao_loja, 
-                logotipo_loja, 
-                site_redes_sociais: url,
-                categoria_loja,
-                endereco: {
-                    logradouro: rua,
-                    numero,
-                    complemento,
-                    bairro,
-                    cidade,
-                    estado,
-                    cep
-                }
+                nome_loja, cnpj, telefone, data_fundacao, horario_funcionamento,
+                nome_responsavel, cpf_responsavel, breve_descricao_loja, 
+                logotipo_loja, site_redes_sociais: url, categoria_loja,
+                endereco: { logradouro: rua, numero, complemento, bairro, cidade, estado, cep }
             });
         }
     };
 
     return (
         <form onSubmit={handleSubmit} className="form-container">
-            <h3>Complete seu Perfil de Vendedor</h3>
+            <h3>Dados da Loja</h3>
             {erros.nome_loja && <p className="message-error">{erros.nome_loja}</p>}
             <div className="form-group">
                 <label htmlFor="nome_loja">Nome da Loja</label>
@@ -330,113 +348,137 @@ const FormularioVendedor = ({ idUsuario, aoEnviar }) => {
             </div>
             {descricao_categoria && <p className="text" style={{ fontSize: '0.9em', color: '#666' }}>{descricao_categoria}</p>}
 
-            <button type="submit" className="btn btn-primary">Salvar e Continuar</button>
+            <Botao type="submit" variante="primario">Salvar Alterações</Botao>
         </form>
     );
 };
 
 const CompletarPerfil = () => {
-    const navegar = useNavigate();
-    const localizacao = useLocation();
-    const [erro, setErro] = useState(null);
-    
-    // 1. OBTER O UTILIZADOR DIRETAMENTE DO AuthContext
+    const navigate = useNavigate();
     const { usuario, login, token } = useContext(AuthContext);
-    // 2. LÓGICA ROBUSTA PARA OBTER OS DADOS DO UTILIZADOR
-    // Prioridade: dados do contexto. Fallback: dados do state da navegação (para o fluxo pós-registo).
-    const idUsuario = usuario?.id || localizacao.state?.idUsuario;
-    const tipoUsuario = usuario?.tipo_usuario || localizacao.state?.tipoUsuario;
-    const emailUsuario = usuario?.email || localizacao.state?.email;
+    const { showNotification } = useNotification();
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [initialData, setInitialData] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-    // A verificação agora usa os dados obtidos
-    if (!idUsuario || !tipoUsuario) {
-        return (
-            <div className="layout-logado-content" style={{ padding: '20px', textAlign: 'center' }}>
-                <p className="message-error">
-                   Erro: Dados de utilizador não encontrados. A sua sessão pode ter expirado. Por favor, <Link to="/login">tente fazer login novamente</Link>.
-                </p>
-            </div>
-        );
-    }
+    useEffect(() => {
+        const fetchProfileData = async () => {
+            if (!token) {
+                setLoading(false);
+                return;
+            }
+            try {
+                const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/perfil/`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                // Se a resposta for bem-sucedida e tiver dados, estamos no modo de edição
+                if (response.status === 200 && response.data) {
+                    setInitialData(response.data);
+                    setIsEditMode(true);
+                }
+            } catch (error) {
+                // Um erro 404 significa que o perfil ainda não existe, o que é esperado para novos usuários.
+                if (error.response && error.response.status === 404) {
+                    setIsEditMode(false);
+                } else {
+                    showNotification('Erro ao carregar dados do perfil.', 'erro');
+                }
+            }
+            setLoading(false);
+        };
+
+        fetchProfileData();
+    }, [token, showNotification]);
 
     const aoEnviarPerfil = async (dadosPerfil) => {
-        try {
-            let endpoint = `${process.env.REACT_APP_API_URL}/api/perfil/`;
+        const method = isEditMode ? 'put' : 'post';
+        let endpoint;
 
-            // --- LÓGICA DE MAPEAMENTO CORRIGIDA ---
-            let dadosParaDjango = {};
-            if (tipoUsuario === 'Cliente') {
-                dadosParaDjango = {
-                    nome: dadosPerfil.nome,
-                    cpf: dadosPerfil.cpf,
-                    telefone: dadosPerfil.telefone,
-                    data_nascimento: dadosPerfil.data_nascimento || null, // Garante que envia null se estiver vazio
-                    endereco: dadosPerfil.endereco,
-                };
-            } else { // Vendedor
-                dadosParaDjango = {
-                    nome_loja: dadosPerfil.nome_loja,
-                    cnpj: dadosPerfil.cnpj,
-                    telefone: dadosPerfil.telefone,
-                    // Adicione aqui os outros campos do vendedor que você quer salvar
-                    data_fundacao: dadosPerfil.data_fundacao || null,
-                    horario_funcionamento: dadosPerfil.horario_funcionamento,
-                    nome_responsavel: dadosPerfil.nome_responsavel,
-                    cpf_responsavel: dadosPerfil.cpf_responsavel,
-                    breve_descricao_loja: dadosPerfil.breve_descricao_loja,
-                    logotipo_loja: dadosPerfil.logotipo_loja,
-                    site_redes_sociais: dadosPerfil.site_redes_sociais,
-                    categoria_loja: dadosPerfil.categoria_loja, // Este é o ID da categoria
-                    endereco: dadosPerfil.endereco,
-                };
+        if (isEditMode) {
+            endpoint = `${process.env.REACT_APP_API_URL}/api/perfil/`;
+        } else {
+            console.log(usuario.tipo_usuario);
+            if (usuario.tipo_usuario === 'Cliente') {
+                console.log("Matched: Cliente");
+                endpoint = `${process.env.REACT_APP_API_URL}/api/clientes/`;
+            } else if (usuario.tipo_usuario === 'Vendedor') {
+                console.log("Matched: Vendedor");
+                endpoint = `${process.env.REACT_APP_API_URL}/api/vendedores/`;
+            } else if (usuario.tipo_usuario === 'Administrador') {
+                console.log("Matched: Administrador");
+                endpoint = `${process.env.REACT_APP_API_URL}/api/admins/`;
+            } else {
+                console.log("No match. Falling back to else.");
+                showNotification('Tipo de usuário inválido.', 'erro');
+                return;
             }
+        }
 
-            // Envia a requisição PUT com os dados corretos
-            const response = await axios.put(endpoint, dadosParaDjango, {
+        try {
+            const response = await axios[method](endpoint, dadosPerfil, {
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`
                 }
             });
 
-            if (response.status === 200) {
-                // Atualiza o contexto para indicar que o perfil está completo
-                login(token, { ...usuario, perfil_completo: true }); 
+            if (response.status === 200 || response.status === 201) {
+                showNotification('Perfil salvo com sucesso!', 'sucesso');
+                const updatedUser = { ...usuario, perfil_completo: true };
+                login(token, updatedUser); // Atualiza o contexto de autenticação
                 
-                // Redireciona para o painel apropriado
-                if (!usuario.email_verificado) {
-                    navegar('/verificar-email');
-                } else {
-                    navegar(tipoUsuario === 'Vendedor' ? '/dashboard-vendedor' : '/dashboard-cliente');
+                let destination = '/nao-autorizado';
+                if (usuario.tipo_usuario === 'Vendedor') {
+                    destination = '/dashboard-vendedor';
+                } else if (usuario.tipo_usuario === 'Cliente') {
+                    destination = '/dashboard-cliente';
+                } else if (usuario.tipo_usuario === 'Administrador') {
+                    destination = '/dashboard-admin';
                 }
-            } else {
-                setErro(response.data.message || 'Ocorreu um erro ao salvar o perfil.');
+                navigate(destination);
             }
         } catch (error) {
-            console.error('Erro ao salvar perfil:', error.response ? error.response.data : error.message);
             const serverError = error.response?.data;
-            // Mostra erros de validação específicos do Django
             if (serverError && typeof serverError === 'object') {
                 const errorMessages = Object.values(serverError).flat().join(' ');
-                setErro(errorMessages || 'Falha ao salvar. Verifique os dados e tente novamente.');
+                showNotification(errorMessages || 'Falha ao salvar. Verifique os dados e tente novamente.', 'erro');
             } else {
-                setErro('Falha ao conectar com o servidor ou erro ao salvar perfil.');
+                showNotification('Falha ao conectar com o servidor ou erro ao salvar perfil.', 'erro');
             }
         }
     };
 
+    if (loading) {
+        return <div style={{ textAlign: 'center', padding: '40px' }}>Carregando...</div>;
+    }
+
+    if (!usuario) {
+        return (
+            <div className="layout-logado-content" style={{ padding: '20px', textAlign: 'center' }}>
+                <p className="message-error">
+                   Sua sessão pode ter expirado. Por favor, <Link to="/login">tente fazer login novamente</Link>.
+                </p>
+            </div>
+        );
+    }
+
     return (
         <div style={{ position: 'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px' }}>
             <div className="dashboard-background-layer"></div>
-            <h2 className="dashboard-title">Quase lá!</h2>
-            <p className="text" style={{ textAlign: 'center', marginBottom: '20px' }}>Por favor, complete as informações abaixo para finalizar seu cadastro.</p>
-            {erro && <p className="message-error">{erro}</p>}
+            <h2 className="dashboard-title">{isEditMode ? 'Editar Perfil' : 'Quase lá!'}</h2>
+            <p className="text" style={{ textAlign: 'center', marginBottom: '20px' }}>
+                {isEditMode ? 'Atualize suas informações abaixo.' : 'Por favor, complete as informações abaixo para finalizar seu cadastro.'}
+            </p>
             
-            {tipoUsuario === 'Cliente' ? (
-                <FormularioCliente idUsuario={idUsuario} aoEnviar={aoEnviarPerfil} />
-            ) : (
-                <FormularioVendedor idUsuario={idUsuario} aoEnviar={aoEnviarPerfil} />
-            )}
+            {usuario.tipo_usuario === 'Cliente' &&
+                <FormularioCliente aoEnviar={aoEnviarPerfil} initialData={initialData} />
+            }
+            {usuario.tipo_usuario === 'Vendedor' &&
+                <FormularioVendedor aoEnviar={aoEnviarPerfil} initialData={initialData} />
+            }
+            {usuario.tipo_usuario === 'Administrador' &&
+                <FormularioAdmin aoEnviar={aoEnviarPerfil} initialData={initialData} />
+            }
         </div>
     );
 };

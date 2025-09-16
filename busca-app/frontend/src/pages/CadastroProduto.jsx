@@ -1,171 +1,112 @@
 import React, { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
+import apiClient from '../api';
+import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import Botao from '../components/Botao';
+import { useNotification } from '../context/NotificationContext';
 
 const CadastroProduto = () => {
   const { token } = useContext(AuthContext);
-  const [todasSubcategorias, setTodasSubcategorias] = useState([]);
+  const { showNotification } = useNotification();
+  const navigate = useNavigate();
+
+  // Estados do componente
+  const [sellerCategoryId, setSellerCategoryId] = useState(null);
+  const [subcategories, setSubcategories] = useState([]);
   const [nomeProduto, setNomeProduto] = useState('');
   const [descricao, setDescricao] = useState('');
-  const [buscaSubcategoria, setBuscaSubcategoria] = useState('');
-  const [sugestoes, setSugestoes] = useState([]);
-  const [subcategoriaSelecionada, setSubcategoriaSelecionada] = useState(null);
-  const [variacoes, setVariacoes] = useState([]);
-  const [notification, setNotification] = useState({ message: '', type: '' });
+  const [subcategoriaId, setSubcategoriaId] = useState(''); // Pode conter um ID ou a string 'new'
+  const [newSubcategoryName, setNewSubcategoryName] = useState(''); // Para o campo de texto dinâmico
+  const [loading, setLoading] = useState(true);
 
-  const showNotification = (message, type) => {
-    setNotification({ message, type });
-    setTimeout(() => {
-        setNotification({ message: '', type: '' });
-    }, 3000);
-  };
-
+  // Efeito para buscar dados iniciais
   useEffect(() => {
-    const fetchSubcategories = async () => {
+    const fetchData = async () => {
+      if (!token) return;
+      setLoading(true);
       try {
-        const response = await axios.get('/api/subcategorias', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        console.log('Dados da subcategoria recebidos:', response.data);
-        setTodasSubcategorias(response.data.map(sub => ({ id: sub.id, nome: sub.nome })));
+        // 1. Busca o perfil do vendedor para obter sua categoria principal
+        const profileResponse = await apiClient.get('/perfil/');
+        const categoryId = profileResponse.data?.categoria_loja;
+
+        if (categoryId) {
+          setSellerCategoryId(categoryId);
+          // 2. Busca apenas as subcategorias que pertencem à categoria do vendedor
+          const subcatResponse = await apiClient.get(`/subcategorias/?categoria_loja=${categoryId}`);
+          setSubcategories(subcatResponse.data || []);
+        } else {
+          showNotification('Não foi possível identificar a categoria da sua loja. Complete seu perfil.', 'aviso');
+        }
       } catch (error) {
-        console.error('Erro ao buscar subcategorias:', error);
-        showNotification('Erro ao carregar subcategorias. Tente novamente.', 'error');
+        console.error('Erro ao buscar dados iniciais:', error);
+        showNotification('Erro ao carregar dados da página. Tente novamente.', 'erro');
+      } finally {
+        setLoading(false);
       }
     };
-    fetchSubcategories();
-  }, [token]);
-
-  useEffect(() => {
-    if (buscaSubcategoria.length > 0) {
-      const filtradas = todasSubcategorias.filter(sub =>
-        sub.nome.toLowerCase().includes(buscaSubcategoria.toLowerCase())
-      );
-      setSugestoes(filtradas);
-    } else {
-      setSugestoes([]);
-    }
-  }, [buscaSubcategoria, todasSubcategorias]);
-
-  const handleSelecionarSubcategoria = (sub) => {
-    setSubcategoriaSelecionada(sub);
-    setBuscaSubcategoria(sub.nome);
-    setSugestoes([]);
-  };
-
-  const handleBlurSubcategoria = () => {
-    if (buscaSubcategoria.trim() === '') {
-      setSubcategoriaSelecionada(null);
-      return;
-    }
-
-    if (subcategoriaSelecionada && subcategoriaSelecionada.nome.toLowerCase() === buscaSubcategoria.toLowerCase()) {
-      return;
-    }
-
-    const matchedSub = todasSubcategorias.find(sub => sub.nome.toLowerCase() === buscaSubcategoria.toLowerCase());
-    if (matchedSub) {
-      setSubcategoriaSelecionada(matchedSub);
-      setBuscaSubcategoria(matchedSub.nome);
-    } else {
-      setSubcategoriaSelecionada(null);
-    }
-  };
-
-  const handleAdicionarVariacao = () => {
-    setVariacoes([
-      ...variacoes,
-      {
-        id: Date.now(),
-        nomeVariacao: '',
-        valorVariacao: '',
-        preco: '',
-        quantidadeDisponivel: '',
-        imagens: [],
-      },
-    ]);
-  };
-
-  const handleRemoverVariacao = (id) => {
-    setVariacoes(variacoes.filter(v => v.id !== id));
-  };
-
-  const handleVariacaoChange = (id, campo, valor) => {
-    const novasVariacoes = variacoes.map(v => {
-      if (v.id === id) {
-        return { ...v, [campo]: valor };
-      }
-      return v;
-    });
-    setVariacoes(novasVariacoes);
-  };
+    fetchData();
+  }, [token, showNotification]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
-    if (!subcategoriaSelecionada) {
-      showNotification('Por favor, selecione uma subcategoria válida.', 'error');
-      return;
-    }
-    if (variacoes.length === 0) {
-      showNotification('Adicione pelo menos uma variação para o produto.', 'error');
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('nomeProduto', nomeProduto);
-    formData.append('descricao', descricao);
-    formData.append('idSubcategoria', subcategoriaSelecionada.id);
-
-    variacoes.forEach((variacao, index) => {
-      formData.append(`variacoes[${index}][nomeVariacao]`, variacao.nomeVariacao);
-      formData.append(`variacoes[${index}][valorVariacao]`, variacao.valorVariacao);
-      formData.append(`variacoes[${index}][preco]`, variacao.preco);
-      formData.append(`variacoes[${index}][quantidadeDisponivel]`, variacao.quantidadeDisponivel);
-
-      if (variacao.imagens && variacao.imagens.length > 0) {
-        for (let i = 0; i < variacao.imagens.length; i++) {
-          if (variacao.imagens[i] instanceof File) {
-            formData.append(`imagens_${index}`, variacao.imagens[i]);
-          } else if (typeof variacao.imagens[i] === 'string') {
-            formData.append(`variacoes[${index}][urlImagem]`, variacao.imagens[i]);
-          }
-        }
-      }
-    });
+    let finalSubcategoryId = subcategoriaId;
 
     try {
-      await axios.post('/api/produtos/completo/', formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      showNotification('Produto cadastrado com sucesso!', 'success');
-      // Limpar o formulário
-      setNomeProduto('');
-      setDescricao('');
-      setBuscaSubcategoria('');
-      setSubcategoriaSelecionada(null);
-      setVariacoes([]);
+      // Etapa 1: Se o vendedor está criando uma nova subcategoria
+      if (subcategoriaId === 'new') {
+        if (!newSubcategoryName.trim()) {
+          showNotification('Por favor, digite o nome da nova subcategoria.', 'erro');
+          setLoading(false);
+          return;
+        }
+        // Cria a nova subcategoria primeiro
+        const newSubcatResponse = await apiClient.post('/subcategorias/', {
+          nome: newSubcategoryName,
+          categoria_loja: sellerCategoryId,
+        });
+        finalSubcategoryId = newSubcatResponse.data.id; // Pega o ID da subcategoria recém-criada
+        showNotification(`Subcategoria '${newSubcategoryName}' criada com sucesso!`, 'sucesso');
+      }
+
+      if (!finalSubcategoryId) {
+        showNotification('Por favor, selecione uma subcategoria.', 'erro');
+        setLoading(false);
+        return;
+      }
+
+      // Etapa 2: Cria o produto base com o ID da subcategoria (seja ela existente ou nova)
+      const produtoData = {
+        nome: nomeProduto,
+        descricao: descricao,
+        subcategoria: finalSubcategoryId,
+      };
+
+      const productResponse = await apiClient.post('/produtos/', produtoData);
+      showNotification('Produto base cadastrado! Agora, adicione as variações e ofertas.', 'sucesso');
+      
+      // Etapa 3: Redireciona para a página de adicionar oferta
+      navigate('/adicionar-oferta', { state: { newProductId: productResponse.data.id } });
+
     } catch (error) {
-      console.error('Erro ao cadastrar produto:', error);
-      showNotification('Falha ao cadastrar o produto. Tente novamente.', 'error');
+      console.error('Erro no processo de cadastro de produto:', error);
+      const errorMsg = error.response?.data?.detail || error.response?.data?.nome?.[0] || 'Falha ao cadastrar o produto.';
+      showNotification(errorMsg, 'erro');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <>
-      {notification.message && (
-        <div className={`notification ${notification.type}`}>
-            {notification.message}
-        </div>
-      )}
-      <h2>Cadastro de Produto</h2>
-      <form onSubmit={handleSubmit}>
-        {/* Seção 1: Informações Gerais */}
-        <div className="form-section">
-          <h3 className="form-section-title">Informações Gerais do Produto</h3>
+    <div className="form-container" style={{maxWidth: '900px'}}>
+      <h1 className="apresentacao__conteudo__titulo">Cadastrar Novo Produto no Catálogo</h1>
+      <p>Esta etapa cria o produto base. Após o cadastro, você será direcionado para adicionar as variações (cores, tamanhos) e suas ofertas (preço, estoque).</p>
+      
+      {loading && <p>Carregando dados da sua loja...</p>}
+
+      {!loading && (
+        <form onSubmit={handleSubmit} style={{marginTop: '2rem'}}>
           <div className="form-group">
             <label htmlFor="nomeProduto">Nome do Produto:</label>
             <input
@@ -173,6 +114,7 @@ const CadastroProduto = () => {
               id="nomeProduto"
               value={nomeProduto}
               onChange={(e) => setNomeProduto(e.target.value)}
+              placeholder="Ex: Camiseta de Algodão Pima"
               required
             />
           </div>
@@ -181,99 +123,51 @@ const CadastroProduto = () => {
             <textarea
               id="descricao"
               value={descricao}
+              placeholder="Uma breve descrição sobre o produto"
               onChange={(e) => setDescricao(e.target.value)}
-              onKeyPress={(e) => { if (e.key === 'Enter') handleSubmit(e); }}
             />
           </div>
           <div className="form-group">
-            <label htmlFor="buscaSubcategoria">Buscar Subcategoria:</label>
-            <input
-              type="text"
-              id="buscaSubcategoria"
-              value={buscaSubcategoria}
-              onChange={(e) => setBuscaSubcategoria(e.target.value)}
-              onBlur={handleBlurSubcategoria}
+            <label htmlFor="subcategoria">Subcategoria do Produto:</label>
+            <select
+              id="subcategoria"
+              value={subcategoriaId}
+              onChange={(e) => setSubcategoriaId(e.target.value)}
               required
-            />
-            {sugestoes.length > 0 && (
-              <ul className="suggestions-list">
-                {sugestoes.map(s => (
-                  <li key={s.id} onClick={() => handleSelecionarSubcategoria(s)} className="suggestion-item">
-                    {s.nome}
-                  </li>
-                ))}
-              </ul>
-            )}
-            {subcategoriaSelecionada && (
-              <p className="selected-subcategory">Subcategoria Selecionada: <strong>{subcategoriaSelecionada.nome}</strong></p>
-            )}
+            >
+              <option value="">Selecione uma subcategoria</option>
+              {subcategories.map(sub => (
+                <option key={sub.id} value={sub.id}>
+                  {sub.nome}
+                </option>
+              ))}
+              <option value="new">Outra... (especificar)</option>
+            </select>
           </div>
-        </div>
 
-        {/* Seção 2: Variações e Ofertas */}
-        <div className="form-section">
-          <h3 className="form-section-title">Variações e Ofertas</h3>
-          {variacoes.map((variacao, index) => (
-            <div key={variacao.id} className="variation-item">
-              <h4>Variação {index + 1}</h4>
-              <div className="form-group">
-                <label>Nome da Variação (ex: Marca, Sabor):</label>
-                <input
-                  type="text"
-                  value={variacao.nomeVariacao}
-                  onChange={(e) => handleVariacaoChange(variacao.id, 'nomeVariacao', e.target.value)}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>Valor da Variação (ex: Ninho, Morango):</label>
-                <input
-                  type="text"
-                  value={variacao.valorVariacao}
-                  onChange={(e) => handleVariacaoChange(variacao.id, 'valorVariacao', e.target.value)}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>Preço (R$):</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={variacao.preco}
-                  onChange={(e) => handleVariacaoChange(variacao.id, 'preco', e.target.value)}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>Quantidade em Estoque:</label>
-                <input
-                  type="number"
-                  value={variacao.quantidadeDisponivel}
-                  onChange={(e) => handleVariacaoChange(variacao.id, 'quantidadeDisponivel', e.target.value)}
-                  onKeyPress={(e) => { if (e.key === 'Enter') handleSubmit(e); }}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>Imagens:</label>
-                <input type="file" multiple onChange={(e) => handleVariacaoChange(variacao.id, 'imagens', Array.from(e.target.files))} />
-                <input type="text" placeholder="Ou cole a URL da imagem aqui" onChange={(e) => handleVariacaoChange(variacao.id, 'imagens', [e.target.value])} />
-              </div>
-              <button type="button" onClick={() => handleRemoverVariacao(variacao.id)} className="btn btn-danger">Remover Variação</button>
+          {subcategoriaId === 'new' && (
+            <div className="form-group">
+              <label htmlFor="newSubcategoryName">Nome da Nova Subcategoria:</label>
+              <input
+                type="text"
+                id="newSubcategoryName"
+                value={newSubcategoryName}
+                onChange={(e) => setNewSubcategoryName(e.target.value)}
+                placeholder="Ex: Camisetas Manga Longa"
+                required
+              />
             </div>
-          ))}
-          <button type="button" onClick={handleAdicionarVariacao} className="btn btn-secondary">
-            + Adicionar Variação
-          </button>
-        </div>
+          )}
 
-        <div className="form-actions">
-          <button type="submit" className="btn btn-success">Cadastrar Produto Completo</button>
-        </div>
-      </form>
-    </>
+          <div className="form-actions">
+            <Botao type="submit" variante="sucesso" disabled={loading}>
+              {loading ? 'Salvando...' : 'Cadastrar Produto e Adicionar Variações'}
+            </Botao>
+          </div>
+        </form>
+      )}
+    </div>
   );
 };
 
 export default CadastroProduto;
-

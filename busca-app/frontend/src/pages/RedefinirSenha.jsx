@@ -1,36 +1,31 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Botao from '../components/Botao';
+import { useNotification } from '../context/NotificationContext';
 
 const RedefinirSenha = () => {
     const { token } = useParams();
     const navigate = useNavigate();
+    const { showNotification } = useNotification();
     const [password, setPassword] = useState('');
     const [password2, setPassword2] = useState('');
-    const [notification, setNotification] = useState({ message: '', type: '' });
-
-    const showNotification = (message, type) => {
-        setNotification({ message, type });
-        setTimeout(() => {
-            setNotification({ message: '', type: '' });
-        }, 5000);
-    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (password !== password2) {
-            showNotification('As senhas não coincidem.', 'error');
+            showNotification('As senhas não coincidem.', 'erro');
             return;
         }
 
         try {
             await axios.post(`/api/redefinir-senha/${token}/`, { password });
-            showNotification('Senha redefinida com sucesso! Você será redirecionado para o login.', 'success');
+            showNotification('Senha redefinida com sucesso! Você será redirecionado para o login.', 'sucesso');
             setTimeout(() => {
                 navigate('/login');
             }, 3000);
         } catch (err) {
-            showNotification('Falha ao redefinir a senha. O link pode ter expirado.', 'error');
+            showNotification('Falha ao redefinir a senha. O link pode ter expirado.', 'erro');
         }
     };
 
@@ -61,13 +56,8 @@ const RedefinirSenha = () => {
                             required
                         />
                     </div>
-                    <button type="submit" className="btn btn-primary">Redefinir Senha</button>
+                    <Botao type="submit" variante="primario">Redefinir Senha</Botao>
                 </form>
-                {notification.message && (
-                    <div className={`notification ${notification.type}`}>
-                        {notification.message}
-                    </div>
-                )}
             </section>
         </main>
     );

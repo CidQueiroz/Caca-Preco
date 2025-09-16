@@ -1,11 +1,15 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+import Botao from './Botao';
+import { useNotification } from '../context/NotificationContext';
 
 const AdicionarOferta = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const { token } = useContext(AuthContext);
+    const { showNotification } = useNotification();
 
     // Estados para o fluxo
     const [searchTerm, setSearchTerm] = useState('');
@@ -13,7 +17,6 @@ const AdicionarOferta = () => {
     const [allProducts, setAllProducts] = useState([]);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [notification, setNotification] = useState({ message: '', type: '' });
     
     // Estados para as ofertas dos SKUs existentes
     const [offers, setOffers] = useState({});
@@ -22,37 +25,6 @@ const AdicionarOferta = () => {
     const [showNewVariationForm, setShowNewVariationForm] = useState(false);
     const [newVariations, setNewVariations] = useState([{ nome: '', valor: '' }]);
     const [newVariationImage, setNewVariationImage] = useState(null);
-
-    // Efeito para carregar todos os produtos do catálogo uma única vez
-    useEffect(() => {
-        if (token) {
-            setLoading(true);
-            const url = `${process.env.REACT_APP_API_URL}/api/produtos/`;
-            axios.get(url, { headers: { Authorization: `Bearer ${token}` } })
-                .then(response => {
-                    if (Array.isArray(response.data)) {
-                        setAllProducts(response.data);
-                    } else {
-                        setAllProducts([]);
-                    }
-                })
-                .catch(err => console.error("Erro ao carregar produtos:", err))
-                .finally(() => setLoading(false));
-        }
-    }, [token]);
-
-    // Efeito para filtrar produtos localmente conforme o usuário digita
-    useEffect(() => {
-        if (searchTerm.length < 2) {
-            setSearchResults([]);
-            return;
-        }
-        const lowercasedFilter = searchTerm.toLowerCase();
-        const filtered = allProducts.filter(p =>
-            p.nome.toLowerCase().includes(lowercasedFilter)
-        );
-        setSearchResults(filtered);
-    }, [searchTerm, allProducts]);
 
     // Recarrega os dados do produto selecionado (usado após criar uma nova variação)
     const reloadSelectedProduct = async (productId) => {
@@ -68,14 +40,49 @@ const AdicionarOferta = () => {
             setOffers(initialOffers);
         } catch (error) {
             console.error("Erro ao recarregar o produto", error);
-            showNotification("Não foi possível atualizar a lista de variações.", "error");
+            showNotification("Não foi possível carregar o produto selecionado.", "erro");
         }
     };
 
-    const showNotification = (message, type) => {
-        setNotification({ message, type });
-        setTimeout(() => setNotification({ message: '', type: '' }), 5000);
-    };
+    // Efeito para carregar o produto vindo do redirecionamento
+    useEffect(() => {
+        const newProductId = location.state?.newProductId;
+        if (newProductId && token) { // Garante que o token exista antes de fazer a chamada
+            setLoading(true);
+            reloadSelectedProduct(newProductId).finally(() => setLoading(false));
+            // Limpa o estado para não recarregar caso o usuário navegue para outra página e volte
+            navigate(location.pathname, { replace: true, state: {} });
+        }
+    }, [location.state, navigate, token]);
+
+    // Efeito para carregar todos os produtos do catálogo para a busca
+    useEffect(() => {
+        if (token) {
+            const url = `${process.env.REACT_APP_API_URL}/api/produtos/`;
+            axios.get(url, { headers: { Authorization: `Bearer ${token}` } })
+                .then(response => {
+                    if (Array.isArray(response.data)) {
+                        setAllProducts(response.data);
+                    } else {
+                        setAllProducts([]);
+                    }
+                })
+                .catch(err => console.error("Erro ao carregar produtos:", err));
+        }
+    }, [token]);
+
+    // Efeito para filtrar produtos localmente conforme o usuário digita
+    useEffect(() => {
+        if (searchTerm.length < 2) {
+            setSearchResults([]);
+            return;
+        }
+        const lowercasedFilter = searchTerm.toLowerCase();
+        const filtered = allProducts.filter(p =>
+            p.nome.toLowerCase().includes(lowercasedFilter)
+        );
+        setSearchResults(filtered);
+    }, [searchTerm, allProducts]);
 
     // Seleciona um produto da busca e carrega seus detalhes
     const handleSelectProduct = async (productSummary) => {
@@ -120,7 +127,7 @@ const AdicionarOferta = () => {
         e.preventDefault();
         const variationsToSave = newVariations.filter(v => v.nome.trim() !== '' && v.valor.trim() !== '');
         if (variationsToSave.length === 0) {
-            showNotification('Preencha pelo menos um atributo para a variação.', 'error');
+            showNotification('Preencha pelo menos um atributo para a variação.', 'erro');
             return;
         }
 
@@ -140,7 +147,7 @@ const AdicionarOferta = () => {
                 }
             });
             
-            showNotification('Nova variação adicionada com sucesso!', 'success');
+            showNotification('Nova variação adicionada com sucesso!', 'sucesso');
             
             setShowNewVariationForm(false);
             setNewVariations([{ nome: '', valor: '' }]);
@@ -149,7 +156,7 @@ const AdicionarOferta = () => {
 
         } catch (err) {
             const errorMessage = err.response?.data?.error || 'Erro ao adicionar variação.';
-            showNotification(errorMessage, 'error');
+            showNotification(errorMessage, 'erro');
             console.error(err);
         }
     };
@@ -165,7 +172,7 @@ const AdicionarOferta = () => {
             }));
 
         if (offersToSave.length === 0) {
-            showNotification('Preencha o preço e o estoque de pelo menos uma variação.', 'error');
+            showNotification('Preencha o preço e o estoque de pelo menos uma variação.', 'erro');
             return;
         }
 
@@ -176,19 +183,17 @@ const AdicionarOferta = () => {
             );
             
             await Promise.all(savePromises);
-            showNotification(`${offersToSave.length} oferta(s) cadastrada(s) com sucesso!`, 'success');
+            showNotification(`${offersToSave.length} oferta(s) cadastrada(s) com sucesso!`, 'sucesso');
             handleResetSelection();
 
         } catch (err) {
-            showNotification('Ocorreu um erro ao salvar as ofertas.', 'error');
+            showNotification('Ocorreu um erro ao salvar as ofertas.', 'erro');
             console.error(err);
         }
     };
 
     return (
         <div>
-            {notification.message && <div className={`notification ${notification.type}`}>{notification.message}</div>}
-            
             <h1 className="apresentacao__conteudo__titulo">Adicionar Nova Oferta</h1>
 
             {!selectedProduct ? (
@@ -215,14 +220,14 @@ const AdicionarOferta = () => {
                     )}
                     <div style={{textAlign: 'center', marginTop: '30px'}}>
                         <p>Não encontrou o produto que procurava?</p>
-                        <button onClick={() => navigate('/cadastrar-produto')} className="btn btn-secondary">Cadastrar um Produto Completamente Novo</button>
+                        <Botao onClick={() => navigate('/cadastrar-produto')} variante="secundario">Cadastrar um Produto Completamente Novo</Botao>
                     </div>
                 </div>
             ) : (
             <div className="form-container" style={{maxWidth: '900px'}}>
                 <div className="selected-product-info">
                     <h3>{selectedProduct.nome}</h3>
-                    <button onClick={handleResetSelection} className="btn-link">Buscar outro produto</button>
+                    <Botao onClick={handleResetSelection} variante="terciario">Buscar outro produto</Botao>
                 </div>
                 <h4>Preencha o preço e estoque para as variações que deseja vender:</h4>
                 
@@ -284,11 +289,11 @@ const AdicionarOferta = () => {
                                     />
                                 </div>
                                 {newVariations.length > 1 && (
-                                    <button type="button" onClick={() => removeVariationRow(index)} className="btn btn-danger" style={{ alignSelf: 'flex-end', marginBottom: '1rem' }}>Remover</button>
+                                    <Botao type="button" onClick={() => removeVariationRow(index)} variante="perigo" style={{ alignSelf: 'flex-end', marginBottom: '1rem' }}>Remover</Botao>
                                 )}
                             </div>
                         ))}
-                        <button type="button" onClick={addVariationRow} className="btn btn-info">+ Adicionar outro atributo</button>
+                        <Botao type="button" onClick={addVariationRow} variante="secundario">+ Adicionar outro atributo</Botao>
                         
                         <div className="form-group" style={{marginTop: '1rem'}}>
                             <label>Imagem da Variação (Opcional)</label>
@@ -300,18 +305,18 @@ const AdicionarOferta = () => {
                         </div>
 
                         <div className="form-actions" style={{ marginTop: '20px' }}>
-                            <button type="submit" className="btn btn-success">Salvar Variação</button>
-                            <button type="button" onClick={() => setShowNewVariationForm(false)} className="btn btn-secondary">Cancelar</button>
+                            <Botao type="submit" variante="sucesso">Salvar Variação</Botao>
+                            <Botao type="button" onClick={() => setShowNewVariationForm(false)} variante="secundario">Cancelar</Botao>
                         </div>
                     </form>
                 ) : (
-                    <button onClick={() => setShowNewVariationForm(true)} className="btn btn-secondary">+ Adicionar nova variação</button>
+                    <Botao onClick={() => setShowNewVariationForm(true)} variante="secundario">+ Adicionar nova variação</Botao>
                 )}
 
                 <hr style={{margin: '2rem 0'}} />
                     
                 <div className="form-actions">
-                    <button onClick={handleSaveAllOffers} className="btn btn-primary">Salvar Todas as Ofertas Preenchidas</button>
+                    <Botao onClick={handleSaveAllOffers} variante="primario">Salvar Todas as Ofertas Preenchidas</Botao>
                 </div>
             </div>
         )}

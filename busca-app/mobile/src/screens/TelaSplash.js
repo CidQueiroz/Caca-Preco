@@ -1,61 +1,108 @@
-import React, { useState, useEffect, useRef, useContext } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Video } from 'expo-av';
-import { AuthContext } from '../../src/context/AuthContext';
+import React, { useEffect, useContext, useRef } from 'react';
+import { StyleSheet, Dimensions, Image } from 'react-native';
+import { Video, ResizeMode } from 'expo-av';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming, withDelay, Easing, interpolateColor } from 'react-native-reanimated';
+import { useNavigation, StackActions } from '@react-navigation/native';
+import { AuthContext } from '../context/AuthContext';
+
+const AnimatedImage = Animated.createAnimatedComponent(Image);
+const { height } = Dimensions.get('window');
 
 const TelaSplash = () => {
-    const { terminarSplash } = useContext(AuthContext);
-    const [isLoaded, setIsLoaded] = useState(false);
-    const [playCount, setPlayCount] = useState(0);
+    const { usuario, token } = useContext(AuthContext);
+    const navigation = useNavigation();
     const videoRef = useRef(null);
 
-    useEffect(() => {
-        // Este efeito lida com a navegação após a conclusão da reprodução do vídeo.
-        if (playCount >= 2) {
-            terminarSplash();
-        }
-    }, [playCount, terminarSplash]);
+    const cdkTranslateY = useSharedValue(-height / 2);
+    const teckTranslateY = useSharedValue(height / 2);
+    const logoOpacity = useSharedValue(0);
+    const animation = useSharedValue(0);
 
-    const handleVideoLoad = () => {
-        setIsLoaded(true);
-    };
+    const navigateToNextScreen = (videoDuration) => {
+        animation.value = withTiming(1, { duration: videoDuration, easing: Easing.linear });
 
-    const handlePlaybackStatusUpdate = (playbackStatus) => {
-        if (playbackStatus.didJustFinish) {
-            setPlayCount(prevCount => {
-                const newCount = prevCount + 1;
-                if (newCount === 1) {
-                    // Se terminou a primeira reprodução, reinicia o vídeo
-                    videoRef.current.replayAsync();
+        const timer = setTimeout(() => {
+            if (token && usuario) {
+                if (!usuario.email_verificado) {
+                    navigation.dispatch(StackActions.replace('TelaVerificarEmail'));
+                } else if (!usuario.perfil_completo) {
+                    navigation.dispatch(StackActions.replace('TelaCompletarPerfil'));
+                } else {
+                    const dashboard = usuario.tipoUsuario === 'Vendedor' 
+                        ? 'TelaDashboardVendedor' 
+                        : 'TelaDashboardCliente';
+                    navigation.dispatch(StackActions.replace(dashboard));
                 }
-                return newCount;
-            });
+            } else {
+                navigation.dispatch(StackActions.replace('TelaInicial'));
+            }
+        }, videoDuration);
+
+        return () => clearTimeout(timer);
+    };
+
+    useEffect(() => {
+        cdkTranslateY.value = withTiming(0, { duration: 1500, easing: Easing.out(Easing.cubic) });
+        teckTranslateY.value = withTiming(0, { duration: 1500, easing: Easing.out(Easing.cubic) });
+        logoOpacity.value = withDelay(500, withTiming(1, { duration: 1000 }));
+    }, []);
+
+    const onVideoLoad = (status) => {
+        if (status.isLoaded) {
+            navigateToNextScreen(status.durationMillis);
         }
     };
+
+    const animatedContainerStyle = useAnimatedStyle(() => {
+        const backgroundColor = interpolateColor(
+            animation.value,
+            [0, 1],
+            ['#D9DBE0', '#FCFCFB']
+        );
+        return {
+            backgroundColor,
+        };
+    });
+
+    const cdkImageStyle = useAnimatedStyle(() => ({
+        transform: [{ translateY: cdkTranslateY.value }],
+        opacity: logoOpacity.value,
+    }));
+    
+    const teckImageStyle = useAnimatedStyle(() => ({
+        transform: [{ translateY: teckTranslateY.value }],
+        opacity: logoOpacity.value,
+    }));
+    
+    const centralElementStyle = useAnimatedStyle(() => ({
+        opacity: logoOpacity.value,
+    }));
 
     return (
-        <View style={styles.container}>
-            {/* Renderize o vídeo apenas quando ele estiver pronto */}
-            {isLoaded && (
+        <Animated.View style={[styles.container, animatedContainerStyle]}>
+            <AnimatedImage
+                source={require('../../assets/CDK.png')}
+                style={[styles.sideImage, styles.cdkImage, cdkImageStyle]}
+                resizeMode="contain"
+            />
+            <Animated.View style={[styles.centralElement, centralElementStyle]}>
                 <Video
                     ref={videoRef}
-                    source={require('../../assets/video_logo1.mp4')}
-                    style={styles.backgroundVideo}
-                    isMuted={true}
+                    source={require('../../assets/video.mp4')}
+                    style={styles.video}
+                    resizeMode={ResizeMode.CONTAIN}
                     shouldPlay={true}
                     isLooping={false}
-                    resizeMode="contain"
-                    onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
+                    isMuted={false}
+                    onLoad={onVideoLoad}
                 />
-            )}
-            
-            {/* Este vídeo é invisível, serve apenas para carregar o arquivo e disparar o evento */}
-            <Video
-                source={require('../../assets/video_logo1.mp4')}
-                onLoad={handleVideoLoad}
-                style={{ display: 'none' }}
+            </Animated.View>
+            <AnimatedImage
+                source={require('../../assets/TECK.png')}
+                style={[styles.sideImage, styles.teckImage, teckImageStyle]}
+                resizeMode="contain"
             />
-        </View>
+        </Animated.View>
     );
 };
 
@@ -64,14 +111,25 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#FFFFFF',
     },
-    backgroundVideo: {
+    centralElement: {
+        width: 375,
+        height: 375,
+    },
+    video: {
+        width: '100%',
+        height: '100%',
+    },
+    sideImage: {
         position: 'absolute',
-        top: 0,
-        left: 0,
-        bottom: 0,
-        right: 0,
+        width: '50%',
+        height: 100,
+    },
+    cdkImage: {
+        top: '15%',
+    },
+    teckImage: {
+        bottom: '15%',
     },
 });
 

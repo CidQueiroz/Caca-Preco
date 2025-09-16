@@ -1,9 +1,7 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import Botao from '../components/Botao';
 
 const AnaliseMercadoSaaS = () => {
-  const navigate = useNavigate();
-
   return (
     <div className="saas-page-container">
       <div className="saas-header">
@@ -27,12 +25,12 @@ const AnaliseMercadoSaaS = () => {
           <h3>Acesse agora o seu Dashboard de Análise</h3>
           <p>Comece a explorar os dados e insights que preparamos para você.</p>
           <div className="saas-cta-buttons">
-            <button onClick={() => navigate('/dashboard-analise')} className="btn btn-secondary" >
+            <Botao to="/dashboard-analise" variante="secundario">
               Acessar Análises
-            </button>
-            <button onClick={() => navigate('/monitorar-concorrencia')} className="btn btn-primary">
+            </Botao>
+            <Botao to="/monitorar-concorrencia" variante="primario">
               Monitorar Nova URL
-            </button>
+            </Botao>
           </div>
         </div>
       </div>

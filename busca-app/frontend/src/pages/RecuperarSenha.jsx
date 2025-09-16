@@ -1,23 +1,23 @@
 import React, { useState } from 'react';
 import apiClient from '../api'; // Usando o apiClient central
 import { Link } from 'react-router-dom';
+import Botao from '../components/Botao';
+import { useNotification } from '../context/NotificationContext';
 
 const RecuperarSenha = () => {
     const [email, setEmail] = useState('');
-    const [message, setMessage] = useState({ text: '', type: '' });
+    const { showNotification } = useNotification();
     const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setMessage({ text: '', type: '' });
         try {
-            // A URL já está configurada no apiClient
             await apiClient.post('/recuperar-senha/', { email });
-            setMessage({ text: 'Se um usuário com este e-mail existir, um link de recuperação foi enviado.', type: 'success' });
+            showNotification('Se um usuário com este e-mail existir, um link de recuperação foi enviado.', 'sucesso');
         } catch (err) {
             // Exibe a mesma mensagem para não revelar se um email existe ou não
-            setMessage({ text: 'Se um usuário com este e-mail existir, um link de recuperação foi enviado.', type: 'success' });
+            showNotification('Se um usuário com este e-mail existir, um link de recuperação foi enviado.', 'sucesso');
         } finally {
             setLoading(false);
         }
@@ -31,12 +31,6 @@ const RecuperarSenha = () => {
             <p className="page-subtitle" style={{marginBottom: '20px'}}>
                 Digite seu e-mail e enviaremos um link para você voltar a acessar sua conta.
             </p>
-
-            {message.text && (
-                <div className={`message message-${message.type}`}>
-                    {message.text}
-                </div>
-            )}
 
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
@@ -52,14 +46,14 @@ const RecuperarSenha = () => {
                         disabled={loading}
                     />
                 </div>
-                <button 
+                <Botao 
                     type="submit" 
-                    className="btn btn-primary" 
+                    variante="primario" 
                     style={{ width: '100%' }}
                     disabled={loading}
                 >
                     {loading ? 'Enviando...' : 'Enviar Link de Recuperação'}
-                </button>
+                </Botao>
             </form>
             <p style={{ marginTop: '20px', textAlign: 'center' }}>
                 Lembrou a senha? <Link to="/login">Voltar para o Login</Link>

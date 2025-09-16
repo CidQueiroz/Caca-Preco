@@ -12,6 +12,7 @@ import {
   Legend,
 } from 'chart.js';
 import { Line, Bar, Pie } from 'react-chartjs-2'; // Adicionado Pie
+import Botao from '../components/Botao';
 
 ChartJS.register(
   CategoryScale,
@@ -159,7 +160,7 @@ const DashboardAnalise = () => {
                   {/* Adicionamos um div para agrupar o texto */}
                   <div>
                       <p>
-                          Analisando as tendências de preço e estoque, nossa IA identificou uma <strong>oportunidade de aumento de margem</strong> no 'Produto C'.
+                          Analisando as tendências de preço e estoque, identifiquei uma <strong>oportunidade de aumento de margem</strong> no 'Produto C'.
                       </p>
                       <p>
                           <strong>Sugestão:</strong> Considere um leve aumento de preço neste item durante o fim de semana, pois a demanda concorrente está diminuindo enquanto a sua permanece estável.
@@ -167,9 +168,9 @@ const DashboardAnalise = () => {
                   </div>
                   
                   <div className="ai-button">
-                      <button className="btn btn-primary">
+                      <Botao variante="primario">
                           Ver análise completa
-                      </button>
+                      </Botao>
                   </div>
               </div>
           </div>

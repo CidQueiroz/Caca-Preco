@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios'; // Importar axios
+import axios from 'axios';
+import Botao from './Botao';
 
 const FormularioCadastro = () => {
     const [email, setEmail] = useState('');
@@ -64,7 +65,7 @@ const FormularioCadastro = () => {
                 </select>
             </div>
             <div className="form-actions">
-                <button type="submit" className="btn btn-primary">Cadastrar</button>
+                <Botao type="submit" variante="primario">Cadastrar</Botao>
             </div>
         </form>
     );

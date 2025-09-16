@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAÇA-PREÇO</title>
+    <link rel="stylesheet" href="./styles/style.css">
+</head>
+
+    <style>
+        .site-header {
+                    position: sticky;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 15px 40px;
+                    background-color: rgba(10, 10, 30, 0.6); /* Fundo escuro semi-transparente */
+                    backdrop-filter: blur(10px); /* Efeito de vidro fosco */
+                    border-bottom: 1px solid rgba(78, 205, 196, 0.2);
+                    z-index: 2000;
+                }
+
+            .header-logo {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                text-decoration: none;
+                font-size: 20px;
+                font-weight: bold;
+                color: #fff;
+            }
+
+            .header-logo img {
+                height: 60px;
+                width: 60px;
+                background-color: #ff6b35;
+                border-radius: 50%; /* Garante que seja perfeitamente redondo */
+                border: 2px solid #555; /* Uma base para a borda metálica sutil */
+                /*background-color: rgba(133, 235, 228, 0.3); /* Seu fundo atual */
+                padding: 3px; /* Um pequeno espaçamento interno */
+                transition: all 0.3s ease;
+            }
+
+            .header-logo img:hover {
+                transform: scale(1.1);
+                box-shadow: 0 0 20px rgba(78, 205, 196, 0.8); /* Efeito de brilho ciano */
+                border-color: #999; /* Borda fica um pouco mais clara */
+            }
+
+            .header-logo span:hover{
+                color: #4ecdc4;
+            }
+
+            .main-nav a {
+                color: #c0c0d0;
+                text-decoration: none;
+                margin-left: 25px;
+                font-weight: bold;
+                transition: color 0.3s ease;
+            }
+
+            .main-nav a:hover {
+                color: #4ecdc4; /* Cor ciano da sua marca */
+            }
+    </style>
+    
+    <body>
+    
+            <header class="site-header">
+            <a href="../index.html" class="header-logo" title="Voltar ao Início">
+                <img src="..//PBI/Assets/favicon2.png" alt="CDK TECK - Início">
+                <span>CDK TECK</span>
+            </a>
+            <nav class="main-nav">
+                <a href="../index.html" title="Voltar ao Início">Início</a>
+                <a href="portfolio.html">Portfólio</a>
+                </nav>
+        </header>
+    
+    <main class="apresentacao">
+
+        <section class="apresentacao__conteudo">
+
+            <h1 class="apresentacao__conteudo__titulo">BEM-VINDO AO
+                <strong class="titulodestaque">CAÇA-PREÇO!</strong>
+            </h1>
+    
+            <p class="apresentacao__conteudo__texto">Olá, eu sou a Lourdes. Vou te ajudar a economizar muito!</p>
+            
+            <div class="apresentacao__links">
+                
+                <h2 class="apresentacao__links__subtitulo">Escolha a plataforma:</h2>
+                
+                <a class="apresentacao__links__navegacao" href="https://www.instagram.com/ciddyqueiroz/">
+                    <img src="./assets/twitter.png">Entrar
+                </a>
+                
+                <a class="apresentacao__links__navegacao" href="./AdivinhaNumero/jogar.html">
+                    <img src="./assets/github.png">Jogar
+                </a>
+                
+                <a class="apresentacao__links__navegacao" href="./testes/unicorn.html">
+                    <img src="./assets/instagram.png">Unicornio
+                </a>
+            
+            </div>
+        
+        </section>
+
+        <img class="apresentacao_imagem" src="./assets/ia.png">
+    
+    </main>
+
+    <footer class="rodape">
+        <p>Desenvolvido por CDK TECK</p>
+    </footer>
+
+</body>
+</html>

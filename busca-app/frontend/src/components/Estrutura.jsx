@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import BarraNavegacao from './BarraNavegacao';
 import Footer from './Footer';
 import { AuthContext } from '../context/AuthContext';
+import Notificacao from './Notificacao'; // Importa o componente de Notificação
 
 const Estrutura = ({ children }) => {
     const location = useLocation();
@@ -13,7 +14,7 @@ const Estrutura = ({ children }) => {
         window.scrollTo(0, 0);
     }, [location.pathname]);
 
-    // A verificação agora é baseada na existência do token.
+        // A verificação agora é baseada na existência do token.
     const isUserLoggedIn = !!token;
 
     return (
@@ -33,6 +34,7 @@ const Estrutura = ({ children }) => {
                 </main>
             )}
             <Footer />
+            <Notificacao /> {/* Componente de notificação adicionado aqui */}
         </>
     );
 };

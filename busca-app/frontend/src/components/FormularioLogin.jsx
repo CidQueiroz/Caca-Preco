@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import Botao from './Botao';
 
 const FormularioLogin = () => {
     const [email, setEmail] = useState('');
@@ -18,7 +19,9 @@ const FormularioLogin = () => {
         setMensagemSucesso('');
 
         try {
-            const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/login/`, { email, password: senha });
+            const dataToSend = { email, password: senha };
+            console.log('Enviando para o login:', dataToSend);
+            const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/login/`, dataToSend);
             
             const { access: token, user: dadosUsuario } = response.data;
             login(token, dadosUsuario); // Função do seu AuthContext
@@ -32,6 +35,8 @@ const FormularioLogin = () => {
                 navegar('/dashboard-vendedor');
             } else if (dadosUsuario.tipo_usuario === 'Cliente') {
                 navegar('/dashboard-cliente');
+            } else if (dadosUsuario.tipo_usuario === 'Administrador') {
+                navegar('/dashboard-admin'); // Placeholder, can be changed
             } else {
                 navegar('/nao-autorizado');
             }
@@ -94,7 +99,7 @@ const FormularioLogin = () => {
                 />
             </div>
             <div className="form-actions">
-                <button type="submit" className="btn btn-primary">Entrar</button>
+                <Botao type="submit" variante="primario">Entrar</Botao>
             </div>
         </form>
     );

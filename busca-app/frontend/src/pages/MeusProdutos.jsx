@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+//import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+import Botao from '../components/Botao'; // Importando o componente Botao
 
 const ArrowIcon = ({ expanded }) => (
     <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
@@ -10,7 +11,7 @@ const ArrowIcon = ({ expanded }) => (
 );
 
 const MeusProdutos = () => {
-    const navigate = useNavigate();
+    //const navigate = useNavigate();
     const [produtos, setProdutos] = useState([]);
     const [loading, setLoading] = useState(true);
     const { token } = useContext(AuthContext);
@@ -95,7 +96,7 @@ const MeusProdutos = () => {
                     Authorization: `Bearer ${token}`
                 }
             });
-            showNotification('Oferta atualizada com sucesso!', 'success');
+            showNotification('Oferta atualizada com sucesso!', 'sucesso');
             setEditingProduct(null);
             setEditingImage(null); // Limpa imagem após salvar
             fetchProdutos();
@@ -109,7 +110,7 @@ const MeusProdutos = () => {
         if (window.confirm('Tem certeza que deseja excluir esta oferta de produto?')) {
             try {
                 await axios.delete(`/api/ofertas/${ofertaId}/`, { headers: { Authorization: `Bearer ${token}` } });
-                showNotification('Oferta excluída com sucesso!', 'success');
+                showNotification('Oferta excluída com sucesso!', 'sucesso');
                 fetchProdutos();
             } catch (err) {
                 showNotification('Falha ao excluir a oferta.', 'error');
@@ -135,7 +136,7 @@ const MeusProdutos = () => {
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <h1 className="dashboard-title" style={{marginBottom: 0}}>Meus Produtos</h1>
-                <button onClick={() => navigate('/adicionar-oferta')} className="btn btn-primary">Adicionar Nova Oferta</button>
+                <Botao to="/adicionar-oferta" variante="primario">Adicionar Nova Oferta</Botao>
             </div>
             
             <div className="view-controls">
@@ -147,8 +148,8 @@ const MeusProdutos = () => {
                     </select>
                 </div>
                 <div className="view-toggle-buttons">
-                    <button onClick={() => setViewMode('card')} className={`btn ${viewMode === 'card' ? 'btn-terciaria' : 'btn-secondary'}`}>Cards</button>
-                    <button onClick={() => setViewMode('list')} className={`btn ${viewMode === 'list' ? 'btn-terciaria' : 'btn-secondary'}`}>Lista</button>
+                    <Botao onClick={() => setViewMode('card')} variante={viewMode === 'card' ? 'primario' : 'secundario'}>Cards</Botao>
+                    <Botao onClick={() => setViewMode('list')} variante={viewMode === 'list' ? 'primario' : 'secundario'}>Lista</Botao>
                 </div>
             </div>
 
@@ -159,52 +160,72 @@ const MeusProdutos = () => {
                     {viewMode === 'card' ? (
                         <div className="card-grid">
                             {produtos.map(produto => {
-                                const imageUrl = produto.url_imagem; // Agora o backend sempre retorna uma URL válida
+                                // Variável para verificar se este é o card que está a ser editado
+                                const isEditing = editingProduct && editingProduct.id === produto.id;
+
+                                // Define a URL da imagem a ser exibida
+                                // Se uma nova imagem foi selecionada no modo de edição, mostra a pré-visualização.
+                                // Senão, mostra a imagem atual do produto.
+                                const imageUrl = isEditing && editingImage
+                                    ? URL.createObjectURL(editingImage)
+                                    : produto.url_imagem; // Supondo que o serializer envia 'imagem_principal'
 
                                 return (
-                                    <div key={produto.id} className="card"> {/* Use o ID da oferta como chave */}
-                                        {editingProduct && editingProduct.id === produto.id ? (
-                                            <> {/* Edit mode */}
+                                    // Adicionamos uma classe extra quando o card está em modo de edição
+                                    <div key={produto.id} className={`card ${isEditing ? 'card--editing' : ''}`}>
+                                        {isEditing ? (
+                                            // --- NOVO MODO DE EDIÇÃO COM DUAS COLUNAS ---
+                                            <div className="edit-mode-grid">
                                                 
-                                                <img 
-                                                    src={editingProduct.url_imagem} 
-                                                    alt={editingProduct.nome_produto} 
-                                                    className="imagem-produto" 
-                                                />
-                                                
-                                                <div className="form-group">
-                                                    <label>Preço:</label>
-                                                    <input type="number" name="preco" value={editingProduct.preco || ''} onChange={handleChange} step="0.01" />
-                                                </div>
-                                                
-                                                <div className="form-group">
-                                                    <label>Estoque:</label>
-                                                    <input type="number" name="quantidade_disponivel" value={editingProduct.quantidade_disponivel || ''} onChange={handleChange} />
+                                                {/* Coluna da Esquerda: Imagem e Botão de Trocar */}
+                                                <div className="edit-image-container">
+                                                    <img 
+                                                        src={imageUrl} 
+                                                        alt={produto.nome_produto} 
+                                                        className="product-image"
+                                                    />
+                                                    <div className="form-group">
+                                                        {/* Este label está estilizado para parecer um botão */}
+                                                        <label htmlFor={`imagem-${produto.id}`} className="btn btn-secondary btn-file">Trocar Imagem</label>
+                                                        <input 
+                                                            type="file" 
+                                                            id={`imagem-${produto.id}`}
+                                                            name="imagem" 
+                                                            onChange={handleChange} 
+                                                            accept="image/png, image/jpeg, image/webp"
+                                                            style={{ display: 'none' }} // O input real fica escondido
+                                                        />
+                                                    </div>
                                                 </div>
 
-                                                <div className="form-group">
-                                                    <label>Alterar Imagem:</label>
-                                                    <input type="file" name="imagem" onChange={handleChange} accept="image/png, image/jpeg, image/webp" />
+                                                {/* Coluna da Direita: Campos de Texto e Botões de Ação */}
+                                                <div className="edit-form-container">
+                                                    <div className="form-group">
+                                                        <label>Preço:</label>
+                                                        <input type="number" name="preco" value={editingProduct.preco || ''} onChange={handleChange} step="0.01" />
+                                                    </div>
+                                                    
+                                                    <div className="form-group">
+                                                        <label>Estoque:</label>
+                                                        <input type="number" name="quantidade_disponivel" value={editingProduct.quantidade_disponivel || ''} onChange={handleChange} />
+                                                    </div>
+                                                    
+                                                    <div className="form-actions edit-actions">
+                                                        <Botao onClick={handleSaveClick} variante="sucesso">Salvar</Botao>
+                                                        <Botao onClick={handleCancelEdit} variante="secundario">Cancelar</Botao>
+                                                        <Botao onClick={() => handleDeleteClick(editingProduct.id)} variante="perigo">Excluir</Botao>
+                                                    </div>
                                                 </div>
-                                                
-                                                <div className="form-actions">
-                                                    <button onClick={handleSaveClick} className="btn btn-primary">Salvar</button>
-                                                    <button onClick={handleCancelEdit} className="btn btn-secondary">Cancelar</button>
-                                                    <button onClick={() => handleDeleteClick(editingProduct.id)} className="btn btn-danger">Excluir</button>
-                                                </div>
-                                            </>
+                                            </div>
                                         ) : (
-                                            <> {/* Display mode */}
-                                                
-                                                <img src={imageUrl} alt={produto.nome_produto} className="product-image" />
-                                                
+                                            // --- MODO DE VISUALIZAÇÃO (sem alterações na estrutura) ---
+                                            <> 
+                                                <img src={produto.url_imagem} alt={produto.nome_produto} className="product-image" />
                                                 <h2 className="card-title">{produto.nome_produto}</h2>
-                                                <p className="card-text"><strong>Categoria:</strong> {produto.nome_categoria || 'N/A'}</p>
-                                                <p className="card-text">{produto.descricao}</p>
                                                 <p className="card-text"><strong>Variação:</strong> {produto.variacao_formatada}</p>
                                                 <p className="card-text"><strong>Preço:</strong> R$ {produto.preco}</p>
                                                 <p className="card-text"><strong>Estoque:</strong> {produto.quantidade_disponivel}</p>
-                                                <button onClick={() => handleEditClick(produto)} className="btn btn-secondary">Editar</button>
+                                                <Botao onClick={() => handleEditClick(produto)} variante="secundario">Editar</Botao>
                                             </>
                                         )}
                                     </div>
@@ -227,61 +248,32 @@ const MeusProdutos = () => {
                                 <tbody>
                                     {produtos.map(produto => {
                                         const isEditing = editingProduct && editingProduct.id === produto.id;
-                                        const imageUrl = produto.url_imagem; // Agora o backend sempre retorna uma URL válida
                                         const isExpanded = expandedRowId === produto.id;
 
                                         return (
                                             <React.Fragment key={produto.id}>
                                                 {isEditing ? (
-                                                    // --- LINHA DE EDIÇÃO ---
                                                     <tr className="product-row-editing">
                                                         <td>{produto.nome_produto}</td>
                                                         <td>{produto.variacao_formatada}</td>
-                                                        
-                                                        <td>
-                                                            <input
-                                                                type="number"
-                                                                name="preco"
-                                                                value={editingProduct.preco}
-                                                                onChange={handleChange}
-                                                                className="form-input-table"
-                                                                step="0.01"
-                                                            />
-                                                        </td>
-                                                        
-                                                        <td>
-                                                            <input
-                                                                type="number"
-                                                                name="quantidade_disponivel"
-                                                                value={editingProduct.quantidade_disponivel}
-                                                                onChange={handleChange}
-                                                                className="form-input-table"
-                                                            />
-                                                        </td>
-                                                        
-                                                        <td>
-                                                            <input type="file" name="imagem" onChange={handleChange} accept="image/png, image/jpeg, image/webp" />
-                                                        </td>
-                                                        
+                                                        <td><input type="number" name="preco" value={editingProduct.preco} onChange={handleChange} className="form-input-table" step="0.01"/></td>
+                                                        <td><input type="number" name="quantidade_disponivel" value={editingProduct.quantidade_disponivel} onChange={handleChange} className="form-input-table"/></td>
+                                                        <td><input type="file" name="imagem" onChange={handleChange} accept="image/png, image/jpeg, image/webp" /></td>
                                                         <td className="action-links-editing">
-                                                            <button onClick={handleSaveClick} className="btn-save">Salvar</button>
-                                                            <button onClick={() => handleDeleteClick(editingProduct.id)} className="btn-delete">Excluir</button>
-                                                            <button onClick={handleCancelEdit} className="btn-cancel">Cancelar</button>
+                                                            <Botao onClick={handleSaveClick} variante="sucesso">Salvar</Botao>
+                                                            <Botao onClick={() => handleDeleteClick(editingProduct.id)} variante="perigo">Excluir</Botao>
+                                                            <Botao onClick={handleCancelEdit} variante="terciario">Cancelar</Botao>
                                                         </td>
-                                                    
                                                     </tr>
                                                 ) : (
-                                                    // --- LINHA DE VISUALIZAÇÃO ---
                                                     <tr className="product-row">
                                                         <td>{produto.nome_produto}</td>
                                                         <td>{produto.variacao_formatada}</td>
                                                         <td>R$ {produto.preco}</td>
                                                         <td>{produto.quantidade_disponivel}</td>
-                                                        <td>
-                                                            <button onClick={() => toggleImageExpansion(produto.id)} className="expand-btn"><ArrowIcon expanded={isExpanded} /></button>
-                                                        </td>
+                                                        <td><button onClick={() => toggleImageExpansion(produto.id)} className="expand-btn"><ArrowIcon expanded={isExpanded} /></button></td>
                                                         <td className="action-links">
-                                                            <button onClick={() => handleEditClick(produto)} className="btn btn-secondary">Editar</button>
+                                                            <Botao onClick={() => handleEditClick(produto)} variante="secundario">Editar</Botao>
                                                         </td>
                                                     </tr>
                                                 )}

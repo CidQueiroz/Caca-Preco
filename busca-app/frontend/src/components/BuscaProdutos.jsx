@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Botao from './Botao';
 
 const BuscaProdutos = ({ aoBuscar }) => {
     const [termoBusca, setTermoBusca] = useState('');
@@ -16,7 +17,7 @@ const BuscaProdutos = ({ aoBuscar }) => {
                 value={termoBusca}
                 onChange={(e) => setTermoBusca(e.target.value)}
             />
-            <button type="submit">Buscar</button>
+            <Botao type="submit" variante="primario">Buscar</Botao>
         </form>
     );
 };

@@ -1,39 +1,52 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../api';
 import { AuthContext } from '../context/AuthContext';
+import { useMonitoring } from '../context/MonitoringContext';
+import Botao from '../components/Botao';
+import { useNotification } from '../context/NotificationContext';
 
 const DashboardVendedor = () => {
   const navigate = useNavigate();
   const { token, user } = useContext(AuthContext);
-  const [sellerName, setSellerName] = useState('Usuário'); // Novo estado para o nome do vendedor
+  const { showNotification } = useNotification();
+  const { lastResult, setLastResult } = useMonitoring();
+
+  const [sellerName, setSellerName] = useState('Usuário');
   const [avaliacoes, setAvaliacoes] = useState([]);
   const [loadingAvaliacoes, setLoadingAvaliacoes] = useState(true);
   const [showSuggestionForm, setShowSuggestionForm] = useState(false);
   const [suggestionText, setSuggestionText] = useState('');
-  const [notification, setNotification] = useState({ message: '', type: '' });
 
-  const showNotification = (message, type) => {
-    setNotification({ message, type });
-    setTimeout(() => {
-        setNotification({ message: '', type: '' });
-    }, 3000);
+  const handleSaveResult = async () => {
+    if (!lastResult || !lastResult.data) return;
+
+    try {
+      await apiClient.post('/salvar-monitoramento/', lastResult.data);
+      showNotification('Produto salvo e monitoramento iniciado!', 'sucesso');
+      setLastResult(null); // Limpa o card após salvar
+    } catch (error) {
+      console.error("Erro ao salvar resultado:", error);
+      showNotification(error.response?.data?.error || 'Erro ao salvar o produto.', 'erro');
+    }
+  };
+
+  const handleDiscardResult = () => {
+    setLastResult(null);
   };
 
   const handleSendSuggestion = async () => {
     if (!suggestionText.trim()) {
-      showNotification('A sugestão não pode ser vazia.', 'error');
+      showNotification('A sugestão não pode ser vazia.', 'erro');
       return;
     }
     try {
-      await axios.post(`${process.env.REACT_APP_API_URL}/api/sugestoes/`, { texto: suggestionText }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      showNotification('Sugestão enviada com sucesso!', 'success');
+      await apiClient.post('/sugestoes/', { texto: suggestionText });
+      showNotification('Sugestão enviada com sucesso!', 'sucesso');
       setSuggestionText('');
       setShowSuggestionForm(false);
     } catch (err) {
-      showNotification('Falha ao enviar sugestão.', 'error');
+      showNotification('Falha ao enviar sugestão.', 'erro');
       console.error(err);
     }
   };
@@ -44,26 +57,24 @@ const DashboardVendedor = () => {
 
   useEffect(() => {
     const fetchAvaliacoes = async () => {
+      if (!token) return;
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/avaliacoes/`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await apiClient.get('/avaliacoes/');
         setAvaliacoes(response.data);
       } catch (err) {
-        showNotification('Falha ao buscar suas avaliações.', 'error');
+        showNotification('Falha ao buscar suas avaliações.', 'erro');
         console.error(err);
       }
       setLoadingAvaliacoes(false);
     };
 
     const fetchSellerProfile = async () => {
+      if (!token) return;
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/perfil/`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await apiClient.get('/perfil/');
         if (response.data && response.data.nome_responsavel) {
           setSellerName(response.data.nome_responsavel);
-        } else if (user?.email) { // Fallback para o email se nome_loja não estiver disponível
+        } else if (user?.email) {
           setSellerName(user.email);
         }
       } catch (err) {
@@ -74,11 +85,9 @@ const DashboardVendedor = () => {
       }
     };
 
-    if (token) {
-      fetchAvaliacoes();
-      fetchSellerProfile();
-    }
-  }, [token, user]); // Adicionado 'user' como dependência para o fallback do email
+    fetchAvaliacoes();
+    fetchSellerProfile();
+  }, [token, user, showNotification]);
 
   const produtosMaisAcessados = [
     { id: 1, nome: 'Produto A', acessos: 150 },
@@ -86,15 +95,54 @@ const DashboardVendedor = () => {
     { id: 3, nome: 'Produto C', acessos: 95 },
   ];
 
+  const renderMonitoringCard = () => {
+    if (!lastResult) return null;
+
+    const cardStyle = {
+      width: '100%',
+      padding: '20px',
+      marginBottom: '20px',
+      borderRadius: '8px',
+      border: '1px solid',
+      color: '#fff',
+    };
+
+    if (lastResult.status === 'SUCCESS') {
+      return (
+        <div style={{ ...cardStyle, backgroundColor: 'var(--cor-sucesso-clara)', borderColor: 'var(--cor-sucesso)' }}>
+          <h3 style={{ marginTop: 0 }}>Monitoramento Concluído com Sucesso!</h3>
+          <p><strong>Produto:</strong> {lastResult.data.nome_produto}</p>
+          <p><strong>Preço Encontrado:</strong> R$ {lastResult.data.preco_atual}</p>
+          <div className="botoes-acao" style={{ marginTop: '15px' }}>
+            <Botao onClick={handleSaveResult} variante="sucesso">Salvar no Monitoramento</Botao>
+            <Botao onClick={handleDiscardResult} variante="secundario" style={{ marginLeft: '10px' }}>Descartar</Botao>
+          </div>
+        </div>
+      );
+    }
+
+    if (lastResult.status === 'FAILURE') {
+      return (
+        <div style={{ ...cardStyle, backgroundColor: 'var(--cor-erro-clara)', borderColor: 'var(--cor-erro)' }}>
+          <h3 style={{ marginTop: 0 }}>Falha no Monitoramento</h3>
+          <p>{lastResult.message}</p>
+          <div className="botoes-acao" style={{ marginTop: '15px' }}>
+            <Botao onClick={() => navigate('/monitorar-concorrencia')} variante="primario">Tentar Outro Link</Botao>
+            <Botao onClick={handleDiscardResult} variante="secundario" style={{ marginLeft: '10px' }}>Descartar</Botao>
+          </div>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
   return (
     <>
-      {notification.message && (
-        <div className={`notification ${notification.type}`}>
-            {notification.message}
-        </div>
-      )}
       <h1 className="dashboard-title">Painel do Vendedor</h1>
       <p className="text" style={{ textAlign: 'center', marginBottom: '30px' }}>Bem-vindo, {sellerName}!</p>
+
+      {renderMonitoringCard()}
 
       <div className="card-grid">
 
@@ -103,7 +151,7 @@ const DashboardVendedor = () => {
           <span className="card-icon">📦</span>
           <h2 className="card-title">Gerenciamento de Produtos</h2>
           <p className="card-text">Visualize, edite e adicione novos produtos.</p>
-          <button onClick={() => navigate('/meus-produtos')} className="btn btn-secondary">Gerenciar Meus Produtos</button>
+          <Botao to="/meus-produtos" variante="secundario">Gerenciar Meus Produtos</Botao>
         </div>
 
         {/* Seção de Análise e SaaS */}
@@ -118,7 +166,7 @@ const DashboardVendedor = () => {
               </li>
             ))}
           </ul>
-          <button onClick={() => navigate('/analise-de-mercado')} className="btn btn-secondary" style={{marginTop: '20px'}}>Monitorar Concorrência (Premium)</button>
+          <Botao to="/analise-de-mercado" variante="secundario" style={{marginTop: '20px'}}>Monitorar Concorrência (Premium)</Botao>
         </div>
 
         {/* Seção de Conta */}
@@ -126,7 +174,7 @@ const DashboardVendedor = () => {
           <span className="card-icon">⚙️</span>
           <h2 className="card-title">Minha Conta</h2>
           <p className="card-text">Edite suas informações de perfil e dados da loja.</p>
-          <button onClick={() => navigate('/editar-perfil-vendedor')} className="btn btn-secondary">Editar Perfil e Dados da Loja</button>
+          <Botao to="/completar-perfil" variante="secundario">Editar Perfil e Dados da Loja</Botao>
           <p className="text" style={{ fontSize: '0.8rem', marginTop: '10px' }}><small>Obs: A alteração de dados como CNPJ requer aprovação de um administrador.</small></p>
         </div>
 
@@ -144,24 +192,24 @@ const DashboardVendedor = () => {
               ) : (
                 <p>Você possui {avaliacoes.length} avaliação(ões).</p>
               )}
-              <button 
-                onClick={() => navigate('/minhas-avaliacoes')}
-                className="btn btn-secondary"
+              <Botao 
+                to="/minhas-avaliacoes"
+                variante="secundario"
                 style={{ marginTop: '10px' }}
                 disabled={avaliacoes.length === 0}
               >
                 Ver Todas as Avaliações
-              </button>
+              </Botao>
             </>
           )}
 
-          <button 
+          <Botao 
             onClick={() => setShowSuggestionForm(!showSuggestionForm)}
-            className="btn btn-secondary"
+            variante="secundario"
             style={{ marginTop: '10px' }}
           >
             {showSuggestionForm ? 'Cancelar Sugestão' : 'Enviar Sugestão'}
-          </button>
+          </Botao>
 
           {showSuggestionForm && (
             <div style={{ marginTop: '20px', width: '100%' }}>
@@ -173,24 +221,24 @@ const DashboardVendedor = () => {
                 className="form-control"
                 style={{ width: '100%', marginBottom: '10px' }}
               ></textarea>
-              <button onClick={handleSendSuggestion} className="btn btn-success">
+              <Botao onClick={handleSendSuggestion} variante="sucesso">
                 Enviar Sugestão
-              </button>
+              </Botao>
             </div>
           )}
 
-          <button 
-            onClick={() => navigate('/indicar-vendedor')}
-            className="btn btn-secondary"
+          <Botao 
+            to="/indicar-vendedor"
+            variante="secundario"
             style={{ marginTop: '10px' }}
           >
             Indicar Novo Vendedor
-          </button>
+          </Botao>
         </div>
       </div>
 
       <div style={{ textAlign: 'center', marginTop: '30px' }}>
-        <button onClick={() => navigate('/')} className="btn btn-primary">Voltar ao Início</button>
+        <Botao to="/" variante="primario">Voltar ao Início</Botao>
       </div>
     </>
   );

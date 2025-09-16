@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caça-Preço - Início</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="cabecalho">
+        <nav class="cabecalho_menu">
+            <a href="#" class="cabecalho_logo_link">
+                <img src="../PBI/Assets/logo_metalico_sem_fundo.png" alt="Logo CDK TECK" class="cabecalho_logo_imagem" />
+            </a>
+            <div class="cabecalho_links">
+                <a class="cabecalho_menu_link" href="#">Início</a>
+                <a class="cabecalho_menu_link" href="#">Login</a>
+                <a class="cabecalho_menu_link" href="#">Cadastrar</a>
+                <button class="theme-toggle-btn">🌓</button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="apresentacao">
+        
+        <section class="apresentacao__conteudo">
+            
+            <h1 class="apresentacao__conteudo__titulo">
+                BEM-VINDO AO
+            </h1>
+            
+            <h1 class="apresentacao__conteudo__titulo">
+                <strong class="titulodestaque"><b>CAÇA-PREÇO!</b></strong>
+            </h1>
+            
+            <p class="apresentacao__conteudo__texto">
+                Olá, eu sou a Lourdes. Sua aventura mágica financeira começa aqui!
+            </p>
+            
+            <div class="apresentacao__links">
+                
+                <h2 class="apresentacao__links__subtitulo">Acesse a plataforma:</h2>
+                
+                <a href="#" class="botao botao-secundario">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login
+                </a>
+
+                <a href="#" class="botao botao-primario">
+                    <i class="fas fa-user-plus"></i>
+                    Cadastre-se
+                </a>
+
+            </div>
+
+        </section>
+
+        <img class="apresentacao_imagem" src="../PBI/Assets/ia.png" alt="Lourdes" />
+
+    </main>
+
+    <footer class="rodape">
+        <p class="rodape_texto">© 2025 <b>CDK TECK</b>. Todos os direitos reservados.</p>
+        <div class="rodape_links">
+            <a href="#" class="rodape_link">Privacidade</a>
+            <a href="#" class="rodape_link">Termos</a>
+            <a href="#" class="rodape_link">Contato</a>
+        </div>
+    </footer>
+
+    <script>
+        const themeToggleBtn = document.querySelector('.theme-toggle-btn');
+        const currentTheme = localStorage.getItem('theme');
+
+        // Apply saved theme on load
+        if (currentTheme) {
+            document.body.setAttribute('data-theme', currentTheme);
+        }
+
+        themeToggleBtn.addEventListener('click', () => {
+            let newTheme;
+            if (document.body.getAttribute('data-theme') === 'dark') {
+                newTheme = 'light';
+            } else {
+                newTheme = 'dark';
+            }
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+    </script>
+
+</body>
+</html>
