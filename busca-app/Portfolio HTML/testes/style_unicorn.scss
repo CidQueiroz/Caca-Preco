@@ -1,0 +1,831 @@
+$blue-bg: #00518a;
+$horn: #ffddab;
+$horn-line: #f4c598;
+
+$pink-light: #ffaeb0;
+$pink-dark: #ff545a;
+
+$purple-eye: #502e75;
+
+$white-face: #eeeeee;
+$white-face-shadow: #e1e1e1;
+
+$grey-leg: #cdd1d2;
+$red-hoof: #ff5654;
+
+$r-red: #ff2220;
+$r-orange: #ffae00;
+$r-yellow: #ffe100;
+$r-green: #85c900;
+$r-blue: #00b0ff;
+$r-purple: #8139df;
+$r-pink: #ff40e1;
+
+$white-cloud: #fff;
+$yellow-star: #f8e545;
+
+@mixin ps {
+  content: "";
+  position: absolute;
+}
+
+@mixin box($w, $h) {
+  width: $w;
+  height: $h;
+}
+
+html {
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+body {
+  background-color: $blue-bg;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+.unicorn-container {
+  display: flex;
+  justify-content: center;
+}
+
+.unicorn {
+  margin-top: 50px;
+  margin-left: -130px;
+
+  .header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .horn {
+    position: relative;
+    position: relative;
+    overflow: hidden;
+    width: 40px;
+    height: 50px;
+
+    .lines-container {
+      @include box(20px, 50px);
+      position: absolute;
+      width: 20px;
+      height: 50px;
+      overflow: hidden;
+      transform: skew(-20deg, 68deg);
+      top: 25px;
+      left: 10px;
+      background: $horn;
+      background: linear-gradient(
+        105deg,
+        $horn 0%,
+        $horn 8%,
+        $horn-line 9%,
+        $horn-line 13%,
+        $horn 14%,
+        $horn 38%,
+        $horn-line 39%,
+        $horn-line 43%,
+        $horn 44%
+      );
+    }
+  }
+
+  .head {
+    display: flex;
+    justify-content: center;
+    margin-left: 70px;
+  }
+
+  .face {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+    position: relative;
+    z-index: 1;
+
+    .pink {
+      z-index: 2;
+      position: relative;
+      @include box(80px, 85px);
+      background-color: $pink-light;
+      border-radius: 20px 8px 8px 20px;
+
+      &::before {
+        @include ps;
+        @include box(8px, 8px);
+        background-color: $pink-dark;
+        border-radius: 50%;
+        top: 20px;
+        left: 10px;
+        box-shadow: 25px 0 $pink-dark;
+      }
+
+      &::after {
+        @include ps;
+        @include box(55px, 40px);
+        background-color: $pink-dark;
+        border-radius: 4px 4px 30px 30px;
+        bottom: 5px;
+        left: 11px;
+      }
+    }
+    .white {
+      position: relative;
+      @include box(90px, 85px);
+      background-color: $white-face;
+      margin-left: -30px;
+      border-bottom-right-radius: 35px;
+      box-shadow: 0 11px $white-face-shadow;
+
+      &::before {
+        @include ps;
+        @include box(8px, 8px);
+        background-color: white;
+        border-radius: 50%;
+        top: 20px;
+        right: 30px;
+        box-shadow: 3px 4px 0 7px $purple-eye;
+      }
+
+      &::after {
+        @include ps;
+        @include box(14px, 35px);
+        background-color: $pink-dark;
+        border-radius: 7px 7px 0 0;
+        top: -35px;
+        right: 4px;
+        box-shadow: 0 0 0 4px $white-face;
+      }
+    }
+  }
+
+  .hair {
+    position: relative;
+    overflow: hidden;
+    @include box(230px, 180px);
+    margin-left: -100px;
+    border-top-left-radius: 30px;
+
+    .inner-hair {
+      position: relative;
+      @include box(230px, 18px);
+      border-radius: 0 9px 9px 0;
+      background: $r-red;
+      box-shadow: -15px 18px $r-orange, 
+        -15px 36px $r-yellow,
+        -12px 54px $r-green, 
+        -15px 72px $r-blue, 
+        -8px 90px $r-purple,
+        -15px 108px $r-pink, 
+        -6px 126px $r-red, 
+        -15px 144px $r-orange,
+        -8px 162px $r-yellow, 
+        -8px 180px $r-green;
+      animation: hair 2s linear infinite;
+
+      &::after {
+        @include ps();
+        @include box(50px, 18px);
+        border-radius: 9px;
+        right: 0px;
+        box-shadow: -12px 18px $blue-bg, 13px 54px $blue-bg, -6px 90px $blue-bg,
+          14px 126px $blue-bg, -7px 162px $blue-bg;
+      }
+    }
+  }
+
+  .neck {
+    position: relative;
+    @include box(90px, 50px);
+    background-color: $white-face;
+    margin-left: -10px;
+    margin-top: -95px;
+  }
+
+  .body {
+    display: flex;
+  }
+
+  .main {
+    position: relative;
+    @include box(300px, 150px);
+    left: 200px;
+    background: $white-face;
+    background: radial-gradient(
+      circle at 250px 65%,
+      #fff 0%,
+      #fff 70px,
+      $white-face 71px
+    );
+    border-bottom-left-radius: 50px;
+    border-bottom-right-radius: 75px;
+    border-top-right-radius: 75px;
+
+    &::after {
+      @include ps;
+      @include box(40px, 40px);
+      left: 70px;
+      top: -20px;
+      border-bottom-left-radius: 60px;
+      border-bottom: 20px solid $white-face;
+      border-left: 20px solid $white-face;
+    }
+
+    &::before {
+      @include ps;
+      @include box(20px, 70px);
+      left: -20px;
+      top: -20px;
+      background-color: $blue-bg;
+    }
+  }
+
+  .tail {
+    position: relative;
+    @include box(200px, 18px);
+    z-index: -1;
+    border-radius: 0 9px 9px 0;
+    left: 100px;
+    top: 20px;
+    background: $r-red;
+    box-shadow: 
+      0 18px $r-orange, 
+      60px 36px $r-yellow, 
+      0 54px $r-green,
+      -20px 72px $r-blue;
+    animation: tail 1.5s linear infinite;
+
+    &::after {
+      @include ps();
+      @include box(70px, 18px);
+      border-radius: 9px;
+      right: 0px;
+      box-shadow: 10px 18px $blue-bg, 10px 54px $blue-bg;
+    }
+
+    &::before {
+      @include ps;
+      @include box(120px, 120px);
+      border-radius: 50%;
+      background-color: $blue-bg;
+      bottom: -140px;
+      left: 10px;
+      background: linear-gradient(
+        220deg,
+        $blue-bg 0%,
+        $blue-bg 55%,
+        transparent 56%);
+    }
+
+    .inner-tail {
+      position: absolute;
+      @include box(28px, 28px);
+      background-color: transparent;
+      border-bottom: 10px solid $blue-bg;
+      border-left: 10px solid $blue-bg;
+      right: 58px;
+      top: 72px;
+      border-bottom-left-radius: 30px;
+    }
+  }
+
+  .legs {
+    position: relative;
+    top: -50px;
+
+    .leg {
+      position: absolute;
+      @include box(80px, 80px);
+      border-bottom: 35px solid;
+      border-left: 35px solid;
+      border-bottom-left-radius: 80px;
+
+      &::after {
+        @include ps;
+        @include box(20px, 35px);
+        background-color: $red-hoof;
+        bottom: -35px;
+        right: -20px;
+        border-bottom-right-radius: 17.5px;
+        border-top-right-radius: 17.5px;
+      }
+    }
+
+    :nth-child(odd) {
+      color: $grey-leg;
+    }
+
+    :nth-child(even) {
+      color: #fff;
+    }
+
+    :nth-child(1) {
+      transform: rotate(90deg);
+      top: -30px;
+      left: 200px;
+      z-index: -1;
+      transform-origin: top left;
+      animation: leg1 1s ease-in-out infinite alternate;
+    }
+
+    :nth-child(2) {
+      transform: rotate(40deg);
+      top: -10px;
+      left: 250px;
+      transform-origin: top left;
+      animation: leg2 1s .15s ease-in-out infinite alternate;
+
+      &::before {
+        @include ps;
+        @include box(35px, 20px);
+        background-color: #fff;
+        top: -20px;
+        left: -35px;
+        border-top-right-radius: 17.5px;
+        border-top-left-radius: 17.5px;
+      }
+    }
+
+    :nth-child(3) {
+      transform: rotate(30deg);
+      top: -15px;
+      left: 352px;
+      z-index: -1;
+      transform-origin: top left;
+      animation: leg3 1s ease-in-out infinite alternate;
+    }
+
+    :nth-child(4) {
+      transform: rotate(60deg);
+      top: -5px;
+      left: 400px;
+      transform-origin: top left;
+      animation: leg4 1s ease-in-out infinite alternate;
+    }
+  }
+}
+
+.rainbow-container {
+  display: flex;
+  justify-content: center;
+
+  .rainbow {
+    z-index: -2;
+    position: relative;
+    @include box(770px, 300px);
+    overflow: hidden;
+
+    &::after {
+      @include ps;
+      @include box(400px, 400px);
+      border-radius: 200px;
+      background-color: $blue-bg;
+      bottom: -350px;
+      transform: translateX(-50%);
+      left: 50%;
+      box-shadow: 0 0 0 30px $r-pink, 0 0 0 60px $r-purple, 0 0 0 90px $r-blue,
+        0 0 0 120px $r-green, 0 0 0 150px $r-yellow, 0 0 0 180px $r-orange,
+        0 0 0 210px $r-red;
+    }
+    
+    &::before {
+      @include ps;
+      @include box(820px, 820px);
+      z-index: 1;
+      top: 39px;
+      left: -26px;
+      border-radius: 50%;
+      background-image: 
+        radial-gradient($blue-bg 0, $blue-bg 200px, transparent 60px), 
+        conic-gradient(transparent 10%, rgba(255, 255, 255, 0.3) 30%, transparent 40%);
+      animation: rotate linear infinite 2.5s;
+    }
+  }
+}
+
+.bg {
+  position: relative;
+
+  .clouds {
+    .cloud {
+      z-index: -1;
+      position: absolute;
+      @include box(120px, 20px);
+      background-color: $white-cloud;
+      border-radius: 10px;
+      transform: scale(.6);
+      box-shadow: 
+        0 20px $white-cloud, 
+        0 40px $white-cloud, 
+        0 60px $white-cloud,
+        0 80px $white-cloud;
+
+      &::after {
+        @include ps();
+        @include box(80px, 20px);
+        top: 20px;
+        left: -30px;
+        background-color: $blue-bg;
+        border-radius: 10px;
+        box-shadow: 100px 0 $blue-bg, -20px 40px $blue-bg, 80px 40px $blue-bg;
+      }
+
+      &.alt {
+        &::before {
+          @include ps();
+          @include box(40px, 20px);
+          background-color: $white-cloud;
+          right: -55px;
+          border-radius: 10px;
+        }
+      }
+
+      &.bot {
+        transform: scale(1, -1) scale(.6);
+      }
+    }
+    
+    :nth-child(1) {
+      top: 30px;
+      left: -20%;
+      animation: clouds 6s linear infinite;
+    }
+    
+    :nth-child(2) {
+      top: 450px;
+      left: -60%;
+      animation: clouds 7s linear infinite;
+      z-index: -2;
+    }
+  }
+
+  .stars {
+    position: relative;
+    
+    :nth-child(1) {
+      top: 30px;
+      left: 20%;
+      animation: star1 5s linear infinite;
+    }
+    
+    :nth-child(2) {
+      top: 90px;
+      left: 70%;
+      animation: star2 5s 2s linear infinite alternate;
+    }
+    
+    :nth-child(3) {
+      top: 240px;
+      left: 10%;
+      animation: star1 5s 1.3s ease-in infinite;
+    }
+    
+    :nth-child(4) {
+      top: 220px;
+      left: 80%;
+      animation: star1 5.5s 2.1s ease-out infinite;
+    }
+    
+    :nth-child(5) {
+      top: 320px;
+      left: 15%;
+      animation: star1 5.5s 2.1s ease-out infinite alternate;
+    }
+    
+    :nth-child(6) {
+      top: 380px;
+      left: 85%;
+      animation: star1 4s linear infinite;
+    } 
+    
+    :nth-child(7) {
+      top: 500px;
+      left: 5%;
+      animation: star2 4.8s linear infinite alternate;
+    }
+    
+    :nth-child(8) {
+      top: 520px;
+      left: 90%;
+      animation: star2 5s 1s linear infinite;
+    }
+    
+    :nth-child(9) {
+      top: 220px;
+      left: 30%;
+      animation: star2 5s 4s linear infinite;
+    }
+    
+    :nth-child(10) {
+      top: 70px;
+      left: 92%;
+      animation: star2 5.5s .3s ease-in-out alternate infinite;
+    }
+    
+    .star {
+      position: absolute;
+      @include box(6px, 20px);
+      background-color: $yellow-star;
+      border-radius: 3px;
+      
+      &::after {
+        @include ps;
+        @include box(6px, 20px);
+        background-color: $yellow-star;
+        border-radius: 3px;
+        transform: rotate(90deg)
+      }
+    }
+  }
+
+  .planets {
+    position: relative;
+    
+    :nth-child(1) {
+      top: 130px;
+      left: 20%;
+      animation: planet1 5s linear infinite;
+    }
+    
+    :nth-child(2) {
+      top: 190px;
+      left: 70%;
+      animation: planet1 5s .6s linear infinite alternate;
+    }
+    
+    :nth-child(3) {
+      top: 140px;
+      left: 1%;
+      animation: planet1 4.8s .5s linear infinite;
+    }
+    
+    :nth-child(4) {
+      top: 320px;
+      left: 90%;
+      animation: planet1 4.8s .2s ease-in infinite alternate;
+    }
+    
+    :nth-child(5) {
+      top: 220px;
+      left: 18%;
+      animation: planet1 4.8s .8s ease-in infinite;
+    }
+    
+    :nth-child(6) {
+      top: 20px;
+      left: 85%;
+      animation: planet1 5s 1.8s ease-in infinite;
+    } 
+    
+    :nth-child(7) {
+      top: 450px;
+      left: 32%;
+      animation: planet1 6s ease-in infinite;
+    }
+    
+    :nth-child(8) {
+      top: 490px;
+      left: 80%;
+      animation: planet1 5.5s ease-in infinite;
+    }
+    
+    :nth-child(9) {
+      top: 5px;
+      left: 50%;
+      animation: planet1 4.8s 1s ease-in infinite alternate;
+    }
+    
+    :nth-child(10) {
+      top: 25px;
+      left: 5%;
+      animation: planet1 4s .7s ease-out infinite;
+    }
+    
+    .planet {
+      position: absolute;
+      @include box(6px, 6px);
+      background-color: #fafafa;
+      border-radius: 3px;
+    }
+  }
+}
+
+
+@keyframes clouds {
+  100% {
+    left: 100%;
+  }
+}
+
+@keyframes star1 {
+  40% {
+    opacity: 30%;
+    transform: scale(.9);
+  }
+  
+  36%, 44% {
+    opacity: 100%;
+    transform: scale(1);
+  }
+}
+
+@keyframes star2 {
+  40% {
+    opacity: 20%;
+    transform: scale(1.2);
+  }
+  
+  36%, 44% {
+    opacity: 100%;
+    transform: scale(1);
+  }
+}
+
+@keyframes planet1 {
+  40% {
+    box-shadow: 0 0 10px 2px white;
+    opacity: 70%;
+  }
+  
+  30%, 50% {
+    box-shadow: none;
+    opacity: 100%;
+  }
+}
+
+@keyframes leg1 {
+  to {
+    transform: rotate(50deg);
+  }
+}
+
+@keyframes leg2 { 
+  to {
+    transform: rotate(80deg);
+  }
+}
+
+@keyframes leg3 { 
+  to {
+    transform: rotate(70deg);
+  }
+}
+
+@keyframes leg4 { 
+  to {
+    transform: rotate(20deg);
+  }
+}
+
+@keyframes hair {
+  
+  14% {
+    box-shadow: 
+      -15px 18px $r-yellow,
+      -15px 36px $r-green,
+      -12px 54px $r-blue,
+      -15px 72px $r-purple,
+      -8px 90px $r-pink,
+      -15px 108px $r-red,
+      -6px 126px $r-orange,
+      -15px 144px $r-yellow,
+      -8px 162px $r-green,
+      -8px 180px $r-blue;
+  }
+  
+  28% {
+    box-shadow: 
+      -15px 18px $r-green,
+      -15px 36px $r-blue,
+      -12px 54px $r-purple,
+      -15px 72px $r-pink,
+      -8px 90px $r-red,
+      -15px 108px $r-orange,
+      -6px 126px $r-yellow,
+      -15px 144px $r-green,
+      -8px 162px $r-blue,
+      -8px 180px $r-purple;
+  }
+  
+  42% {
+    box-shadow: 
+      -15px 18px $r-blue,
+      -15px 36px $r-purple,
+      -12px 54px $r-pink,
+      -15px 72px $r-red,
+      -8px 90px $r-orange,
+      -15px 108px $r-yellow,
+      -6px 126px $r-green,
+      -15px 144px $r-blue,
+      -8px 162px $r-purple,
+      -8px 180px $r-pink;
+  }
+  
+  56% {
+    box-shadow: 
+      -15px 18px $r-purple,
+      -15px 36px $r-pink,
+      -12px 54px $r-red,
+      -15px 72px $r-orange,
+      -8px 90px $r-yellow,
+      -15px 108px $r-green,
+      -6px 126px $r-blue,
+      -15px 144px $r-purple,
+      -8px 162px $r-pink,
+      -8px 180px $r-red;
+  }
+
+  70% {
+    box-shadow: 
+      -15px 18px $r-pink,
+      -15px 36px $r-red,
+      -12px 54px $r-orange,
+      -15px 72px $r-yellow,
+      -8px 90px $r-green,
+      -15px 108px $r-blue,
+      -6px 126px $r-purple,
+      -15px 144px $r-pink,
+      -8px 162px $r-red,
+      -8px 180px $r-orange;
+  }
+  
+  85% {
+    box-shadow: 
+      -15px 18px $r-red,
+      -15px 36px $r-orange,
+      -12px 54px $r-yellow,
+      -15px 72px $r-green,
+      -8px 90px $r-blue,
+      -15px 108px $r-purple,
+      -6px 126px $r-pink,
+      -15px 144px$r-red,
+      -8px 162px $r-orange,
+      -8px 180px $r-yellow;
+  }
+  
+  100% {
+    box-shadow: 
+      -15px 18px $r-orange, 
+      -15px 36px $r-yellow,
+      -12px 54px $r-green, 
+      -15px 72px $r-blue, 
+      -8px 90px $r-purple,
+      -15px 108px $r-pink, 
+      -6px 126px $r-red, 
+      -15px 144px $r-orange,
+      -8px 162px $r-yellow, 
+      -8px 180px $r-green;
+  }
+}
+
+@keyframes tail {
+  20% {
+    background: $r-orange;
+    box-shadow:
+      0 18px $r-yellow,
+      60px 36px $r-green, 
+      0 54px $r-blue,
+      -20px 72px $r-red;
+  }
+  
+  40% {
+    background: $r-yellow;
+    box-shadow:
+      0 18px $r-green,
+      60px 36px $r-blue, 
+      0 54px $r-red,
+      -20px 72px $r-orange;
+  }
+  
+  60% {
+    background: $r-green;
+    box-shadow:
+      0 18px $r-blue,
+      60px 36px $r-red,
+      0 54px $r-orange,
+      -20px 72px $r-yellow;
+  }
+  
+  80% {
+    background: $r-blue;
+    box-shadow:
+      0 18px $r-red,
+      60px 36px $r-orange,
+      0 54px $r-yellow,
+      -20px 72px $r-green;
+  }
+  
+}
+
+@keyframes rotate{
+  100%{
+    transform: rotate(1turn);
+  }
+}
