@@ -21,7 +21,7 @@
     --sombra-logo: 0 0 15px rgba(255, 131, 131, 0.596);
     --cor-sucesso: #28a745;
     --cor-perigo: #dc3545;
-    --cor-info: #5169d3
+    --cor-info: #5169d3;
     --cor-fundo-logo: #fff;
 }
 
@@ -44,7 +44,7 @@ body[data-theme='dark'] {
     --sombra-logo: 0 0 20px rgba(78, 205, 196, 0.6);
     --cor-sucesso: #28a745;
     --cor-perigo: #dc3545;
-    --cor-info: #5169d3
+    --cor-info: #5169d3;
     --cor-fundo-logo: #fff;
 }
 
@@ -356,18 +356,6 @@ main.layout-logado-background::before {
     box-shadow: 0 8px 16px rgba(161, 154, 211, 0.4);
 }
 
-.rodape {
-    flex-shrink: 0; /* Não encolhe */
-    padding: 20px;
-    background-color: var(--cor-container);
-    text-align: center;
-    font-family: var(--fonte-secundaria);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-}
-
 /* 7. Para páginas com pouco conteúdo */
 .error-container, 
 .access-denied-container,
@@ -379,6 +367,18 @@ main.layout-logado-background::before {
     text-align: center;
     padding: 20px;
     flex: 1;
+}
+
+.rodape {
+    flex-shrink: 0; /* Não encolhe */
+    padding: 20px;
+    background-color: var(--cor-container);
+    text-align: center;
+    font-family: var(--fonte-secundaria);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
 }
 
 .rodape_texto {

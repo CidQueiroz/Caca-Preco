@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     
     # Local Apps
     'api',
+    'scraper',
     'corsheaders',
 ]
 
@@ -132,7 +133,7 @@ AUTH_PASSWORD_VALIDATORS = [
      },
 ]
 # Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
+# https://docs.djangoproject.com/en/5.2/topics/i1n/
 
 LANGUAGE_CODE = 'en-us'
 
@@ -179,3 +180,31 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'America/Sao_Paulo'
+
+# Configuração de Logging para silenciar logs de bibliotecas
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'selenium': {
+            'handlers': ['console'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        'webdriver_manager': {
+            'handlers': ['console'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        'urllib3': {
+            'handlers': ['console'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+    }
+}

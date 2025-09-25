@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@700&family=Inter:wght@400;700&display=swap"
+            rel="stylesheet">
+
+        <link rel="icon" type="image/png" href="../../Assets/favicon.png">
+        
+        <link rel="stylesheet" href="../../styles/style_global.css">
+        <link rel="stylesheet" href="geocoding.css">
+        <title>Geocodificação de Endereço</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        
+        <script>
+            
+            window.dataLayer = window.dataLayer || [];
+            
+            function gtag(){dataLayer.push(arguments);}
+            
+            gtag('js', new Date());
+
+            gtag('config', 'G-PJG10ZYPBS');
+
+        </script>
+    </head>
+
+    <body class="portfolio-page">
+
+        <header class="cabecalho">
+            
+            <a href="../index.html" class="cabecalho-logo" title="Voltar ao Início">
+                <img src="../../Assets/favicon2.png" alt="CDK TECK - Início">
+                <span>CDK TECK</span>
+            </a>
+
+            <nav class="main-nav">
+                <button id="theme-toggle-btn" class="btn-theme" title="Alternar tema">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <a href="../index.html">Início</a>
+                <a href="#contact" id="global-contact-link">Contato</a>
+            </nav>
+
+        </header>
+        
+        <main class="pagina-jogo">
+
+            <div class="container__informacoes_geocoding">
+
+                <div>
+
+                    <h1 class="titulo">Geocodificação de Endereço</h1>
+
+                    <p class="subtitulo">Digite um endereço para obter a latitude e longitude.</p>
+
+                </div>
+
+                <input type="text" id="Rua-input" placeholder="Logradouro" class="container__input_jogar">
+                <input type="text" id="number-input" placeholder="Número (obrigatório)" class="container__input_jogar">
+                <input type="text" id="cidade-input" placeholder="Cidade" class="container__input_jogar">
+                <input type="text" id="Estado-input" placeholder="Estado" class="container__input_jogar">
+                <input type="text" id="cep-input" placeholder="CEP (obrigatório)" class="container__input_jogar">
+
+                <div class="chute container__botoes_geocoding">
+
+                    <button id="geocode-btn" class="btn btn-primario">Buscar</button>
+
+                </div>
+
+                <div id="result" class="texto__paragrafo_geocoding"></div>
+
+            </div>
+
+            <div id="geocoding-modal" class="modal">
+                <div class="modal-content">
+                    <span class="close-button">&times;</span>
+                    <div id="modal-description"></div>
+                    <button class="close-modal">Fechar</button>
+                </div>
+            </div>
+            
+            <div>
+                <img src="../../Assets/logo_escuro.png" alt="CDK TECK Logo" class="container__imagem_geocoding logo-tema-escuro">
+
+                <img src="../../Assets/logo_claro.png" alt="CDK TECK Logo" class="container__imagem_geocoding logo-tema-claro">
+            </div>
+            
+        </main>
+
+        <footer class="rodape">
+            <p class="rodape_texto">© 2025 <b>CDK TECK</b>. Todos os direitos reservados.</p>
+            <div class="rodape_links">
+                <a href="/privacidade" class="rodape_link">Privacidade</a>
+                <a href="/termos" class="rodape_link">Termos</a>
+                <a href="/contato" class="rodape_link">Contato</a>
+            </div>
+        </footer>
+
+        <a href="#" id="back-to-top-btn" class="back-to-top-btn" title="Voltar ao topo">
+            <i class="fas fa-arrow-up"></i>
+        </a>
+
+        <script src="geocoding.js" defer></script>
+        <script src="../../scripts/global.js" defer></script>
+
+    </body>
+
+</html>

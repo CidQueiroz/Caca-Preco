@@ -220,46 +220,7 @@ class Administrador(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, primary_key=True)
     nome = models.CharField(max_length=255)
 
-import hashlib
-from urllib.parse import urlparse, urlunparse
 
-def get_canonical_url(url):
-    """Gera uma URL canônica removendo parâmetros de consulta e fragmentos."""
-    parsed_url = urlparse(url)
-    # Reconstrói a URL apenas com scheme, netloc e path
-    canonical_url = urlunparse((parsed_url.scheme, parsed_url.netloc, parsed_url.path, '', '', ''))
-    return canonical_url
-
-class ProdutosMonitoradosExternos(models.Model):
-    vendedor = models.ForeignKey(Vendedor, on_delete=models.CASCADE)
-    url_produto = models.URLField(max_length=2048)
-    url_hash = models.CharField(max_length=64, blank=True, help_text="Hash SHA-256 da URL canônica para garantir unicidade.")
-    nome_produto = models.CharField(max_length=255, blank=True, null=True)
-    preco_atual = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    ultima_coleta = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        unique_together = ('vendedor', 'url_hash')
-
-    def save(self, *args, **kwargs):
-        if not self.url_hash:
-            canonical_url = get_canonical_url(self.url_produto)
-            self.url_hash = hashlib.sha256(canonical_url.encode()).hexdigest()
-        super().save(*args, **kwargs)
-
-    def __str__(self):
-        return f'{self.nome_produto} ({self.vendedor.nome_loja})'
-
-class HistoricoPrecos(models.Model):
-    produto_monitorado = models.ForeignKey(ProdutosMonitoradosExternos, related_name='historico', on_delete=models.CASCADE)
-    preco = models.DecimalField(max_digits=10, decimal_places=2)
-    data_coleta = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ['-data_coleta']
-
-    def __str__(self):
-        return f'{self.produto_monitorado.nome_produto} - R${self.preco} em {self.data_coleta.strftime("%d/%m/%Y %H:%M")}'
 
 class Sugestao(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)

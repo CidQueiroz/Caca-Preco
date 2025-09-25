@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <link rel="icon" type="image/png" href="../Assets/favicon.png">
+
+        <link rel="stylesheet" href="../styles/style_global.css">
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+
+        <title>Laboratório de Projetos - CDK TECK</title>
+
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-PJG10ZYPBS"></script>
+        
+        <script>
+            
+            window.dataLayer = window.dataLayer || [];
+            
+            function gtag(){dataLayer.push(arguments);}
+            
+            gtag('js', new Date());
+
+            gtag('config', 'G-PJG10ZYPBS');
+
+        </script>
+
+    </head>
+    
+    <body class="portfolio-page">
+
+        <header class="cabecalho">
+    
+            <a href="../index.html" class="cabecalho-logo" title="Voltar ao Início">
+                <img src="../Assets/favicon2.png" alt="CDK TECK - Início">
+                <span>CDK TECK</span>
+            </a>
+            <nav class="main-nav">
+                <button id="theme-toggle-btn" class="btn-theme" title="Alternar tema">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <a href="../index.html">Início</a>
+                <a href="#contact" id="global-contact-link">Contato</a>
+            </nav>
+
+        </header>
+
+        <main>
+
+            <div>
+                <h1 class="titulo">Laboratório de Projetos</h1>
+                <p class="subtitulo">Uma coleção de estudos e aplicações práticas desenvolvidas para aprimorar e demonstrar novas habilidades.</p>
+            </div>
+
+            <div class="gallery-container" id="gallery"></div>
+        
+            <div id="infoModal" class="modal">
+            
+                <div class="modal-content info-modal-content">
+                    
+                    <span class="close-button">&times;</span>
+                    
+                    <h2 id="info-modal-title"></h2>
+                    
+                    <div class="info-section">
+                        <h3>O Desafio</h3>
+                        <p id="info-modal-desafio"></p>
+                    </div>
+                    
+                    <div class="info-section">
+                        <h3>A Solução</h3>
+                        <p id="info-modal-solucao"></p>
+                    </div>
+
+                    <div class="info-section">
+                        <h3>Ferramentas Utilizadas</h3>
+                        <p id="info-modal-ferramentas"></p>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button id="view-project-btn" class="modal-button primary">
+                            <i class="fas fa-eye"></i> Ver Projeto
+                        </button>
+                        <button id="info-modal-close-btn" class="modal-button secondary">
+                            Fechar
+                        </button>
+                    </div>
+                
+                </div>
+            
+            </div>
+            
+            <div id="projectModal" class="modal">
+                        
+                <div class="modal-content dashboard-modal-content">
+                    
+                    <span class="close-button">&times;</span>
+                    
+                    <h2 id="modal-title"></h2>
+                    
+                    <p id="modal-description"></p>
+                    
+                    <div class="responsive-iframe" id="modal-iframe-container"></div>
+
+                    <div class="modal-actions">
+                        
+                        <button id="modal-close-btn" class="modal-button secondary">
+                            Fechar
+                        </button>
+                    
+                    </div>
+                
+                </div>
+                
+            </div>
+        
+        </main>
+        
+        <footer class="rodape">
+            <p class="rodape_texto">© 2025 <b>CDK TECK</b>. Todos os direitos reservados.</p>
+            <div class="rodape_links">
+                <a href="/privacidade" class="rodape_link">Privacidade</a>
+                <a href="/termos" class="rodape_link">Termos</a>
+                <a href="/contato" class="rodape_link">Contato</a>
+            </div>
+        </footer>
+
+        <a href="#" id="back-to-top-btn" class="back-to-top-btn" title="Voltar ao topo">
+            <i class="fas fa-arrow-up"></i>
+        </a>
+
+        <script>
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const projects = [
+                    {
+                        title: "Jogo do Númereo Secreto",
+                        thumbnail:"../Assets/adivinha_numero.png",
+                        description: "Um jogo interativo de adivinhação de números construído com lógica de JavaScript pura.",
+                        desafio: "Criar um jogo de adivinhação de números que seja interativo e divertido para o usuário, utilizando apenas HTML, CSS e JavaScript.",
+                        solucao: "Desenvolvi um jogo onde o usuário precisa adivinhar um número secreto. O jogo dá dicas se o número é maior ou menor, e o usuário tem um número limitado de tentativas.",
+                        ferramentas: "HTML, CSS, JavaScript",
+                        githubLink: "https://github.com/CidQueiroz/Portfolio_html/tree/main/AdivinhaNumero",
+                        projectUrl: "AdivinhaNumero/adivinha_numero.html",
+                        projectType: "game"
+                    },
+                    {
+                        title: "Analisador de API",
+                        thumbnail: "../Assets/maps_api.png",
+                        description: "Uma ferramenta que consome e exibe dados de uma API REST pública de forma amigável.",
+                        desafio: "Construir uma aplicação que busca dados de uma API externa e os apresenta de forma clara e organizada para o usuário.",
+                        solucao: "Criei uma interface que permite ao usuário pesquisar por um CEP e exibe o endereço correspondente, utilizando a API ViaCEP. A aplicação foi desenvolvida com foco na usabilidade e na clareza das informações.",
+                        ferramentas: "JavaScript, API REST, Async/Await",
+                        githubLink: "#",
+                        projectUrl: "geocoding/geocoding.html",
+                        projectType: "api"
+                    },
+                    {
+                        title: "Unicornio CSS",
+                        thumbnail: "../Assets/ia.png",
+                        description: "Um projeto front-end que dá vida a um universo mágico de unicórnios através de estilização CSS e uma pitada de carinho.",
+                        desafio: "Construir uma página web com total liberdade criativa, explorando o potencial do CSS para criar uma atmosfera lúdica e encantadora.",
+                        solucao: "Criei esta página de unicórnio em homenagem à minha pequena princesa. Foi a oportunidade perfeita para unir técnica e afeto, resultando em uma interface alegre que reflete essa inspiração.",
+                        ferramentas: "HTML, CSS, JavaScript",
+                        githubLink: "#",
+                        projectUrl: "unicornio/unicorn.html",
+                        projectType: "uni"
+                    }
+                
+                    ];
+
+                const gallery = document.getElementById('gallery');
+                const infoModal = document.getElementById('infoModal');
+                const projectModal = document.getElementById('projectModal');
+                
+                let currentProjectIndex = null;
+
+                if (gallery && projectModal) {
+                    projects.forEach((project, index) => {
+                        const card = document.createElement('div');
+                        card.className = 'project-card';
+                        card.dataset.index = index;
+                        card.innerHTML = `
+                            <div class="card-content">
+                                <img src="${project.thumbnail}" alt="Thumbnail do projeto ${project.title}">
+                                <div class="project-info"><p>${project.description}</p></div>
+                            </div>`;
+                        gallery.appendChild(card);
+                    });
+
+                    gallery.addEventListener('click', (e) => {
+                        const card = e.target.closest('.project-card');
+                        if (card) {
+                            currentProjectIndex = parseInt(card.dataset.index, 10);
+                            const projectData = projects[currentProjectIndex];
+                            
+                            infoModal.querySelector('#info-modal-title').innerText = projectData.title;
+                            infoModal.querySelector('#info-modal-desafio').innerText = projectData.desafio;
+                            infoModal.querySelector('#info-modal-solucao').innerText = projectData.solucao;
+                            infoModal.querySelector('#info-modal-ferramentas').innerText = projectData.ferramentas;
+                            
+                            openModal(infoModal);
+                        }
+                    });
+
+                    document.getElementById('view-project-btn').addEventListener('click', () => {
+                        if (currentProjectIndex !== null) {
+                            const projectData = projects[currentProjectIndex];
+                            closeModal(infoModal);
+                            window.open(projectData.projectUrl, '_blank');
+                        }
+                    });
+
+                    document.getElementById('info-modal-close-btn').addEventListener('click', () => closeModal(infoModal));
+
+                    projectModal.querySelector('#modal-close-btn').addEventListener('click', () => closeModal(projectModal));                    
+                }
+                
+                document.addEventListener('click', function(event) {
+                    const closeTrigger = event.target.closest('.close-button, .close-modal, #modal-close-btn');
+                    if (closeTrigger) {
+                        const modalToClose = event.target.closest('.modal');
+                        if (modalToClose) {
+                            closeModal(modalToClose);
+                        }
+                    }
+
+                    if (event.target.classList.contains('modal')) {
+                        closeModal(event.target);
+                    }
+                });
+            });
+
+        </script>
+
+        <script src="../scripts/global.js"  defer></script>
+    </body>
+
+</html>

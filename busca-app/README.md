@@ -91,7 +91,14 @@ A interface principal para interagir com o Caça-Preço.
     ```
 
 3.  **Configure as Variáveis de Ambiente:**
-    *   O arquivo `src/api.js` já está configurado para se comunicar com `http://localhost:8000/api`, a URL do backend Django. Certifique-se de que o backend Django esteja rodando nesta porta.
+    O projeto utiliza arquivos `.env` para carregar variáveis de ambiente, evitando que a URL da API seja fixada no código.
+
+    Crie um arquivo chamado `.env` na raiz da pasta `frontend/` e adicione a seguinte variável, garantindo que a URL corresponda ao endereço do seu backend:
+    ```env
+    # .env
+    REACT_APP_API_URL=http://127.0.0.1:8000/api
+    ```
+    O código em `src/api.js` deve ser configurado para usar esta variável.
 
 4.  **Inicie a aplicação:**
     ```bash

@@ -1,5 +1,4 @@
 import React, { useContext } from 'react';
-import { Link } from 'react-router-dom';
 import Botao from '../components/Botao';
 import { AuthContext } from '../context/AuthContext';
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
@@ -10,7 +10,7 @@ const DashboardAdmin = () => {
     const { showNotification } = useNotification();
     const nomeAdmin = usuario?.nome || 'Admin';
 
-    const fetchVendedoresPendentes = async () => {
+    const fetchVendedoresPendentes = useCallback(async () => {
         if (!token) return;
         try {
             const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/vendedores/?status_aprovacao=Pendente`, {
@@ -21,11 +21,11 @@ const DashboardAdmin = () => {
             showNotification('Erro ao buscar vendedores pendentes.', 'erro');
             console.error('Erro ao buscar vendedores pendentes:', error);
         }
-    };
+    }, [token, showNotification]);
 
     useEffect(() => {
         fetchVendedoresPendentes();
-    }, [token]);
+    }, [fetchVendedoresPendentes]);
 
     const handleAprovacao = async (idVendedor, novoStatus) => {
         try {

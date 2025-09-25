@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
@@ -27,7 +27,7 @@ const AdicionarOferta = () => {
     const [newVariationImage, setNewVariationImage] = useState(null);
 
     // Recarrega os dados do produto selecionado (usado após criar uma nova variação)
-    const reloadSelectedProduct = async (productId) => {
+    const reloadSelectedProduct = useCallback(async (productId) => {
         try {
             const url = `${process.env.REACT_APP_API_URL}/api/produtos/${productId}/`;
             const response = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
@@ -42,7 +42,7 @@ const AdicionarOferta = () => {
             console.error("Erro ao recarregar o produto", error);
             showNotification("Não foi possível carregar o produto selecionado.", "erro");
         }
-    };
+    }, [token, showNotification]);
 
     // Efeito para carregar o produto vindo do redirecionamento
     useEffect(() => {
@@ -53,7 +53,7 @@ const AdicionarOferta = () => {
             // Limpa o estado para não recarregar caso o usuário navegue para outra página e volte
             navigate(location.pathname, { replace: true, state: {} });
         }
-    }, [location.state, navigate, token]);
+    }, [location.state, navigate, token, reloadSelectedProduct, location.pathname]);
 
     // Efeito para carregar todos os produtos do catálogo para a busca
     useEffect(() => {

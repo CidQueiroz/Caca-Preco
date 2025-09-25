@@ -5,15 +5,17 @@
         
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- <base href="/"> -->
         
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 
-        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="./styles/style_global.css">
         
-        <link rel="icon" type="image/png" href="PBI/Assets/favicon.png">        
+        <link rel="icon" type="image/png" href="./Assets/favicon.png">        
         
         <title>CDK TECK - Soluções Tecnológicas</title>
         
@@ -48,7 +50,7 @@
                 
                 <div class="brain-core">
                     
-                    <img class="logo-image" src="PBI/Assets/logo_metalico_sem_fundo.png" alt="CDK TECK Logo" title="CDK TECK" />
+                    <img class="logo-image" src="./Assets/logo_metalico_sem_fundo.png" alt="CDK TECK Logo" title="CDK TECK" />
 
                 </div>
 
@@ -65,7 +67,7 @@
                 
                 <div class="circuit-point animated-circuit-point" id="integracao-button" title="Integrações" style="top: 80%; left: 23%; transform: translate(-50%, -50%);">🔗</div>
                 
-                <div class="circuit-point animated-circuit-point" id="infra-button" title="Infraestrutura TI" style="top: 48%; left: 11%; transform: translate(-50%, -50%);">🖥️</div>
+                <div class="circuit-point animated-circuit-point" id="biblioteca-button" title="Biblioteca Digital" style="top: 48%; left: 11%; transform: translate(-50%, -50%);">📚</div>
                 
                 <div class="circuit-point animated-circuit-point" id="suporte-button" title="Suporte Técnico" style="top: 30%; left: 18%; transform: translate(-50%, -50%);">🛠️</div>
             
@@ -103,9 +105,9 @@
                 'python-button': {
                     id: 'python-button',
                     title: "Python & Django",
-                    description: "Desenvolvemos aplicações web robustas, escaláveis e seguras utilizando Python e Django. Nossa expertise inclui criação de APIs RESTful, sistemas de gestão personalizados, automação de processos empresariais e integração com bancos de dados modernos. Utilizamos as melhores práticas de desenvolvimento para garantir performance, segurança e facilidade de manutenção, entregando soluções sob medida para o seu negócio.",
+                    description: "Desenvolvemos aplicações web robustas, escaláveis e seguras utilizando Python, Django, Streamlit, entre outras. Nossa expertise inclui criação de APIs RESTful, sistemas de gestão personalizados, automação de processos empresariais e integração com bancos de dados modernos. Utilizamos as melhores práticas de desenvolvimento para garantir performance, segurança e facilidade de manutenção, entregando soluções sob medida para o seu negócio.",
                     keywords: ['python', 'django', 'web', 'aplicacoes', 'api', 'backend', 'desenvolvimento'],
-                    redirectUrl: "caca_preco/caca_preco.html"
+                    redirectUrl: "https://gestao.cdkteck.com.br"
                 },
                 'dados-button': {
                     id: 'dados-button',
@@ -119,35 +121,35 @@
                     title: "Automação RPA",
                     description: "Automatize tarefas repetitivas e ganhe produtividade! Desenvolvemos soluções de RPA (Automação Robótica de Processos) que integram sistemas, executam rotinas administrativas, extraem dados de sites e preenchem formulários automaticamente. Nossos bots são projetados para reduzir erros, liberar sua equipe para atividades estratégicas e acelerar fluxos de trabalho em qualquer área do seu negócio.",
                     keywords: ['automacao', 'rpa', 'robô', 'bot', 'processos', 'produtividade', 'automatizar'],
-                    redirectUrl: ""
+                    redirectUrl: "caca_preco/caca_preco.html"
                 },
                 'suporte-button': {
                     id: 'suporte-button',
                     title: "Suporte Técnico",
                     description: "Conte com suporte técnico especializado para manter sua infraestrutura de TI sempre disponível e segura. Oferecemos atendimento ágil para resolução de problemas, manutenção preventiva, atualização de sistemas e consultoria em tecnologia. Nossa equipe está pronta para garantir o funcionamento contínuo dos seus sistemas, minimizando riscos e paradas inesperadas.",
                     keywords: ['suporte', 'tecnico', 'manutencao', 'helpdesk', 'infraestrutura', 'atendimento', 'problemas'],
-                    redirectUrl: "https://registrosqueiroz.streamlit.app/"
-                },
-                'infra-button': {
-                    id: 'infra-button',
-                    title: "Infraestrutura TI",
-                    description: "Planejamos, implementamos e gerenciamos toda a infraestrutura tecnológica do seu negócio. Atuamos em servidores, redes, segurança da informação, backup e recuperação de desastres. Nossas soluções garantem alta disponibilidade, escalabilidade e proteção dos dados, permitindo que sua empresa cresça com tecnologia confiável e eficiente.",
-                    keywords: ['infraestrutura', 'servidores', 'redes', 'seguranca', 'backup', 'ti', 'gestao'],
                     redirectUrl: ""
+                },
+                'biblioteca-button': {
+                    id: 'biblioteca-button',
+                    title: "Biblioteca Digital",
+                    description: "Explore nossa coleção de ebooks e recursos digitais. Baixe materiais gratuitos para impulsionar seu conhecimento ou adquira guias completos sobre marketing, negócios, finanças e desenvolvimento pessoal.",
+                    keywords: ['biblioteca', 'ebooks', 'livros', 'cursos', 'plr', 'download', 'gratuito'],
+                    redirectUrl: "biblioteca/biblioteca.html"
                 },
                 'integracao-button': {
                     id: 'integracao-button',
                     title: "Integrações",
                     description: "Conecte sistemas e potencialize seus processos! Desenvolvemos integrações entre plataformas, APIs e bancos de dados, promovendo a troca automática de informações entre diferentes aplicações. Automatize fluxos, evite retrabalho e garanta que seus dados estejam sempre sincronizados, independentemente das tecnologias utilizadas.",
                     keywords: ['integracao', 'api', 'sistemas', 'conexao', 'automatizacao', 'plataformas'],
-                    redirectUrl: "Projeto2/index.html"
+                    redirectUrl: "Portfolio_html/labs.html"
                 },
                 'BI-button': {
                     id: 'BI-button',
                     title: "Business Intelligence",
                     description: "Transforme dados em estratégia com soluções de Business Intelligence! Desenvolvemos dashboards executivos, relatórios dinâmicos e análises avançadas utilizando Power BI e outras ferramentas líderes de mercado. Auxiliamos sua empresa a monitorar indicadores-chave, identificar tendências e tomar decisões baseadas em dados confiáveis e atualizados.",
                     keywords: ['bi', 'business', 'powerbi', 'inteligencia', 'dashboard', 'analise', 'estrategia'],
-                    redirectUrl: "PBI/portfolio.html"
+                    redirectUrl: "PBI/portfolio_pbi.html"
                 },
                 'contato-button': {
                     id: 'contato-button',
@@ -244,7 +246,7 @@
                         if (data.redirectUrl) {
                             actionButton.textContent = 'Visitar Página';
                             actionButton.onclick = () => {
-                                window.open(data.redirectUrl, '_blank');
+                                window.open(data.redirectUrl);
                                 closeModal(mainModal);
                             };
                         } else {
@@ -284,7 +286,7 @@
                 }
 
                 // Carrega o modal de contato
-                fetch('PBI/Assets/modal_contato.html')
+                fetch("comum/modal_contato.html")
                     .then(response => response.text())
                     .then(data => { document.getElementById('contact-modal').innerHTML = data; });
 

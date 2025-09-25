@@ -17,7 +17,7 @@ from .views import (
     AvaliacaoLojaViewSet,
     SugestaoCreateView,
     ObterPerfilView,
-    ProdutosMonitoradosExternosViewSet,
+    
     RecuperarSenhaView,
     RedefinirSenhaView,
     VerificarEmailView,
@@ -25,10 +25,8 @@ from .views import (
     VariacaoCreateView,    
     AdminTestView,
     ClienteTestView,
-    HistoricoPrecosView,
-    MonitorarProdutoView,
-    TaskStatusView,
-    SalvarDadosMonitoramentoView
+    
+
 )
 from rest_framework_simplejwt.views import TokenRefreshView
 
@@ -44,7 +42,7 @@ router.register(r'admins', AdminViewSet, basename='admin')
 router.register(r'clientes', ClienteViewSet, basename='cliente')
 router.register(r'enderecos', EnderecoViewSet, basename='endereco')
 router.register(r'avaliacoes', AvaliacaoLojaViewSet, basename='avaliacaoloja')
-router.register(r'monitoramento', ProdutosMonitoradosExternosViewSet, basename='produtos-monitorados')
+
 
 router.register(r'atributos', AtributoViewSet, basename='atributo')
 router.register(r'valores-atributos', ValorAtributoViewSet, basename='valoratributo')
@@ -54,6 +52,7 @@ urlpatterns = [
     path('login/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('', include(router.urls)),
+    path('', include('scraper.urls')), # ADICIONADO PARA INCLUIR URLS DO SCRAPER
     path('variacoes/', VariacaoCreateView.as_view(), name='criar_variacao'),
     path('perfil/', ObterPerfilView.as_view(), name='obter_perfil'),
     path('registrar/', UserCreateView.as_view(), name='registrar'),
@@ -65,8 +64,6 @@ urlpatterns = [
     path('admin-test/', AdminTestView.as_view(), name='admin_test'),
     path('cliente-test/', ClienteTestView.as_view(), name='cliente_test'),
     
-    path('monitoramento/<int:pk>/historico/', HistoricoPrecosView.as_view(), name='historico-precos'),
-    path('iniciar-monitoramento/', MonitorarProdutoView.as_view(), name='iniciar-monitoramento'),
-    path('task-status/<str:task_id>/', TaskStatusView.as_view(), name='task-status'),
-    path('salvar-monitoramento/', SalvarDadosMonitoramentoView.as_view(), name='salvar_dados_monitoramento'),
+    
+    
 ]

@@ -18,6 +18,8 @@ const FormularioCliente = ({ aoEnviar, initialData }) => {
     const [cidade, setCidade] = useState('');
     const [estado, setEstado] = useState('');
     const [cep, setCep] = useState('');
+    const [latitude, setLatitude] = useState(null);
+    const [longitude, setLongitude] = useState(null);
     const [data_nascimento, setDataNascimento] = useState('');
     const [erros, setErros] = useState({});
 
@@ -35,9 +37,28 @@ const FormularioCliente = ({ aoEnviar, initialData }) => {
                 setCidade(initialData.endereco.cidade || '');
                 setEstado(initialData.endereco.estado || '');
                 setCep(initialData.endereco.cep || '');
+                setLatitude(initialData.endereco.latitude || null);
+                setLongitude(initialData.endereco.longitude || null);
             }
         }
     }, [initialData]);
+
+    useEffect(() => {
+        const fetchCoordinates = async () => {
+            if (cep && numero) {
+                try {
+                    const response = await axios.get(`https://cep.awesomeapi.com.br/json/${cep}`);
+                    if (response.data && response.data.lat && response.data.lng) {
+                        setLatitude(response.data.lat);
+                        setLongitude(response.data.lng);
+                    }
+                } catch (error) {
+                    console.error('Erro ao buscar coordenadas:', error);
+                }
+            }
+        };
+        fetchCoordinates();
+    }, [cep, numero]);
 
     const validarCampos = () => {
         let novosErros = {};
@@ -73,7 +94,9 @@ const FormularioCliente = ({ aoEnviar, initialData }) => {
                     bairro,
                     cidade,
                     estado,
-                    cep
+                    cep,
+                    latitude,
+                    longitude
                 }
             });
         }
@@ -155,6 +178,8 @@ const FormularioVendedor = ({ aoEnviar, initialData }) => {
     const [cidade, setCidade] = useState('');
     const [estado, setEstado] = useState('');
     const [cep, setCep] = useState('');
+    const [latitude, setLatitude] = useState(null);
+    const [longitude, setLongitude] = useState(null);
     const [telefone, setTelefone] = useState('');
     const [data_fundacao, setFundacao] = useState('');
     const [horario_funcionamento, setHorarioFuncionamento] = useState('');
@@ -189,9 +214,28 @@ const FormularioVendedor = ({ aoEnviar, initialData }) => {
                 setCidade(initialData.endereco.cidade || '');
                 setEstado(initialData.endereco.estado || '');
                 setCep(initialData.endereco.cep || '');
+                setLatitude(initialData.endereco.latitude || null);
+                setLongitude(initialData.endereco.longitude || null);
             }
         }
     }, [initialData]);
+
+    useEffect(() => {
+        const fetchCoordinates = async () => {
+            if (cep && numero) {
+                try {
+                    const response = await axios.get(`https://cep.awesomeapi.com.br/json/${cep}`);
+                    if (response.data && response.data.lat && response.data.lng) {
+                        setLatitude(response.data.lat);
+                        setLongitude(response.data.lng);
+                    }
+                } catch (error) {
+                    console.error('Erro ao buscar coordenadas:', error);
+                }
+            }
+        };
+        fetchCoordinates();
+    }, [cep, numero]);
 
     useEffect(() => {
         const buscarCategorias = async () => {
@@ -245,7 +289,7 @@ const FormularioVendedor = ({ aoEnviar, initialData }) => {
                 nome_loja, cnpj, telefone, data_fundacao, horario_funcionamento,
                 nome_responsavel, cpf_responsavel, breve_descricao_loja, 
                 logotipo_loja, site_redes_sociais: url, categoria_loja,
-                endereco: { logradouro: rua, numero, complemento, bairro, cidade, estado, cep }
+                endereco: { logradouro: rua, numero, complemento, bairro, cidade, estado, cep, latitude, longitude }
             });
         }
     };

@@ -5,7 +5,8 @@
 
 import hashlib
 from urllib.parse import urlparse, urlunparse
-from api.models import ProdutosMonitoradosExternos, Vendedor, HistoricoPrecos
+from scraper.models import ProdutosMonitoradosExternos, HistoricoPrecos
+from api.models import Vendedor
 from asgiref.sync import sync_to_async
 
 class DjangoPipeline:

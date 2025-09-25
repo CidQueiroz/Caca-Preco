@@ -1,0 +1,9 @@
+# Atalho para o servidor Streamlit na OCI
+
+Host oci
+
+    HostName 140.238.176.147
+
+    User ubuntu
+
+    IdentityFile /mnt/c/Users/cydyq/Documents/Python/TesteCacaPreco/cacapreco_ai/oci_key

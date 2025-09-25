@@ -1,0 +1,857 @@
+:root {
+  --blue-bg: #00518a;
+  --horn: #ffddab;
+  --horn-line: #f4c598;
+  --pink-light: #ffaeb0;
+  --pink-dark: #ff545a;
+  --purple-eye: #502e75;
+  --white-face: #eeeeee;
+  --white-face-shadow: #e1e1e1;
+  --grey-leg: #cdd1d2;
+  --red-hoof: #ff5654;
+  --r-red: #ff2220;
+  --r-orange: #ffae00;
+  --r-yellow: #ffe100;
+  --r-green: #85c900;
+  --r-blue: #00b0ff;
+  --r-purple: #8139df;
+  --r-pink: #ff40e1;
+  --white-cloud: #fff;
+  --yellow-star: #f8e545;
+}
+
+html {
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+body {
+  background-color: var(--blue-bg);
+  margin: 0;
+  overflow-x: hidden;
+}
+
+.unicorn-container {
+  display: flex;
+  justify-content: center;
+}
+
+.unicorn {
+  margin-top: 50px;
+  margin-left: -130px;
+}
+
+.unicorn .header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.unicorn .horn {
+  position: relative;
+  overflow: hidden;
+  width: 40px;
+  height: 50px;
+}
+
+.unicorn .horn .lines-container {
+  position: absolute;
+  width: 20px;
+  height: 50px;
+  overflow: hidden;
+  transform: skew(-20deg, 68deg);
+  top: 25px;
+  left: 10px;
+  background: var(--horn);
+  background: linear-gradient(
+    105deg,
+    var(--horn) 0%,
+    var(--horn) 8%,
+    var(--horn-line) 9%,
+    var(--horn-line) 13%,
+    var(--horn) 14%,
+    var(--horn) 38%,
+    var(--horn-line) 39%,
+    var(--horn-line) 43%,
+    var(--horn) 44%
+  );
+}
+
+.unicorn .head {
+  display: flex;
+  justify-content: center;
+  margin-left: 70px;
+}
+
+.unicorn .face {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+  position: relative;
+  z-index: 1;
+}
+
+.unicorn .face .pink {
+  z-index: 2;
+  position: relative;
+  width: 80px;
+  height: 85px;
+  background-color: var(--pink-light);
+  border-radius: 20px 8px 8px 20px;
+}
+
+.unicorn .face .pink::before {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background-color: var(--pink-dark);
+  border-radius: 50%;
+  top: 20px;
+  left: 10px;
+  box-shadow: 25px 0 var(--pink-dark);
+}
+
+.unicorn .face .pink::after {
+  content: "";
+  position: absolute;
+  width: 55px;
+  height: 40px;
+  background-color: var(--pink-dark);
+  border-radius: 4px 4px 30px 30px;
+  bottom: 5px;
+  left: 11px;
+}
+
+.unicorn .face .white {
+  position: relative;
+  width: 90px;
+  height: 85px;
+  background-color: var(--white-face);
+  margin-left: -30px;
+  border-bottom-right-radius: 35px;
+  box-shadow: 0 11px var(--white-face-shadow);
+}
+
+.unicorn .face .white::before {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background-color: white;
+  border-radius: 50%;
+  top: 20px;
+  right: 30px;
+  box-shadow: 3px 4px 0 7px var(--purple-eye);
+}
+
+.unicorn .face .white::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 35px;
+  background-color: var(--pink-dark);
+  border-radius: 7px 7px 0 0;
+  top: -35px;
+  right: 4px;
+  box-shadow: 0 0 0 4px var(--white-face);
+}
+
+.unicorn .hair {
+  position: relative;
+  overflow: hidden;
+  width: 230px;
+  height: 180px;
+  margin-left: -100px;
+  border-top-left-radius: 30px;
+}
+
+.unicorn .hair .inner-hair {
+  position: relative;
+  width: 230px;
+  height: 18px;
+  border-radius: 0 9px 9px 0;
+  background: var(--r-red);
+  box-shadow: -15px 18px var(--r-orange), 
+    -15px 36px var(--r-yellow),
+    -12px 54px var(--r-green), 
+    -15px 72px var(--r-blue), 
+    -8px 90px var(--r-purple),
+    -15px 108px var(--r-pink), 
+    -6px 126px var(--r-red), 
+    -15px 144px var(--r-orange),
+    -8px 162px var(--r-yellow), 
+    -8px 180px var(--r-green);
+  animation: hair 2s linear infinite;
+}
+
+.unicorn .hair .inner-hair::after {
+  content: "";
+  position: absolute;
+  width: 50px;
+  height: 18px;
+  border-radius: 9px;
+  right: 0px;
+  box-shadow: -12px 18px var(--blue-bg), 13px 54px var(--blue-bg), -6px 90px var(--blue-bg),
+    14px 126px var(--blue-bg), -7px 162px var(--blue-bg);
+}
+
+.unicorn .neck {
+  position: relative;
+  width: 90px;
+  height: 50px;
+  background-color: var(--white-face);
+  margin-left: -10px;
+  margin-top: -95px;
+}
+
+.unicorn .body {
+  display: flex;
+}
+
+.unicorn .main {
+  position: relative;
+  width: 300px;
+  height: 150px;
+  left: 200px;
+  background: var(--white-face);
+  background: radial-gradient(
+    circle at 250px 65%,
+    #fff 0%,
+    #fff 70px,
+    var(--white-face) 71px
+  );
+  border-bottom-left-radius: 50px;
+  border-bottom-right-radius: 75px;
+  border-top-right-radius: 75px;
+}
+
+.unicorn .main::after {
+  content: "";
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  left: 70px;
+  top: -20px;
+  border-bottom-left-radius: 60px;
+  border-bottom: 20px solid var(--white-face);
+  border-left: 20px solid var(--white-face);
+}
+
+.unicorn .main::before {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 70px;
+  left: -20px;
+  top: -20px;
+  background-color: var(--blue-bg);
+}
+
+.unicorn .tail {
+  position: relative;
+  width: 200px;
+  height: 18px;
+  z-index: -1;
+  border-radius: 0 9px 9px 0;
+  left: 100px;
+  top: 20px;
+  background: var(--r-red);
+  box-shadow: 
+    0 18px var(--r-orange), 
+    60px 36px var(--r-yellow), 
+    0 54px var(--r-green),
+    -20px 72px var(--r-blue);
+  animation: tail 1.5s linear infinite;
+}
+
+.unicorn .tail::after {
+  content: "";
+  position: absolute;
+  width: 70px;
+  height: 18px;
+  border-radius: 9px;
+  right: 0px;
+  box-shadow: 10px 18px var(--blue-bg), 10px 54px var(--blue-bg);
+}
+
+.unicorn .tail::before {
+  content: "";
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background-color: var(--blue-bg);
+  bottom: -140px;
+  left: 10px;
+  background: linear-gradient(
+    220deg,
+    var(--blue-bg) 0%,
+    var(--blue-bg) 55%,
+    transparent 56%);
+}
+
+.unicorn .tail .inner-tail {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  background-color: transparent;
+  border-bottom: 10px solid var(--blue-bg);
+  border-left: 10px solid var(--blue-bg);
+  right: 58px;
+  top: 72px;
+  border-bottom-left-radius: 30px;
+}
+
+.unicorn .legs {
+  position: relative;
+  top: -50px;
+}
+
+.unicorn .leg {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  border-bottom: 35px solid;
+  border-left: 35px solid;
+  border-bottom-left-radius: 80px;
+}
+
+.unicorn .leg::after {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 35px;
+  background-color: var(--red-hoof);
+  bottom: -35px;
+  right: -20px;
+  border-bottom-right-radius: 17.5px;
+  border-top-right-radius: 17.5px;
+}
+
+.unicorn .legs :nth-child(odd) {
+  color: var(--grey-leg);
+}
+
+.unicorn .legs :nth-child(even) {
+  color: #fff;
+}
+
+.unicorn .legs :nth-child(1) {
+  transform: rotate(90deg);
+  top: -30px;
+  left: 200px;
+  z-index: -1;
+  transform-origin: top left;
+  animation: leg1 1s ease-in-out infinite alternate;
+}
+
+.unicorn .legs :nth-child(2) {
+  transform: rotate(40deg);
+  top: -10px;
+  left: 250px;
+  transform-origin: top left;
+  animation: leg2 1s .15s ease-in-out infinite alternate;
+}
+
+.unicorn .legs :nth-child(2)::before {
+  content: "";
+  position: absolute;
+  width: 35px;
+  height: 20px;
+  background-color: #fff;
+  top: -20px;
+  left: -35px;
+  border-top-right-radius: 17.5px;
+  border-top-left-radius: 17.5px;
+}
+
+.unicorn .legs :nth-child(3) {
+  transform: rotate(30deg);
+  top: -15px;
+  left: 352px;
+  z-index: -1;
+  transform-origin: top left;
+  animation: leg3 1s ease-in-out infinite alternate;
+}
+
+.unicorn .legs :nth-child(4) {
+  transform: rotate(60deg);
+  top: -5px;
+  left: 400px;
+  transform-origin: top left;
+  animation: leg4 1s ease-in-out infinite alternate;
+}
+
+.rainbow-container {
+  display: flex;
+  justify-content: center;
+}
+
+.rainbow-container .rainbow {
+  z-index: -2;
+  position: relative;
+  width: 770px;
+  height: 300px;
+  overflow: hidden;
+}
+
+.rainbow-container .rainbow::after {
+  content: "";
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  border-radius: 200px;
+  background-color: var(--blue-bg);
+  bottom: -350px;
+  transform: translateX(-50%);
+  left: 50%;
+  box-shadow: 0 0 0 30px var(--r-pink), 0 0 0 60px var(--r-purple), 0 0 0 90px var(--r-blue),
+    0 0 0 120px var(--r-green), 0 0 0 150px var(--r-yellow), 0 0 0 180px var(--r-orange),
+    0 0 0 210px var(--r-red);
+}
+
+.rainbow-container .rainbow::before {
+  content: "";
+  position: absolute;
+  width: 820px;
+  height: 820px;
+  z-index: 1;
+  top: 39px;
+  left: -26px;
+  border-radius: 50%;
+  background-image: 
+    radial-gradient(var(--blue-bg) 0, var(--blue-bg) 200px, transparent 60px), 
+    conic-gradient(transparent 10%, rgba(255, 255, 255, 0.3) 30%, transparent 40%);
+  animation: rotate linear infinite 2.5s;
+}
+
+.bg {
+  position: relative;
+}
+
+.bg .clouds .cloud {
+  z-index: -1;
+  position: absolute;
+  width: 120px;
+  height: 20px;
+  background-color: var(--white-cloud);
+  border-radius: 10px;
+  transform: scale(.6);
+  box-shadow: 
+    0 20px var(--white-cloud), 
+    0 40px var(--white-cloud), 
+    0 60px var(--white-cloud),
+    0 80px var(--white-cloud);
+}
+
+.bg .clouds .cloud::after {
+  content: "";
+  position: absolute;
+  width: 80px;
+  height: 20px;
+  top: 20px;
+  left: -30px;
+  background-color: var(--blue-bg);
+  border-radius: 10px;
+  box-shadow: 100px 0 var(--blue-bg), -20px 40px var(--blue-bg), 80px 40px var(--blue-bg);
+}
+
+.bg .clouds .cloud.alt::before {
+  content: "";
+  position: absolute;
+  width: 40px;
+  height: 20px;
+  background-color: var(--white-cloud);
+  right: -55px;
+  border-radius: 10px;
+}
+
+.bg .clouds .cloud.bot {
+  transform: scale(1, -1) scale(.6);
+}
+
+.bg .clouds :nth-child(1) {
+  top: 30px;
+  left: -20%;
+  animation: clouds 6s linear infinite;
+}
+
+.bg .clouds :nth-child(2) {
+  top: 450px;
+  left: -60%;
+  animation: clouds 7s linear infinite;
+  z-index: -2;
+}
+
+.bg .stars {
+  position: relative;
+}
+
+.bg .stars :nth-child(1) {
+  top: 30px;
+  left: 20%;
+  animation: star1 5s linear infinite;
+}
+
+.bg .stars :nth-child(2) {
+  top: 90px;
+  left: 70%;
+  animation: star2 5s 2s linear infinite alternate;
+}
+
+.bg .stars :nth-child(3) {
+  top: 240px;
+  left: 10%;
+  animation: star1 5s 1.3s ease-in infinite;
+}
+
+.bg .stars :nth-child(4) {
+  top: 220px;
+  left: 80%;
+  animation: star1 5.5s 2.1s ease-out infinite;
+}
+
+.bg .stars :nth-child(5) {
+  top: 320px;
+  left: 15%;
+  animation: star1 5.5s 2.1s ease-out infinite alternate;
+}
+
+.bg .stars :nth-child(6) {
+  top: 380px;
+  left: 85%;
+  animation: star1 4s linear infinite;
+} 
+
+.bg .stars :nth-child(7) {
+  top: 500px;
+  left: 5%;
+  animation: star2 4.8s linear infinite alternate;
+}
+
+.bg .stars :nth-child(8) {
+  top: 520px;
+  left: 90%;
+  animation: star2 5s 1s linear infinite;
+}
+
+.bg .stars :nth-child(9) {
+  top: 220px;
+  left: 30%;
+  animation: star2 5s 4s linear infinite;
+}
+
+.bg .stars :nth-child(10) {
+  top: 70px;
+  left: 92%;
+  animation: star2 5.5s .3s ease-in-out alternate infinite;
+}
+
+.bg .stars .star {
+  position: absolute;
+  width: 6px;
+  height: 20px;
+  background-color: var(--yellow-star);
+  border-radius: 3px;
+}
+
+.bg .stars .star::after {
+  content: "";
+  position: absolute;
+  width: 6px;
+  height: 20px;
+  background-color: var(--yellow-star);
+  border-radius: 3px;
+  transform: rotate(90deg)
+}
+
+.bg .planets {
+  position: relative;
+}
+
+.bg .planets :nth-child(1) {
+  top: 130px;
+  left: 20%;
+  animation: planet1 5s linear infinite;
+}
+
+.bg .planets :nth-child(2) {
+  top: 190px;
+  left: 70%;
+  animation: planet1 5s .6s linear infinite alternate;
+}
+
+.bg .planets :nth-child(3) {
+  top: 140px;
+  left: 1%;
+  animation: planet1 4.8s .5s linear infinite;
+}
+
+.bg .planets :nth-child(4) {
+  top: 320px;
+  left: 90%;
+  animation: planet1 4.8s .2s ease-in infinite alternate;
+}
+
+.bg .planets :nth-child(5) {
+  top: 220px;
+  left: 18%;
+  animation: planet1 4.8s .8s ease-in infinite;
+}
+
+.bg .planets :nth-child(6) {
+  top: 20px;
+  left: 85%;
+  animation: planet1 5s 1.8s ease-in infinite;
+} 
+
+.bg .planets :nth-child(7) {
+  top: 450px;
+  left: 32%;
+  animation: planet1 6s ease-in infinite;
+}
+
+.bg .planets :nth-child(8) {
+  top: 490px;
+  left: 80%;
+  animation: planet1 5.5s ease-in infinite;
+}
+
+.bg .planets :nth-child(9) {
+  top: 5px;
+  left: 50%;
+  animation: planet1 4.8s 1s ease-in infinite alternate;
+}
+
+.bg .planets :nth-child(10) {
+  top: 25px;
+  left: 5%;
+  animation: planet1 4s .7s ease-out infinite;
+}
+
+.bg .planets .planet {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background-color: #fafafa;
+  border-radius: 3px;
+}
+
+
+@keyframes clouds {
+  100% {
+    left: 100%;
+  }
+}
+
+@keyframes star1 {
+  40% {
+    opacity: 30%;
+    transform: scale(.9);
+  }
+  
+  36%, 44% {
+    opacity: 100%;
+    transform: scale(1);
+  }
+}
+
+@keyframes star2 {
+  40% {
+    opacity: 20%;
+    transform: scale(1.2);
+  }
+  
+  36%, 44% {
+    opacity: 100%;
+    transform: scale(1);
+  }
+}
+
+@keyframes planet1 {
+  40% {
+    box-shadow: 0 0 10px 2px white;
+    opacity: 70%;
+  }
+  
+  30%, 50% {
+    box-shadow: none;
+    opacity: 100%;
+  }
+}
+
+@keyframes leg1 {
+  to {
+    transform: rotate(50deg);
+  }
+}
+
+@keyframes leg2 { 
+  to {
+    transform: rotate(80deg);
+  }
+}
+
+@keyframes leg3 { 
+  to {
+    transform: rotate(70deg);
+  }
+}
+
+@keyframes leg4 { 
+  to {
+    transform: rotate(20deg);
+  }
+}
+
+@keyframes hair {
+  
+  14% {
+    box-shadow: 
+      -15px 18px var(--r-yellow),
+      -15px 36px var(--r-green),
+      -12px 54px var(--r-blue),
+      -15px 72px var(--r-purple),
+      -8px 90px var(--r-pink),
+      -15px 108px var(--r-red),
+      -6px 126px var(--r-orange),
+      -15px 144px var(--r-yellow),
+      -8px 162px var(--r-green),
+      -8px 180px var(--r-blue);
+  }
+  
+  28% {
+    box-shadow: 
+      -15px 18px var(--r-green),
+      -15px 36px var(--r-blue),
+      -12px 54px var(--r-purple),
+      -15px 72px var(--r-pink),
+      -8px 90px var(--r-red),
+      -15px 108px var(--r-orange),
+      -6px 126px var(--r-yellow),
+      -15px 144px var(--r-green),
+      -8px 162px var(--r-blue),
+      -8px 180px var(--r-purple);
+  }
+  
+  42% {
+    box-shadow: 
+      -15px 18px var(--r-blue),
+      -15px 36px var(--r-purple),
+      -12px 54px var(--r-pink),
+      -15px 72px var(--r-red),
+      -8px 90px var(--r-orange),
+      -15px 108px var(--r-yellow),
+      -6px 126px var(--r-green),
+      -15px 144px var(--r-blue),
+      -8px 162px var(--r-purple),
+      -8px 180px var(--r-pink);
+  }
+  
+  56% {
+    box-shadow: 
+      -15px 18px var(--r-purple),
+      -15px 36px var(--r-pink),
+      -12px 54px var(--r-red),
+      -15px 72px var(--r-orange),
+      -8px 90px var(--r-yellow),
+      -15px 108px var(--r-green),
+      -6px 126px var(--r-blue),
+      -15px 144px var(--r-purple),
+      -8px 162px var(--r-pink),
+      -8px 180px var(--r-red);
+  }
+
+  70% {
+    box-shadow: 
+      -15px 18px var(--r-pink),
+      -15px 36px var(--r-red),
+      -12px 54px var(--r-orange),
+      -15px 72px var(--r-yellow),
+      -8px 90px var(--r-green),
+      -15px 108px var(--r-blue),
+      -6px 126px var(--r-purple),
+      -15px 144px var(--r-pink),
+      -8px 162px var(--r-red),
+      -8px 180px var(--r-orange);
+  }
+  
+  85% {
+    box-shadow: 
+      -15px 18px var(--r-red),
+      -15px 36px var(--r-orange),
+      -12px 54px var(--r-yellow),
+      -15px 72px var(--r-green),
+      -8px 90px var(--r-blue),
+      -15px 108px var(--r-purple),
+      -6px 126px var(--r-pink),
+      -15px 144px var(--r-red),
+      -8px 162px var(--r-orange),
+      -8px 180px var(--r-yellow);
+  }
+  
+  100% {
+    box-shadow: 
+      -15px 18px var(--r-orange), 
+      -15px 36px var(--r-yellow),
+      -12px 54px var(--r-green), 
+      -15px 72px var(--r-blue), 
+      -8px 90px var(--r-purple),
+      -15px 108px var(--r-pink), 
+      -6px 126px var(--r-red), 
+      -15px 144px var(--r-orange),
+      -8px 162px var(--r-yellow), 
+      -8px 180px var(--r-green);
+  }
+}
+
+@keyframes tail {
+  20% {
+    background: var(--r-orange);
+    box-shadow:
+      0 18px var(--r-yellow),
+      60px 36px var(--r-green), 
+      0 54px var(--r-blue),
+      -20px 72px var(--r-red);
+  }
+  
+  40% {
+    background: var(--r-yellow);
+    box-shadow:
+      0 18px var(--r-green),
+      60px 36px var(--r-blue), 
+      0 54px var(--r-red),
+      -20px 72px var(--r-orange);
+  }
+  
+  60% {
+    background: var(--r-green);
+    box-shadow:
+      0 18px var(--r-blue),
+      60px 36px var(--r-red),
+      0 54px var(--r-orange),
+      -20px 72px var(--r-yellow);
+  }
+  
+  80% {
+    background: var(--r-blue);
+    box-shadow:
+      0 18px var(--r-red),
+      60px 36px var(--r-orange),
+      0 54px var(--r-yellow),
+      -20px 72px var(--r-green);
+  }
+  
+}
+
+@keyframes rotate{
+  100%{
+    transform: rotate(1turn);
+  }
+}

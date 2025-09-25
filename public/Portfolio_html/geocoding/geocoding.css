@@ -1,0 +1,99 @@
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+body.geocoding {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    overflow-x: hidden;
+}
+
+body.geocoding::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(8, 50, 102, 0.8), rgba(4, 24, 50, 0.8)), url("../../Assets/circuitos2.png");
+    background-size: cover;
+    background-position: center;
+    filter: blur(2px);
+    z-index: -1;
+    transform: none;
+}
+
+main.pagina-jogo {
+    flex-grow: 1;
+    width: 100%;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.container__informacoes_geocoding {
+    flex: 1; 
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    padding: 0 3rem;
+    align-items: center;
+    text-align: center;
+}
+
+.container__imagem_geocoding {
+    max-width: 350px;
+    margin: 10px;
+    border-radius: 25px;
+}
+
+.container__botoes_geocoding {
+    display: flex;
+    margin: 10px;
+    justify-content: center;
+    width: 100%;
+    gap: 10rem;
+    font-family: 'Montserrat, sans-serif';
+    font-size: 50px;
+    text-align: center;
+}
+
+@media screen and (max-width: 900px) {
+    .geocoding body {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+        height: auto;
+        min-height: 100vh;
+    }
+
+    main.pagina-jogo {
+        flex-direction: column;
+        padding: 1rem;
+    }
+
+    .container__imagem_geocoding {
+        order: -1;
+        max-width: 200px;
+    }
+
+    .container__informacoes_geocoding {
+        padding: 1rem;
+        width: 100%;
+    }
+
+    h1 {
+        font-size: 32px;
+    }
+
+    .texto__paragrafo_geocoding {
+        font-size: 18px;
+    }
+}

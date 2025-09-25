@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/png" href="../Assets/favicon.png">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+        <title>Biblioteca Digital - CDK TECK</title>
+
+        <link rel="stylesheet" href="../styles/style_global.css">
+
+    </head>
+    <body class="portfolio-page">
+        <header class="cabecalho">
+            
+            <a href="../index.html" class="cabecalho-logo" title="Voltar ao Início">
+                <img src="../assets/favicon2.png" alt="CDK TECK - Início">
+                <span>CDK TECK</span>
+            </a>
+            <nav class="main-nav">
+                <button id="theme-toggle-btn" class="btn-theme" title="Alternar tema">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <a href="../index.html">Início</a>
+                <a href="#contact" id="global-contact-link">Contato</a>
+            </nav>
+
+        </header>
+
+        <main>
+            <div>
+                <h1 class="titulo">Biblioteca Digital</h1>
+                <p class="subtitulo">Explore nossa coleção de ebooks e materiais sobre tecnologia, marketing, desenvolvimento pessoal e muito mais.</p>
+            </div>
+            <div class="gallery-container" id="ebook-gallery"></div>
+        </main>
+
+        <footer class="rodape">
+            <p class="rodape_texto">© 2025 <b>CDK TECK</b>. Todos os direitos reservados.</p>
+            <div class="rodape_links">
+                <a href="/privacidade" class="rodape_link">Privacidade</a>
+                <a href="/termos" class="rodape_link">Termos</a>
+                <a href="/contato" class="rodape_link">Contato</a>
+            </div>
+        </footer>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const ebookFolders = [
+                    "10 Dicas Pra Criar Anuncios Que Vendem",
+                    "21 Dicas Pra Recrutar Afiliados",
+                    "30 Dicas Pra Explodir Suas Vendas",
+                    "A Felicidade Começa Com Você",
+                    "abc Da Acuputura",
+                    "Adestramento De Cães",
+                    "Adeus Depresão",
+                    "Alimentação Saudavel",
+                    "Alimentos Caseiros Para Animais",
+                    "Alimentos permitidos na dieta detox",
+                    "Amamentação e dieta",
+                    "As melhores estratégias de marketing",
+                    "Banho e beleza corporal",
+                    "Barriga chapada",
+                    "Bitcoin revelado",
+                    "Calorias entram calorias saem",
+                    "Como aumentar a sua produtividade",
+                    "Como ganhar dinheiro com infoprodutos",
+                    "Como perder peso comendo",
+                    "Como queimar gordura com dança",
+                    "Como superar a ansiedade",
+                    "Contratação de trabalhadores virtuais",
+                    "Copy persuasiva para instagram",
+                    "Copywriting supremo",
+                    "Corpo bonito",
+                    "Derrotando o divórcio",
+                    "Detox dos famosos",
+                    "Dicas de economia no casamento",
+                    "Dicas de saúde comprovadas",
+                    "Dicas para comer bem e viver bem",
+                    "Dieta da desintoxicação",
+                    "Dieta paleo",
+                    "Domínio da linguagem corporal",
+                    "Domínio para pequenas empresas",
+                    "Elementos para uma página de vendas efetiva",
+                    "Eliminar vício no cigarro",
+                    "Email marketing",
+                    "Empreendedor inovador",
+                    "Escrevendo seu próprio livro",
+                    "Especialista em perda de peso",
+                    "Especialista em redação",
+                    "Estratégias de dinheiro",
+                    "Estratégias de liderança",
+                    "Explosão nas redes sociais",
+                    "Fundamento imobiliário",
+                    "Fundição forex",
+                    "Google ads",
+                    "Guia completo de cuidados com os cabelos no verão",
+                    "Guia de dieta e nutrição",
+                    "Guia dieta lowcarb",
+                    "Herói da saúde",
+                    "Hit fit",
+                    "Inteligência financeira",
+                    "Levantamento de peso",
+                    "Mantendo a espiritualidade",
+                    "Manual da copy",
+                    "Máquina de tráfego",
+                    "Marketing viral",
+                    "Melhorando a saúde mental",
+                    "Melhorando o estilo de vida",
+                    "Mentalidade de sucesso",
+                    "Metabolismo acelerado",
+                    "Mindset dos milionários",
+                    "Nicho marketing",
+                    "Nunca tarde para praticar exercícios",
+                    "Nutrição infantil",
+                    "O guia sobre sair das dívidas",
+                    "O poder da meditação",
+                    "O poder do pensamento positivo",
+                    "O poder do pilates",
+                    "O poder dos grupos",
+                    "Obtendo viral",
+                    "Os principais erros de viagem",
+                    "Os segredos de viagens",
+                    "Perseguindo a prosperidade",
+                    "Redes sociais facilitada",
+                    "Renda extra com artesanato",
+                    "Saúde fitness",
+                    "Sedução",
+                    "Segredos da persuasão",
+                    "Segredos do ganho muscular",
+                    "Seo",
+                    "Solução do sono",
+                    "Sopa para emagrecer",
+                    "Status de super afiliado",
+                    "Sucesso no marketing por email",
+                    "Super alimentos anti-envelhecimento",
+                    "SUPER FOODS",
+                    "Táticas de marketing",
+                    "Táticas de seo",
+                    "Tornando-se mais forte",
+                    "Trabalho em casa",
+                    "Tráfego agora",
+                    "Transforme seus objetivos em realidade",
+                    "Veganismo e vegetarianismo",
+                    "Venda de imóveis",
+                    "VIDA LIVRE DE GLÚTEN",
+                    "Vídeo marketing",
+                    "Vitamina",
+                    "Você nasceu para vencer",
+                    "Yoga"
+                ];
+
+                const gallery = document.getElementById('ebook-gallery');
+                const fallbackImage = '../Assets/favicon.png'; // Imagem padrão
+
+                ebookFolders.forEach(folderName => {
+                    const imagePath = `ebook/${folderName}/${folderName}.png`;
+                    const pdfPath = `ebook/${folderName}/${folderName}.pdf`;
+
+                    const cardLink = document.createElement('a');
+                    cardLink.href = pdfPath;
+                    cardLink.target = '_blank'; // Abrir PDF em nova aba
+                    cardLink.className = 'project-card-link';
+
+                    const card = document.createElement('div');
+                    card.className = 'project-card';
+
+                    card.innerHTML = `
+                        <div class="card-content">
+                            <img src="${imagePath}" alt="Capa do Ebook ${folderName}" onerror="this.parentElement.parentElement.parentElement.style.display='none';">
+                            <div class="project-info">
+                                <h3>${folderName}</h3>
+                            </div>
+                        </div>
+                    `;
+                    
+                    cardLink.appendChild(card);
+                    gallery.appendChild(cardLink);
+                });
+            });
+        </script>
+
+        <script src="../scripts/global.js" defer></script>
+    </body>
+</html>

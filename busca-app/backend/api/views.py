@@ -1,5 +1,5 @@
 from rest_framework.exceptions import PermissionDenied
-from .task import run_spider_task
+
 from django.http import Http404
 from rest_framework import viewsets, status, generics, serializers, mixins
 from rest_framework.views import APIView
@@ -23,83 +23,21 @@ from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework_simplejwt.views import TokenObtainPairView
 import json
-from celery.result import AsyncResult
+
 from .models import (
     Usuario, CategoriaLoja, SubcategoriaProduto, Produto, Atributo, ValorAtributo, SKU, OfertaProduto, ImagemSKU,
-    Vendedor, Cliente, Endereco, AvaliacaoLoja, Sugestao, ProdutosMonitoradosExternos, HistoricoPrecos, get_canonical_url, Administrador
+    Vendedor, Cliente, Endereco, AvaliacaoLoja, Sugestao, Administrador
 )
 from .serializers import (
     UserSerializer, MyTokenObtainPairSerializer, CategoriaLojaSerializer, SubcategoriaProdutoSerializer,
     ProdutoSerializer, AtributoSerializer, ValorAtributoSerializer, SKUSerializer, OfertaProdutoSerializer,
     VendedorSerializer, ClienteSerializer, EnderecoSerializer, AvaliacaoLojaSerializer, SugestaoSerializer,
-    ProdutosMonitoradosExternosSerializer,
     MeusProdutosSerializer,
-    ProdutosMonitoradosExternosComHistoricoSerializer,
     AdminSerializer
 )
 
 
-class ProdutosMonitoradosExternosViewSet(mixins.ListModelMixin,
-                                         mixins.RetrieveModelMixin,
-                                         mixins.DestroyModelMixin,
-                                         viewsets.GenericViewSet):
-    serializer_class = ProdutosMonitoradosExternosSerializer
-    permission_classes = [IsAuthenticated, IsVendedor]
 
-    def get_queryset(self) -> QuerySet[ProdutosMonitoradosExternos]: # type: ignore
-        return ProdutosMonitoradosExternos.objects.filter(vendedor=self.request.user.vendedor) # type: ignore
-
-
-class MonitorarProdutoView(APIView):
-
-    """
-    Inicia a tarefa assíncrona para monitorar um produto externo.
-    """
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, *args, **kwargs):
-        data = request.data
-        url_concorrente = data.get('url')
-        usuario_id = request.user.id
-
-        if not url_concorrente:
-            return Response({'error': 'URL não fornecida.'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            vendedor = Vendedor.objects.get(usuario=request.user)
-        except Vendedor.DoesNotExist:
-            return Response({'error': 'Apenas vendedores podem monitorar produtos.'}, status=status.HTTP_403_FORBIDDEN)
-
-        # Chama a tarefa do Celery e captura o resultado
-        task = run_spider_task.delay(url_concorrente, usuario_id) # type: ignore
-
-        return Response({
-            'message': 'Monitoramento iniciado em segundo plano.',
-            'task_id': task.id
-        }, status=status.HTTP_202_ACCEPTED)
-
-
-class TaskStatusView(APIView):
-    """
-    Verifica o status de uma tarefa do Celery.
-    """
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, task_id, *args, **kwargs):
-        task_result = AsyncResult(task_id)
-        result = {
-            'task_id': task_id,
-            'status': task_result.status,
-            'result': task_result.result if task_result.ready() else None
-        }
-        return Response(result, status=status.HTTP_200_OK)
-
-
-class HistoricoPrecosView(generics.RetrieveAPIView):
-    queryset = ProdutosMonitoradosExternos.objects.all()
-    serializer_class = ProdutosMonitoradosExternosComHistoricoSerializer
-    permission_classes = [IsAuthenticated]
-    lookup_field = 'pk'
 
 
 class UserCreateView(generics.CreateAPIView):
@@ -536,53 +474,3 @@ class ClienteTestView(APIView):
         return Response({"message": "You are a cliente"})
 
 
-class SalvarDadosMonitoramentoView(APIView):
-    """
-    Endpoint para receber os dados raspados do Scrapy e salvar no banco de dados.
-    Esta view não requer autenticação, pois a chamada virá de um worker do Celery.
-    A segurança será garantida através de uma chave de API interna ou token, se necessário.
-    """
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-        # A API Key não foi implementada, para um ambiente de produção a validação seria essencial
-        # if request.headers.get('X-API-KEY') != 'SUA_CHAVE_SECRETA_AQUI':
-        #    return Response({'error': 'Chave de API inválida.'}, status=status.HTTP_403_FORBIDDEN)
-            
-        url_produto = request.data.get('url_produto')
-        nome_produto = request.data.get('nome_produto')
-        preco_atual = request.data.get('preco_atual')
-        usuario_id = request.data.get('usuario_id')
-        
-        # Validação básica dos dados recebidos
-        if not all([url_produto, nome_produto, preco_atual, usuario_id]):
-            return Response({'error': 'Dados incompletos.'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            vendedor = Vendedor.objects.get(usuario_id=usuario_id)
-        except Vendedor.DoesNotExist:
-            return Response({'error': 'Vendedor não encontrado.'}, status=status.HTTP_404_NOT_FOUND)
-
-        # Encontra ou cria o registro de monitoramento
-        # A URL canônica garante que a mesma URL seja sempre a mesma entrada no banco
-        url_canonico = get_canonical_url(url_produto)
-        monitoramento, created = ProdutosMonitoradosExternos.objects.get_or_create(
-            vendedor=vendedor,
-            url_concorrente=url_canonico,
-            defaults={
-                'nome_produto_concorrente': nome_produto,
-                'ultima_atualizacao': timezone.now(),
-            }
-        )
-
-        # Salva o histórico de preços
-        HistoricoPrecos.objects.create(
-            monitoramento=monitoramento,
-            preco=preco_atual,
-            data_registro=timezone.now()
-        )
-
-        return Response({
-            'message': 'Dados de monitoramento salvos com sucesso.',
-            'monitoramento_id': monitoramento.id # type: ignore
-        }, status=status.HTTP_201_CREATED)

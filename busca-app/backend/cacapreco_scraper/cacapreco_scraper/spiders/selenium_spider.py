@@ -57,7 +57,7 @@ class SeleniumSpider(scrapy.Spider):
         driver = None
 
         try:
-            self.logger.info(f"Iniciando o scraping com Selenium para a URL: {self.url}")
+            # self.logger.info(f"Iniciando o scraping com Selenium para a URL: {self.url}")
             driver = uc.Chrome(
                 service=ChromeService(ChromeDriverManager().install()),
                 options=options,
@@ -310,5 +310,13 @@ class SeleniumSpider(scrapy.Spider):
 
         else:
             self.logger.error(f"FALHA: Não foi possível extrair nome e/ou preço para a URL: {self.url}")
+            try:
+                file_path = '/tmp/long_path_failure.html'
+                with open(file_path, "w", encoding="utf-8") as f:
+                    f.write(response.text)
+                self.logger.info(f"LONG PATH: HTML da falha salvo em: {file_path}")
+            except Exception as e:
+                self.logger.error(f"LONG PATH: Falha ao salvar o HTML de depuração: {e}")
+            
             driver.save_screenshot('screenshot_falha.png')
             self.logger.info("Screenshot da falha salvo como 'screenshot_falha.png'")

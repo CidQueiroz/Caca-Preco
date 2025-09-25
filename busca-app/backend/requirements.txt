@@ -13,3 +13,9 @@ undetected-chromedriver
 requests
 django-filter
 crochet
+cloudscraper
+playwright
+requests-html
+playwright-stealth>=1.0.6
+lxml_html_clean
+gevent

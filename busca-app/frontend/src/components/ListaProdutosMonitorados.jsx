@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import apiClient from '../api';
 import Botao from './Botao';
 import { useNotification } from '../context/NotificationContext';
@@ -9,7 +9,7 @@ const ListaProdutosMonitorados = ({ refreshKey }) => {
     const [isExpanded, setIsExpanded] = useState(false); // Estado para controlar a visibilidade
     const { showNotification } = useNotification();
 
-    const fetchProdutos = async () => {
+    const fetchProdutos = useCallback(async () => {
         setLoading(true);
         try {
             const response = await apiClient.get('/monitoramento/');
@@ -20,14 +20,14 @@ const ListaProdutosMonitorados = ({ refreshKey }) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [showNotification]); // Adicionado showNotification como dependência do useCallback
 
     useEffect(() => {
         // Só busca os produtos se a seção estiver expandida.
         if (isExpanded) {
             fetchProdutos();
         }
-    }, [isExpanded, refreshKey]);
+    }, [isExpanded, refreshKey, fetchProdutos]); // Adicionado fetchProdutos
 
     const handleRemover = async (id) => {
         if (window.confirm("Tem certeza que deseja parar de monitorar este produto?")) {
