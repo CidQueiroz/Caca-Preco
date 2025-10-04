@@ -1,73 +1,27 @@
-# Caça-Preço – Marketplace com Monitoramento Inteligente de Concorrência
+# Caça-Preço - Marketplace com Monitoramento Inteligente
 
 ## Visão Geral
 
-O Caça-Preço é um marketplace multiplataforma que conecta clientes e vendedores, focado em busca e comparação de preços, com autenticação JWT e controle de acesso por papéis (Cliente, Vendedor, Administrador).
+O **Caça-Preço** é uma plataforma completa que une um marketplace dinâmico a uma poderosa ferramenta de monitoramento de concorrência para vendedores. Construído com uma arquitetura robusta, o projeto visa otimizar a experiência de compra para clientes e potencializar as vendas para os lojistas.
 
-Além das funcionalidades tradicionais de marketplace, o Caça-Preço oferece um módulo SaaS integrado de monitoramento de preços e análise de mercado, exclusivo para vendedores. Assim, vendedores podem acompanhar concorrentes, ajustar estratégias e potencializar vendas, tudo em um só lugar.
+- **Para Clientes:** Uma plataforma intuitiva para criar listas de compras, comparar preços entre diferentes lojas e receber sugestões otimizadas para economizar ao máximo.
+- **Para Vendedores:** Um portal para gerenciar produtos, lojas e ofertas, com acesso a um dashboard de análise de vendas e a um módulo SaaS exclusivo para monitorar preços de concorrentes de forma automatizada.
 
-## Funcionalidades Principais
+Este documento fornece um guia detalhado sobre a arquitetura do projeto, a estrutura dos diretórios e as instruções para configuração e execução de cada componente.
 
-### Para Clientes
-*   Cadastro/Login com permissões específicas.
-*   Busca e Comparação de Preços: Criação de listas de compras, busca do menor preço por item e comparação entre estabelecimentos.
-*   Sugestão Otimizada: Sistema sugere a melhor combinação de lojas para o menor custo total, com opção de consolidar compras.
-*   Sugestões Inteligentes: IA sugere estabelecimentos próximos (Google Maps, categorização), mesmo não cadastrados.
-
-### Para Vendedores
-*   Gestão de Produtos: Cadastro, listagem e gerenciamento de produtos e lojas.
-*   Dashboard de Vendas: Acompanhamento de desempenho e avaliações.
-*   Monitoramento de Concorrência (SaaS Integrado):
-    *   Cadastro de links de produtos concorrentes.
-    *   Coleta automática de preços e estoques dos concorrentes em intervalos definidos.
-    *   Visualização de dados em dashboards interativos, com análises, alertas e histórico de preços.
-    *   Insights para ajuste de preços e estratégias de venda.
+---
 
 ## Arquitetura e Tecnologias
+
+O ecossistema do Caça-Preço é composto por três componentes principais que trabalham de forma integrada para entregar uma solução coesa e performática.
 
 | Componente | Tecnologia | Propósito |
 | :--- | :--- | :--- |
 | **Backend** | **Python, Django, Django Rest Framework** | API RESTful central que gerencia toda a lógica de negócio, incluindo usuários, produtos, ofertas, autenticação (JWT) e o módulo SaaS. |
 | **Frontend Web** | **React, React Router, Axios** | Aplicação web (SPA) para clientes, vendedores e administradores interagirem com a plataforma. |
-| **Frontend Mobile** | **React Native, Expo, React Navigation, Context API** | Aplicativo móvel para Android e iOS, oferecendo uma experiência nativa para os clientes em trânsito. |
+| **Frontend Mobile** | **React Native, Expo, React Navigation** | Aplicativo móvel para Android e iOS, oferecendo uma experiência nativa para os clientes em trânsito. |
 
-| **Automação SaaS** | **Python (Selenium, BeautifulSoup, Scrapy)**  para coleta de dados de concorrentes. |
-| **Análise de Dados** | **Pandas, Power BI, Machine Learning** para análises preditivas e dashboards. |
-| **Banco de Dados** | **SQL** para marketplace e histórico de preços monitorados. |
-
-
-| **Monetização**
-| **Marketplace** Gratuito para clientes; vendedores podem ter planos gratuitos e pagos.
-SaaS Integrado: Planos por assinatura para vendedores, baseados em:
-
-    * Número de URLs monitoradas.
-    * Frequência de coleta.
-    * Acesso a dados históricos e análises avançadas.
-
-**Sugestões de Melhoria para o Modelo Físico**
-
-**1. Otimização da Busca e Comparação de Preços**
-    Índices Compostos: Em OFERTA_PRODUTO para acelerar buscas por menor preço.
-    Materialized Views: Tabelas pré-calculadas para sugestões de compra otimizadas.
-
-**2. Estoque em Tempo Real**
-    Triggers: Atualizam estoque automaticamente após vendas.
-    Filas de Mensagens: Para alta concorrência, uso de filas (RabbitMQ, Kafka) para atualização assíncrona.
-
-**3. Análise de Mercado e Concorrência**
-    Histórico de Preços: Tabela para rastrear evolução dos preços dos concorrentes.
-    Particionamento: Melhor performance em grandes volumes de dados históricos.
-
-**4. Geolocalização e IA**
-    Latitude/Longitude: Campos obrigatórios em ENDERECO.
-    Índices Geoespaciais: Para buscas rápidas por proximidade.
-    
-**5. Variações de Produto Complexas**
-    Modelo Flexível: Tabelas ATRIBUTO, VALOR_ATRIBUTO e PRODUTO_ATRIBUTO_VALOR para múltiplas combinações (ex: Tamanho, Cor, Material).
-    Aplicabilidade: Catálogo flexível e filtros avançados para clientes.
-
-**Resumo:**
-    O Caça-Preço integra marketplace e SaaS de monitoramento de concorrência, oferecendo uma solução completa para clientes e vendedores, com potencial de crescimento, monetização e diferenciação no mercado.
+---
 
 ## Estrutura do Projeto
 
@@ -75,39 +29,116 @@ O repositório está organizado em diretórios distintos para cada componente da
 
 ```
 /
-├── busca-app/
-│   ├── backend/              # API Principal (Python/Django)
-│   ├── frontend/             # Aplicação Web (React)
-│   └── mobile/               # Aplicativo Móvel (React Native)
+├── backend/              # API Principal (Python/Django)
+├── frontend/             # Aplicação Web (React)
+├── mobile/               # Aplicativo Móvel (React Native)
 └── docs/                 # Documentação detalhada do projeto
 ```
 
+---
+
 ## Configuração e Instalação
 
+Siga os passos abaixo para configurar o ambiente de desenvolvimento local. É crucial instalar e executar o **Backend (Django)** e o **Frontend Web (React)** para a aplicação principal funcionar.
+
 ### 1. Backend (Django)
+
+Este é o cérebro da aplicação.
+
+1.  **Navegue até o diretório:**
+    ```bash
+    cd busca-app/backend
+    ```
+
+2.  **Crie e ative um ambiente virtual:**
+    ```bash
+    python -m venv venv
+    # Windows
+    .\venv\Scripts\activate
+    # macOS/Linux
+    source venv/bin/activate
+    ```
+
+3.  **Instale as dependências:**
+    *Nota: Um arquivo `requirements.txt` não foi encontrado. Com base em `core/settings.py`, as dependências principais são `django`, `djangorestframework`, `djangorestframework-simplejwt`, `mysqlclient` e `django-cors-headers`.*
+    ```bash
+    pip install django djangorestframework djangorestframework-simplejwt mysqlclient django-cors-headers
+    ```
+
+4.  **Configure o Banco de Dados:**
+    *   Abra o arquivo `core/settings.py`.
+    *   Localize a seção `DATABASES` e atualize com suas credenciais do MySQL. O banco de dados `testecacapreco_django` deve ser criado previamente.
+
+5.  **Execute as migrações e inicie o servidor:**
+    ```bash
+    python manage.py migrate
+    python manage.py runserver
+    ```
     A API estará disponível em `http://localhost:8000`.
 
 ### 2. Frontend Web (React)
+
+A interface principal para interagir com o Caça-Preço.
+
+1.  **Navegue até o diretório:**
+    ```bash
+    cd busca-app/frontend
+    ```
+
+2.  **Instale as dependências:**
+    ```bash
+    npm install
+    ```
+
+3.  **Configure as Variáveis de Ambiente:**
+    O projeto utiliza arquivos `.env` para carregar variáveis de ambiente, evitando que a URL da API seja fixada no código.
+
+    Crie um arquivo chamado `.env` na raiz da pasta `frontend/` e adicione a seguinte variável, garantindo que a URL corresponda ao endereço do seu backend:
+    ```env
+    # .env
+    REACT_APP_API_URL=http://127.0.0.1:8000/api
+    ```
+    O código em `src/api.js` deve ser configurado para usar esta variável.
+
+4.  **Inicie a aplicação:**
+    ```bash
+    npm start
+    ```
     A aplicação web será aberta em `http://localhost:3001`.
 
 ### 3. Frontend Mobile (React Native)
+
+1.  **Navegue até o diretório:**
+    ```bash
+    cd busca-app/mobile
+    ```
+
+2.  **Instale as dependências:**
+    ```bash
+    npm install
+    ```
+
+3.  **Configure a URL da API:**
+    *   Abra o arquivo `app.json`.
+    *   Na seção `expo.extra`, adicione a chave `apiUrl` com o endereço IP da sua máquina na rede local onde o backend Django está rodando. **Não use `localhost`**.
+    ```json
     "extra": {
-      "apiUrl": "http://192.168.0.101:8000"
+      "apiUrl": "http://192.168.X.X:8000"
     }
+    ```
 
-## Desenvolvimento e Convenções
+4.  **Inicie a aplicação:**
+    ```bash
+    npm start
+    ```
+    Use o Expo Go app em seu dispositivo para escanear o QR code gerado.
 
-*   **Testes:** O `README.md` não especifica um framework de teste ou comandos para execução de testes.
-*   **Estilo de Código:** Não há menção explícita a linters ou formatadores de código no `README.md`.
+---
 
 ## Documentação Adicional
 
 Para uma visão mais aprofundada da arquitetura, endpoints da API e esquema do banco de dados, consulte a pasta `/docs`.
 
-*   **[Referência da API (`docs/backend/api-referencia.md`)]**
-*   **[Esquema do Banco de Dados (`docs/backend/database.md`)]**
-*   **[Autenticação (`docs/backend/authentication.md`)]**
-
-
-
-ESTA PASTA É PARA DESENVOLVER O MODULO SAAS: CONFIGURAR SCRAPY E/OU PLAYWRIGHT PARA FAZER WEBSCRAPING
+- **[Referência da API (`docs/backend/api-referencia.md`)]**
+- **[Esquema do Banco de Dados (`docs/backend/database.md`)]**
+- **[Autenticação (`docs/backend/authentication.md`)]**
