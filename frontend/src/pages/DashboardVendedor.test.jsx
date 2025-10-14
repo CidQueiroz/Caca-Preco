@@ -116,7 +116,7 @@ describe('DashboardVendedor', () => {
 
     await waitFor(() => {
       expect(axios.post).toHaveBeenCalledWith(
-        `${process.env.REACT_APP_API_URL}/api/sugestoes/`,
+        `${import.meta.env.VITE_API_URL}/api/sugestoes/`,
         { texto: 'Minha sugestão de teste' },
         { headers: { Authorization: 'Bearer fake-token' } }
       );

@@ -1,7 +1,8 @@
 import React, { useEffect, useContext } from 'react';
 import { useLocation } from 'react-router-dom';
-import BarraNavegacao from './BarraNavegacao';
-import Footer from './Footer';
+import '../styles/style_global.css';
+import Cabecalho from './Cabecalho';
+import Rodape from './Rodape';
 import { AuthContext } from '../context/AuthContext';
 import Notificacao from './Notificacao'; // Importa o componente de Notificação
 
@@ -19,7 +20,7 @@ const Estrutura = ({ children }) => {
 
     return (
         <>
-            <BarraNavegacao />
+            <Cabecalho />
             {isUserLoggedIn ? (
                 // Layout para usuários LOGADOS
                 <main className="layout-logado-background">
@@ -33,7 +34,7 @@ const Estrutura = ({ children }) => {
                     {children}
                 </main>
             )}
-            <Footer />
+            <Rodape />
             <Notificacao /> {/* Componente de notificação adicionado aqui */}
         </>
     );

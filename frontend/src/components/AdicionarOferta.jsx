@@ -29,7 +29,7 @@ const AdicionarOferta = () => {
     // Recarrega os dados do produto selecionado (usado após criar uma nova variação)
     const reloadSelectedProduct = useCallback(async (productId) => {
         try {
-            const url = `${process.env.REACT_APP_API_URL}/api/produtos/${productId}/`;
+            const url = `${import.meta.env.VITE_API_URL}/api/produtos/${productId}/`;
             const response = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
             setSelectedProduct(response.data);
             
@@ -58,7 +58,7 @@ const AdicionarOferta = () => {
     // Efeito para carregar todos os produtos do catálogo para a busca
     useEffect(() => {
         if (token) {
-            const url = `${process.env.REACT_APP_API_URL}/api/produtos/`;
+            const url = `${import.meta.env.VITE_API_URL}/api/produtos/`;
             axios.get(url, { headers: { Authorization: `Bearer ${token}` } })
                 .then(response => {
                     if (Array.isArray(response.data)) {
@@ -139,7 +139,7 @@ const AdicionarOferta = () => {
         }
 
         try {
-            const url = `${process.env.REACT_APP_API_URL}/api/variacoes/`;
+            const url = `${import.meta.env.VITE_API_URL}/api/variacoes/`;
             await axios.post(url, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -177,7 +177,7 @@ const AdicionarOferta = () => {
         }
 
         try {
-            const url = `${process.env.REACT_APP_API_URL}/api/ofertas/`;
+            const url = `${import.meta.env.VITE_API_URL}/api/ofertas/`;
             const savePromises = offersToSave.map(offer => 
                 axios.post(url, offer, { headers: { Authorization: `Bearer ${token}` } })
             );
@@ -194,7 +194,7 @@ const AdicionarOferta = () => {
 
     return (
         <div>
-            <h1 className="apresentacao__conteudo__titulo">Adicionar Nova Oferta</h1>
+            <h1 class="apresentacao__conteudo__titulo">Adicionar Nova Oferta</h1>
 
             {!selectedProduct ? (
                 <div className="form-container" style={{maxWidth: '900px'}}>

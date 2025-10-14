@@ -32,7 +32,7 @@ const MeusProdutos = () => {
     const fetchProdutos = useCallback(async () => {
         setLoading(true);
         try {
-            const baseUrl = process.env.REACT_APP_API_URL;
+            const baseUrl = import.meta.env.VITE_API_URL;
             const url = selectedCategory 
                 ? `${baseUrl}/api/produtos/meus-produtos/?id_categoria=${selectedCategory}` 
                 : `${baseUrl}/api/produtos/meus-produtos/`;
@@ -90,7 +90,7 @@ const MeusProdutos = () => {
         }
 
         try {
-            await axios.patch(`${process.env.REACT_APP_API_URL}/api/ofertas/${editingProduct.id}/`, formData, {
+            await axios.patch(`${import.meta.env.VITE_API_URL}/api/ofertas/${editingProduct.id}/`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     Authorization: `Bearer ${token}`

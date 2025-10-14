@@ -241,7 +241,7 @@ const FormularioVendedor = ({ aoEnviar, initialData }) => {
         const buscarCategorias = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/categorias/`, {
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/categorias/`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setCategorias(response.data);
@@ -412,7 +412,7 @@ const CompletarPerfil = () => {
                 return;
             }
             try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/perfil/`, {
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/perfil/`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 // Se a resposta for bem-sucedida e tiver dados, estamos no modo de edição
@@ -439,18 +439,18 @@ const CompletarPerfil = () => {
         let endpoint;
 
         if (isEditMode) {
-            endpoint = `${process.env.REACT_APP_API_URL}/api/perfil/`;
+            endpoint = `${import.meta.env.VITE_API_URL}/api/perfil/`;
         } else {
             console.log(usuario.tipo_usuario);
             if (usuario.tipo_usuario === 'Cliente') {
                 console.log("Matched: Cliente");
-                endpoint = `${process.env.REACT_APP_API_URL}/api/clientes/`;
+                endpoint = `${import.meta.env.VITE_API_URL}/api/clientes/`;
             } else if (usuario.tipo_usuario === 'Vendedor') {
                 console.log("Matched: Vendedor");
-                endpoint = `${process.env.REACT_APP_API_URL}/api/vendedores/`;
+                endpoint = `${import.meta.env.VITE_API_URL}/api/vendedores/`;
             } else if (usuario.tipo_usuario === 'Administrador') {
                 console.log("Matched: Administrador");
-                endpoint = `${process.env.REACT_APP_API_URL}/api/admins/`;
+                endpoint = `${import.meta.env.VITE_API_URL}/api/admins/`;
             } else {
                 console.log("No match. Falling back to else.");
                 showNotification('Tipo de usuário inválido.', 'erro');

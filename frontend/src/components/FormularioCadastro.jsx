@@ -16,7 +16,7 @@ const FormularioCadastro = () => {
         setErro(null);
 
         try {
-            const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/registrar/`, { email, senha, tipo_usuario });
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/registrar/`, { email, senha, tipo_usuario });
 
             if (response.status === 201) {
                 navegar('/completar-perfil', { state: { idUsuario: response.data.id, tipoUsuario: response.data.tipo_usuario, email: email } });

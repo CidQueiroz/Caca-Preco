@@ -26,7 +26,7 @@ const VerificarEmail = () => {
         }
 
         try {
-            const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/reenviar-verificacao/`, { email });
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/reenviar-verificacao/`, { email });
 
             if (response.status === 200) {
                 showNotification(response.data.message || 'Link de verificação reenviado com sucesso! Por favor, verifique seu email.', 'sucesso');

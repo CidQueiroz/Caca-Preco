@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   db:
     image: mysql:8.0
@@ -24,6 +22,9 @@ services:
 
   backend:
     build: ./backend
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     container_name: cacapreco_backend
     volumes:
       - ./backend:/app
@@ -43,7 +44,9 @@ services:
         condition: service_started
 
   frontend:
-    build: ./frontend
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
     container_name: cacapreco_frontend
     volumes:
       - ./frontend:/app

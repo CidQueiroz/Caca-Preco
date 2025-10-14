@@ -13,7 +13,7 @@ const DashboardAdmin = () => {
     const fetchVendedoresPendentes = useCallback(async () => {
         if (!token) return;
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/vendedores/?status_aprovacao=Pendente`, {
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/vendedores/?status_aprovacao=Pendente`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setVendedoresPendentes(response.data);
@@ -29,7 +29,7 @@ const DashboardAdmin = () => {
 
     const handleAprovacao = async (idVendedor, novoStatus) => {
         try {
-            const endpoint = `${process.env.REACT_APP_API_URL}/api/vendedores/${idVendedor}/atualizar-status/`;
+            const endpoint = `${import.meta.env.VITE_API_URL}/api/vendedores/${idVendedor}/atualizar-status/`;
             await axios.post(endpoint, { status: novoStatus }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
