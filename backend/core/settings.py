@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 from datetime import timedelta # Import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -208,3 +209,6 @@ LOGGING = {
         },
     }
 }
+
+# Chave da API para o serviço de scraping externo
+SCRAPER_API_KEY = os.environ.get('SCRAPER_API_KEY')

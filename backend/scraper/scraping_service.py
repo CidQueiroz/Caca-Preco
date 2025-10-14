@@ -134,6 +134,76 @@ def get_specific_selectors(url: str):
     logging.info(f"Usando {len(seletores_db)} seletores do banco de dados para o domínio: {dominio_obj.nome_dominio}")
     return selectors_dict
 
+def parse_product_html(html_content: str, url: str):
+    """
+    Analisa o conteúdo HTML de uma página de produto para extrair nome e preço.
+    """
+    soup = BeautifulSoup(html_content, 'html.parser')
+    nome_produto = None
+    preco_produto_str = None
+
+    # --- TENTATIVA 1: JSON-LD (O Padrão Ouro) ---
+    json_ld_script = soup.find('script', type='application/ld+json')
+    if json_ld_script:
+        try:
+            data = json.loads(json_ld_script.string)
+            if isinstance(data, list):
+                data = data[0]
+            
+            if data.get('@type') == 'Product':
+                nome_produto = data.get('name')
+                offers = data.get('offers', {})
+                if isinstance(offers, list):
+                    offers = offers[0] if offers else {}
+                
+                price = offers.get('price') or offers.get('lowPrice')
+                if price:
+                    preco_produto_str = str(price)
+                    logging.info("PARSE HTML: Dados encontrados via JSON-LD.")
+        except (json.JSONDecodeError, AttributeError):
+            logging.warning("PARSE HTML: JSON-LD encontrado, mas com formato inválido. Tentando HTML.")
+
+    # --- TENTATIVA 2 e 3: Seletores HTML (Planos B e C) ---
+    if not nome_produto or not preco_produto_str:
+        logging.info("PARSE HTML: JSON-LD falhou ou incompleto. Tentando seletores HTML.")
+        
+        specific_selectors = get_specific_selectors(url)
+        if specific_selectors:
+            logging.info(f"PARSE HTML: Usando seletores específicos para o domínio.")
+            if not nome_produto:
+                for selector in specific_selectors['nome']:
+                    el = soup.select_one(selector)
+                    if el: nome_produto = el.text.strip(); break
+            if not preco_produto_str:
+                for selector in specific_selectors['preco']:
+                    el = soup.select_one(selector)
+                    if el: preco_produto_str = el.text.strip(); break
+        
+        if not nome_produto:
+            generic_name_selectors = ['h1', 'h1[class*="title"]', 'h1[class*="name"]']
+            for selector in generic_name_selectors:
+                el = soup.select_one(selector)
+                if el: nome_produto = el.text.strip(); break
+        
+        if not preco_produto_str:
+            generic_price_selectors = ['span[class*="price"]', 'div[class*="price"]', 'p[class*="price"]']
+            for selector in generic_price_selectors:
+                el = soup.select_one(selector)
+                if el: preco_produto_str = el.text.strip(); break
+    
+    # --- ETAPA FINAL: LIMPEZA E VALIDAÇÃO ---
+    if nome_produto and preco_produto_str:
+        preco_limpo_str = re.search(r'(\d[\d,.]*\d)', preco_produto_str)
+        if preco_limpo_str:
+            preco_final = float(preco_limpo_str.group(0).replace('.', '').replace(',', '.'))
+            logging.info(f"PARSE HTML: Sucesso! Produto: '{nome_produto}', Preço: {preco_final}")
+            return nome_produto, preco_final
+        else:
+            logging.error(f"PARSE HTML: Regex não conseguiu limpar o preço: '{preco_produto_str}'")
+
+    logging.error(f"PARSE HTML: Falha ao extrair dados para a URL: {url}.")
+    return None, None
+
 def fast_path_scrape(url: str):
     """
     Tenta extrair dados de produtos de forma rápida (requests + BeautifulSoup).
@@ -148,84 +218,20 @@ def fast_path_scrape(url: str):
     try:
         response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
-        soup = BeautifulSoup(response.text, 'html.parser')
-
-        nome_produto = None
-        preco_produto_str = None
-
-        # --- TENTATIVA 1: JSON-LD (O Padrão Ouro) ---
-        json_ld_script = soup.find('script', type='application/ld+json')
-        if json_ld_script:
-            try:
-                data = json.loads(json_ld_script.string)
-                if isinstance(data, list): # Alguns sites colocam o JSON-LD em uma lista
-                    data = data[0]
-                
-                if data.get('@type') == 'Product':
-                    nome_produto = data.get('name')
-                    offers = data.get('offers', {})
-                    if isinstance(offers, list):
-                        offers = offers[0] if offers else {}
-                    
-                    price = offers.get('price') or offers.get('lowPrice')
-                    if price:
-                        preco_produto_str = str(price)
-                        logging.info("FAST PATH: Dados encontrados via JSON-LD.")
-            except (json.JSONDecodeError, AttributeError):
-                logging.warning("FAST PATH: JSON-LD encontrado, mas com formato inválido. Tentando HTML.")
-
-        # --- TENTATIVA 2 e 3: Seletores HTML (Planos B e C) ---
-        if not nome_produto or not preco_produto_str:
-            logging.info("FAST PATH: JSON-LD falhou ou incompleto. Tentando seletores HTML.")
-            
-            # Tenta seletores específicos do domínio primeiro
-            specific_selectors = get_specific_selectors(url)
-            if specific_selectors:
-                logging.info(f"FAST PATH: Usando seletores específicos para o domínio.")
-                if not nome_produto:
-                    for selector in specific_selectors['nome']:
-                        el = soup.select_one(selector)
-                        if el: nome_produto = el.text.strip(); break
-                if not preco_produto_str:
-                    for selector in specific_selectors['preco']:
-                        el = soup.select_one(selector)
-                        if el: preco_produto_str = el.text.strip(); break
-            
-            # Se ainda faltar, tenta seletores genéricos (fallback)
-            if not nome_produto:
-                generic_name_selectors = ['h1', 'h1[class*="title"]', 'h1[class*="name"]']
-                for selector in generic_name_selectors:
-                    el = soup.select_one(selector)
-                    if el: nome_produto = el.text.strip(); break
-            
-            if not preco_produto_str:
-                generic_price_selectors = ['span[class*="price"]', 'div[class*="price"]', 'p[class*="price"]']
-                for selector in generic_price_selectors:
-                    el = soup.select_one(selector)
-                    if el: preco_produto_str = el.text.strip(); break
         
-        # --- ETAPA FINAL: LIMPEZA E VALIDAÇÃO ---
-        if nome_produto and preco_produto_str:
-            # Regex robusta para limpar o preço, removendo tudo exceto dígitos, vírgulas e pontos
-            preco_limpo_str = re.search(r'(\d[\d,.]*\d)', preco_produto_str)
-            if preco_limpo_str:
-                # Converte para o formato americano (ponto decimal) e depois para float
-                preco_final = float(preco_limpo_str.group(0).replace('.', '').replace(',', '.'))
-                logging.info(f"FAST PATH: Sucesso! Produto: '{nome_produto}', Preço: {preco_final}")
-                return nome_produto, preco_final
-            else:
-                logging.error(f"FAST PATH: Regex não conseguiu limpar o preço: '{preco_produto_str}'")
+        nome_produto, preco_final = parse_product_html(response.text, url)
 
-        # Se chegamos aqui, a extração falhou. Salva o HTML para depuração.
-        logging.error(f"FAST PATH: Falha ao extrair dados para a URL: {url}. Nome: {nome_produto}, Preço: {preco_produto_str}")
-        try:
-            file_path = '/tmp/fast_path_failure.html'
-            with open(file_path, 'w', encoding='utf-8') as f:
-                f.write(response.text)
-            logging.info(f"FAST PATH: HTML da falha salvo em: {file_path}")
-        except Exception as e:
-            logging.error(f"FAST PATH: Falha ao salvar o HTML de depuração: {e}")
-        return None
+        if nome_produto and preco_final:
+            return nome_produto, preco_final
+        else:
+            try:
+                file_path = '/tmp/fast_path_failure.html'
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    f.write(response.text)
+                logging.info(f"FAST PATH: HTML da falha salvo em: {file_path}")
+            except Exception as e:
+                logging.error(f"FAST PATH: Falha ao salvar o HTML de depuração: {e}")
+            return None
 
     except requests.exceptions.RequestException as e:
         logging.error(f"FAST PATH: Erro de requisição para a URL: {url} - {e}")

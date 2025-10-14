@@ -134,3 +134,22 @@ async def scrape_with_playwright_stealth(url: str, price_selector: str, name_sel
         finally:
             if browser:
                 await browser.close()
+
+def scrape_with_scraperapi(url: str, api_key: str):
+    """
+    Usa a ScraperAPI para fazer o scraping da URL, lidando com proxies, CAPTCHAs e blocos.
+    """
+    print(f"--- Estratégia: ScraperAPI ---")
+    try:
+        payload = {'api_key': api_key, 'url': url}
+        response = requests.get('http://api.scraperapi.com', params=payload, timeout=60)
+        response.raise_for_status()
+        
+        # A ScraperAPI retorna o HTML bruto da página
+        # O parsing desse HTML será feito no pipeline principal
+        print("--- Sucesso: ScraperAPI retornou o HTML da página. ---")
+        return {"success": True, "html": response.text, "strategy": "scraperapi"}
+
+    except requests.exceptions.RequestException as e:
+        print(f"Erro ao chamar a ScraperAPI: {e}")
+        return None

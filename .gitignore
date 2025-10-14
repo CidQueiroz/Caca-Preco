@@ -31,6 +31,7 @@ media/
 # Virtual Environments
 ######################
 .env
+/.env
 .venv
 .venv_linux
 **/venv/
@@ -97,3 +98,5 @@ logs/
 #########
 unicorn.txt
 firebase_credencials.json
+gemini.md
+trello_import.csv

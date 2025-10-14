@@ -1,8 +1,8 @@
-
 from celery import shared_task
 import logging
 import asyncio
 from requests.exceptions import RequestException
+from django.conf import settings
 
 try:
     # Tenta importar o erro de Timeout do Playwright
@@ -18,6 +18,7 @@ from .scraping_service import (
     fast_path_scrape,
     long_path_scrape,
     get_specific_selectors,
+    parse_product_html, # Importa a nova função de parsing
     save_monitoring_data as sync_save_monitoring_data
 )
 
@@ -25,7 +26,8 @@ from .scraping_service import (
 from .scraping_strategies import (
     scrape_with_internal_api,
     scrape_with_requests_html,
-    scrape_with_playwright_stealth
+    scrape_with_playwright_stealth,
+    scrape_with_scraperapi # Importa a nova função da ScraperAPI
 )
 
 # Define exceções que são recuperáveis e devem acionar uma nova tentativa
@@ -56,9 +58,21 @@ def run_scraping_pipeline(self, url: str, user_id: int):
         if scraped_data:
             strategy_used = 'fast_path'
 
+        # --- ESTRATÉGIA 1.5: API PATH (SCRAPERAPI) ---
+        if not scraped_data and settings.SCRAPER_API_KEY:
+            logging.info("PIPELINE: Fast-path falhou. Tentando estratégia de API Path (ScraperAPI).")
+            api_result = scrape_with_scraperapi(url, settings.SCRAPER_API_KEY)
+            if api_result and api_result.get("success"):
+                # A API retorna o HTML, agora fazemos o parse
+                scraped_data = parse_product_html(api_result["html"], url)
+                if scraped_data and scraped_data[0] and scraped_data[1]:
+                    strategy_used = 'scraperapi'
+                else:
+                    scraped_data = None # Garante que o pipeline continue se o parse falhar
+
         # --- ESTRATÉGIA 2: MEDIUM-PATH (APIs, RENDERIZAÇÃO LEVE) ---
         if not scraped_data:
-            logging.info("PIPELINE: Fast-path falhou. Tentando estratégias de Medium-path.")
+            logging.info("PIPELINE: API-path falhou. Tentando estratégias de Medium-path.")
             selectors = get_specific_selectors(url)
             
             if selectors and selectors.get('api_url'):

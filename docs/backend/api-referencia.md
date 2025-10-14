@@ -53,7 +53,7 @@ A API é construída com Django Rest Framework e utiliza ViewSets, que geram aut
 -   `GET /api/historico-precos/<pk>/`
     -   **Recurso:** `HistoricoPrecosView`
     -   **Descrição:** Retorna o histórico de preços de um produto monitorado.
--   **⚠️ AVISO CRÍTICO:** O scraping é executado de forma **síncrona** dentro da requisição, o que o torna lento e instável. Ele bloqueia o servidor e pode causar timeouts facilmente. **NÃO USE EM PRODUÇÃO.** A arquitetura deve ser refatorada para usar uma fila de tarefas assíncronas (ex: Celery).
+-   **Arquitetura de Scraping Assíncrono:** O scraping é executado de forma **assíncrona** usando Celery, garantindo que o servidor não seja bloqueado. O sistema utiliza uma pipeline robusta com múltiplas estratégias (Fast, Medium e Long Path) e fallbacks para garantir a máxima eficiência e taxa de sucesso na coleta de dados.
 
 ### Outros
 
