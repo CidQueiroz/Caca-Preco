@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "vite",
-    "start": "vite",
+    "dev": "vite --host 0.0.0.0",
+    "start": "vite --host 0.0.0.0",
     "build": "vite build",
     "preview": "vite preview"
   },
@@ -49,6 +49,7 @@
   "devDependencies": {
     "@vitejs/plugin-react": "^5.0.4",
     "cross-env": "^10.0.0",
+    "esbuild": "^0.25.11",
     "vite": "^7.1.10"
   }
 }

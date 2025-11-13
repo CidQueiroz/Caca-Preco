@@ -1,0 +1,36 @@
+# Estágio 1: Build
+# Aqui usamos a imagem completa do Node.js para instalar dependências e construir o projeto.
+FROM node:20-alpine AS build
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
+# O comando mais importante: cria a versão otimizada de produção na pasta /app/dist
+RUN npm run build
+
+# DEBUG: Lista o conteúdo do diretório de build para garantir que os arquivos foram criados.
+RUN ls -la /app/dist
+RUN ls -la /app
+
+# --- 
+
+# Estágio 2: Produção
+# Aqui usamos uma imagem de servidor web super leve (Nginx) para servir os arquivos estáticos.
+FROM nginx:stable-alpine
+
+# Copia os arquivos otimizados do estágio de build para a pasta que o Nginx serve.
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# Copia uma configuração customizada do Nginx (opcional, mas bom para roteamento de Single Page Apps)
+# COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Expõe a porta 80 (padrão do Nginx)
+EXPOSE 80
+
+# O Nginx inicia automaticamente.
+CMD ["nginx", "-g", "daemon off;"]

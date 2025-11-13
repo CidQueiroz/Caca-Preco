@@ -40,11 +40,14 @@ def save_monitoring_data(url_produto, nome_produto, preco_atual, usuario_id):
     Retorna o objeto de monitoramento em caso de sucesso, None em caso de falha.
     """
     try:
+        logging.debug(f"DEBUG: save_monitoring_data - Recebido usuario_id: {usuario_id}")
         vendedor = Vendedor.objects.get(usuario_id=usuario_id)
+        logging.debug(f"DEBUG: save_monitoring_data - Objeto Vendedor recuperado: {vendedor}, PK: {vendedor.pk}")
 
         url_canonico = get_canonical_url(url_produto)
         url_hash = hashlib.sha256(url_canonico.encode()).hexdigest()
 
+        logging.debug(f"DEBUG: save_monitoring_data - vendedor_id: {vendedor.pk}, url_hash: {url_hash}, url_produto_canonico: {url_canonico}, nome_produto: {nome_produto}, preco_atual: {preco_atual}")
         # Usa o url_hash para encontrar ou criar o produto, garantindo unicidade.
         monitoramento, created = ProdutosMonitoradosExternos.objects.get_or_create(
             vendedor=vendedor,
@@ -240,12 +243,61 @@ def fast_path_scrape(url: str):
         logging.error(f"FAST PATH: Erro inesperado para a URL: {url} - {e}")
         return None
 
-def medium_path_scrape(url: str):
+def medium_path_scrape(url: str, name_selector: str, price_selector: str):
     """
-    Placeholder para uma tentativa de scraping de complexidade média.
+    Executa o spider Scrapy genérico como um subprocesso e captura sua saída.
+    Retorna (nome, preco) em caso de sucesso, ou (None, None) em caso de falha.
     """
-    logging.info(f"MEDIUM PATH: Tentativa para a URL: {url} (atualmente um placeholder)")
-    return None
+    logging.info(f"MEDIUM PATH: Iniciando para a URL: {url} com seletores: {name_selector}, {price_selector}")
+    try:
+        scrapy_project_path = os.path.join(settings.BASE_DIR, 'cacapreco_scraper')
+        
+        command = [
+            'python', '-m', 'scrapy', 'crawl', 'generic_scrapy_spider',
+            '-a', f'start_urls={url}',
+            '-a', f'name_selector={name_selector}',
+            '-a', f'price_selector={price_selector}',
+            '-o', '-', # Output to stdout
+            '-t', 'json' # Output as JSON
+        ]
+        
+        result = subprocess.run(
+            command, 
+            cwd=scrapy_project_path, 
+            stdout=subprocess.PIPE, 
+            stderr=subprocess.STDOUT,
+            text=True, 
+            check=True,
+            timeout=120 # Timeout de 2 minutos para o processo do spider
+        )
+
+        scraped_items = json.loads(result.stdout)
+        if scraped_items:
+            data = scraped_items[0]
+            nome = data.get('name')
+            preco = data.get('price')
+            if nome and preco:
+                logging.info(f"MEDIUM PATH: Sucesso! Produto: {nome}, Preço: {preco}")
+                return nome, float(preco)
+            else:
+                logging.error(f"MEDIUM PATH: JSON da saída do spider incompleto para a URL: {url}")
+                return None, None
+        else:
+            logging.error(f"MEDIUM PATH: A saída do spider era um array JSON vazio para a URL: {url}")
+            return None, None
+
+    except json.JSONDecodeError:
+        logging.error(f"MEDIUM PATH: Falha ao decodificar a saída JSON do spider para a URL: {url}. Saída: {result.stdout}")
+        return None, None
+    except subprocess.CalledProcessError as e:
+        logging.error(f"MEDIUM PATH: Erro ao executar o spider para a URL {url}. Output: {e.stdout}")
+        return None, None
+    except subprocess.TimeoutExpired:
+        logging.error(f"MEDIUM PATH: Timeout ao executar o spider para a URL {url}.")
+        return None, None
+    except Exception as e:
+        logging.error(f"MEDIUM PATH: Erro inesperado ao executar o spider para a URL {url}: {e}")
+        return None, None
 
 def long_path_scrape(url: str, usuario_id: str):
     """
@@ -258,7 +310,7 @@ def long_path_scrape(url: str, usuario_id: str):
         
         command = [
             'xvfb-run', '--auto-servernum', '--server-args', '-screen 0 1280x1024x24',
-            'scrapy', 'crawl', 'selenium_spider',
+            'python', '-m', 'scrapy', 'crawl', 'selenium_spider',
             '-a', f'url={url}',
             '-a', f'usuario_id={usuario_id}',
             '-o', '-:json' # Sintaxe correta para output em JSON para stdout

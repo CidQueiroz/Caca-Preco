@@ -1,152 +1,144 @@
 from celery import shared_task
+import subprocess
+from pathlib import Path
+import requests
+from bs4 import BeautifulSoup
+from .models import ScrapedData
+from django.contrib.auth import get_user_model
+from .scraping_service import fast_path_scrape, medium_path_scrape, long_path_scrape, save_monitoring_data, get_specific_selectors # Import new functions
 import logging
-import asyncio
-from requests.exceptions import RequestException
-from django.conf import settings
+import json # Import json for parsing Scrapy output
 
-try:
-    # Tenta importar o erro de Timeout do Playwright
-    from playwright.async_api import TimeoutError as PlaywrightTimeoutError
-except ImportError:
-    # Se o Playwright não estiver instalado, cria uma classe de exceção dummy
-    # para evitar que o programa quebre na inicialização.
-    class PlaywrightTimeoutError(Exception):
-        pass
+logger = logging.getLogger(__name__)
 
-# Funções do serviço de scraping original
-from .scraping_service import (
-    fast_path_scrape,
-    long_path_scrape,
-    get_specific_selectors,
-    parse_product_html, # Importa a nova função de parsing
-    save_monitoring_data as sync_save_monitoring_data
-)
-
-# Novas estratégias que criamos
-from .scraping_strategies import (
-    scrape_with_internal_api,
-    scrape_with_requests_html,
-    scrape_with_playwright_stealth,
-    scrape_with_scraperapi # Importa a nova função da ScraperAPI
-)
-
-# Define exceções que são recuperáveis e devem acionar uma nova tentativa
-RETRYABLE_EXCEPTIONS = (RequestException, PlaywrightTimeoutError)
-
-@shared_task(
-    bind=True,
-    autoretry_for=RETRYABLE_EXCEPTIONS,
-    retry_kwargs={'max_retries': 3, 'countdown': 60},  # 3 retentativas com 1 min de espera entre elas
-    task_time_limit=900,  # Timeout global de 15 minutos para a tarefa
-    acks_late=True # Garante que a tarefa só seja confirmada após o sucesso
-)
-def run_scraping_pipeline(self, url: str, user_id: int):
+@shared_task
+def run_long_path_scrape(url, user_id):
     """
-    Tarefa Celery que orquestra o pipeline de scraping, com retentativas automáticas e validação.
+    Executa o spider Scrapy/Selenium como um processo separado a partir de uma tarefa Celery.
     """
-    # Log aprimorado para incluir a contagem de tentativas
-    retry_count = self.request.retries
-    max_retries = self.request.retries + 4 # Correção aqui
-    logging.info(f"PIPELINE: Iniciando para a URL: {url} (Usuário: {user_id}) - Tentativa {retry_count + 1}/{max_retries}")
-
+    # O diretório onde o comando 'scrapy' será executado
+    scrapy_project_dir = Path(__file__).resolve().parent.parent / 'cacapreco_scraper'
+    
+    # Comando para executar o spider, passando os argumentos
+    command = [
+        'xvfb-run', '--auto-servernum', '--server-args', '-screen 0 1280x1024x24', # Added xvfb-run for headless browser
+        'scrapy',
+        'crawl',
+        'selenium_spider',
+        '-a', f'url={url}',
+        '-a', f'usuario_id={user_id}',
+        '-o', '-:json' # Output as JSON to stdout using the URI:FORMAT syntax
+    ]
+    
     try:
-        scraped_data = None
-        strategy_used = None
-
-        # --- ESTRATÉGIA 1: FAST-PATH (REQUESTS + BEAUTIFULSOUP) ---
-        scraped_data = fast_path_scrape(url)
-        if scraped_data:
-            strategy_used = 'fast_path'
-
-        # --- ESTRATÉGIA 1.5: API PATH (SCRAPERAPI) ---
-        if not scraped_data and settings.SCRAPER_API_KEY:
-            logging.info("PIPELINE: Fast-path falhou. Tentando estratégia de API Path (ScraperAPI).")
-            api_result = scrape_with_scraperapi(url, settings.SCRAPER_API_KEY)
-            if api_result and api_result.get("success"):
-                # A API retorna o HTML, agora fazemos o parse
-                scraped_data = parse_product_html(api_result["html"], url)
-                if scraped_data and scraped_data[0] and scraped_data[1]:
-                    strategy_used = 'scraperapi'
-                else:
-                    scraped_data = None # Garante que o pipeline continue se o parse falhar
-
-        # --- ESTRATÉGIA 2: MEDIUM-PATH (APIs, RENDERIZAÇÃO LEVE) ---
-        if not scraped_data:
-            logging.info("PIPELINE: API-path falhou. Tentando estratégias de Medium-path.")
-            selectors = get_specific_selectors(url)
-            
-            if selectors and selectors.get('api_url'):
-                logging.info("PIPELINE: Tentando estratégia de API Interna.")
-                api_result = scrape_with_internal_api(selectors['api_url'])
-                if api_result and api_result['success']:
-                    # A lógica para processar o resultado da API precisa ser implementada
-                    pass
-            
-            if not scraped_data and selectors:
-                logging.info("PIPELINE: Tentando estratégia com requests-html.")
-                name_selector = selectors['nome'][0] if selectors.get('nome') else None
-                price_selector = selectors['preco'][0] if selectors.get('preco') else None
-
-                if name_selector and price_selector:
-                    html_result = scrape_with_requests_html(url, price_selector, name_selector)
-                    if html_result and html_result['success']:
-                        scraped_data = (html_result['data']['name'], float(html_result['data']['price'].replace('.', '').replace(',', '.')))
-                        strategy_used = 'requests_html'
-
-        # --- ESTRATÉGIA 3: LONG-PATH (NAVEGADOR COMPLETO) ---
-        if not scraped_data:
-            logging.info("PIPELINE: Medium-path falhou. Tentando estratégias de Long-path.")
-            selectors = get_specific_selectors(url)
-
-            if selectors:
-                logging.info("PIPELINE: Tentando estratégia com Playwright-Stealth.")
-                name_selector = selectors['nome'][0] if selectors.get('nome') else None
-                price_selector = selectors['preco'][0] if selectors.get('preco') else None
-
-                if name_selector and price_selector:
-                    playwright_result = asyncio.run(scrape_with_playwright_stealth(url, price_selector, name_selector))
-                    if playwright_result and playwright_result['success']:
-                        scraped_data = (playwright_result['data']['name'], float(playwright_result['data']['price'].replace('.', '').replace(',', '.')))
-                        strategy_used = 'playwright_stealth'
-
-            if not scraped_data:
-                logging.info("PIPELINE: Playwright falhou. Tentando fallback final com Selenium Scrapy.")
-                scraped_data = long_path_scrape(url, str(user_id))
-                if scraped_data:
-                    strategy_used = 'selenium_scrapy'
-
-        # --- FASE FINAL: VALIDAÇÃO E SALVAMENTO ---
-        if not scraped_data:
-            logging.warning(f"PIPELINE: FALHA - Todos os caminhos de scraping falharam para a URL: {url}")
-            return {'status': 'FAILURE', 'reason': 'Não foi possível extrair os dados do produto. O site pode estar bloqueando o acesso ou a estrutura da página mudou.'}
-
-        nome_produto, preco_atual = scraped_data
-
-        # --- ETAPA DE VALIDAÇÃO DOS DADOS EXTRAÍDOS ---
-        if not nome_produto or not isinstance(nome_produto, str) or len(nome_produto.strip()) == 0:
-            logging.error(f"PIPELINE: FALHA DE VALIDAÇÃO - Nome do produto inválido: '{nome_produto}' para URL: {url}")
-            return {'status': 'FAILURE', 'reason': f'Nome do produto extraído é inválido.'}
-
-        if not preco_atual or not isinstance(preco_atual, (int, float)) or preco_atual <= 0:
-            logging.error(f"PIPELINE: FALHA DE VALIDAÇÃO - Preço do produto inválido: '{preco_atual}' para URL: {url}")
-            return {'status': 'FAILURE', 'reason': f'Preço extraído é inválido ou zero.'}
-
-        nome_produto = nome_produto.strip()
-        logging.info(f"PIPELINE: Sucesso via '{strategy_used}'. Produto: '{nome_produto}', Preço: {preco_atual}")
-
-        # Usando a função de salvamento síncrona diretamente
-        save_result = sync_save_monitoring_data(url, nome_produto, preco_atual, user_id)
-
-        if save_result:
-            logging.info(f"PIPELINE: SUCESSO - Dados para a URL {url} salvos com sucesso.")
-            return {'status': 'SUCCESS', 'message': f'O produto foi monitorado com sucesso!'}
+        # Executa o comando a partir do diretório do projeto Scrapy
+        # O log do Scrapy será capturado pelo Celery worker
+        process = subprocess.run(
+            command,
+            cwd=str(scrapy_project_dir),
+            capture_output=True,
+            text=True,
+            check=True,  # Lança uma exceção se o processo falhar
+            timeout=300 # 5 minutes timeout
+        )
+        
+        logger.info(f"--- LONG PATH STDERR: {process.stderr} ---")
+        
+        # Parse the JSON output from Scrapy
+        scraped_items = json.loads(process.stdout)
+        if scraped_items:
+            data = scraped_items[0]
+            return {"status": "success", "message": "Scraping concluído e dados salvos.", "data": data}
         else:
-            logging.error(f"PIPELINE: FALHA - Erro ao salvar os dados para a URL: {url}.")
-            return {'status': 'FAILURE', 'reason': 'Os dados foram extraídos, mas ocorreu um erro interno ao salvá-los.'}
-            
+            logger.error(f"LONG PATH: A saída do spider era um array JSON vazio para a URL: {url}")
+            return {"status": "error", "message": f"LONG PATH: Spider executado, mas não produziu saída para a URL: {url}"}
+
+    except subprocess.CalledProcessError as e:
+        error_message = f"Erro ao executar o scraping para a URL {url}. Erro: {e.stderr}"
+        logger.error(error_message)
+        return {"status": "error", "message": error_message}
+    except FileNotFoundError:
+        error_message = "Erro: O comando 'scrapy' não foi encontrado. Verifique se o Scrapy está instalado no ambiente do Celery worker."
+        logger.error(error_message)
+        return {"status": "error", "message": error_message}
+    except subprocess.TimeoutExpired:
+        error_message = f"LONG PATH: Timeout ao executar o spider para a URL {url}."
+        logger.error(error_message)
+        return {"status": "error", "message": error_message}
+    except json.JSONDecodeError:
+        error_message = f"LONG PATH: Falha ao decodificar a saída JSON do spider para a URL: {url}. Saída: {process.stdout}"
+        logger.error(error_message)
+        return {"status": "error", "message": error_message}
     except Exception as e:
-        # O `autoretry_for` cuida da lógica de retentativa.
-        # Este bloco `except` captura a exceção final se todas as tentativas falharem,
-        # ou qualquer outra exceção não esperada que não seja recuperável.
-        logging.critical(f"PIPELINE: Erro crítico ou final após {retry_count + 1} tentativas para a URL {url}: {e}", exc_info=True)
-        return {'status': 'FAILURE', 'reason': 'Ocorreu um erro grave e não recuperável durante o processo.'}
+        error_message = f"LONG PATH: Erro inesperado ao executar o spider para a URL {url}: {e}"
+        logger.error(error_message)
+        return {"status": "error", "message": error_message}
+
+@shared_task(bind=True)
+def run_scraping_pipeline(self, url, user_id):
+    User = get_user_model()
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        logger.error(f"User with ID {user_id} not found.")
+        return {"status": "error", "message": f"User with ID {user_id} not found."}
+
+    scraped_data = None
+    
+    # Obter seletores específicos para a URL
+    specific_selectors = get_specific_selectors(url)
+    name_selector = None
+    price_selector = None
+    if specific_selectors:
+        name_selector = specific_selectors['nome'][0] if specific_selectors['nome'] else None
+        price_selector = specific_selectors['preco'][0] if specific_selectors['preco'] else None
+
+    # Tenta Fast Path
+    logger.info(f"Attempting Fast Path for URL: {url}")
+    result_fast = fast_path_scrape(url)
+    if result_fast and result_fast[0] and result_fast[1]: # Check if name and price are returned
+        scraped_data = {'nome_produto': result_fast[0], 'preco_atual': result_fast[1]}
+        logger.info(f"Fast Path successful for URL: {url}")
+    else:
+        # Tenta Medium Path
+        if name_selector and price_selector:
+            logger.info(f"Fast Path failed. Attempting Medium Path for URL: {url}")
+            result_medium = medium_path_scrape(url, name_selector, price_selector)
+            if result_medium and result_medium[0] and result_medium[1]:
+                scraped_data = {'nome_produto': result_medium[0], 'preco_atual': result_medium[1]}
+                logger.info(f"Medium Path successful for URL: {url}")
+            else:
+                # Tenta Long Path
+                logger.info(f"Medium Path failed. Attempting Long Path for URL: {url}")
+                result_long = run_long_path_scrape(url, user_id) # Call the Celery task directly
+                if result_long and result_long.get('status') == 'success':
+                    scraped_data = result_long['data']
+                    logger.info(f"Long Path successful for URL: {url}")
+                else:
+                    logger.error(f"All scraping paths failed for URL: {url}")
+                    return {"status": "error", "message": "Falha ao raspar os dados após todas as tentativas."}
+        else:
+            logger.warning(f"No specific selectors found for URL: {url}. Skipping Medium Path and attempting Long Path.")
+            # Tenta Long Path diretamente se não houver seletores para o Medium Path
+            result_long = run_long_path_scrape(url, user_id)
+            if result_long and result_long.get('status') == 'success':
+                scraped_data = result_long['data']
+                logger.info(f"Long Path successful for URL: {url}")
+            else:
+                logger.error(f"All scraping paths failed for URL: {url}")
+                return {"status": "error", "message": "Falha ao raspar os dados após todas as tentativas."}
+
+    if scraped_data:
+        # Save data using the service function
+        monitoring_result = save_monitoring_data(
+            url_produto=url,
+            nome_produto=scraped_data.get('nome_produto'),
+            preco_atual=scraped_data.get('preco_atual'),
+            usuario_id=user_id
+        )
+        if monitoring_result:
+            return {"status": "success", "message": "Scraping concluído e dados salvos.", "data": scraped_data}
+        else:
+            return {"status": "error", "message": "Scraping concluído, mas falha ao salvar os dados."}
+    else:
+        return {"status": "error", "message": "Falha ao raspar os dados."}

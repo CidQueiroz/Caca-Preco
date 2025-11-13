@@ -313,7 +313,7 @@ class SeleniumSpider(scrapy.Spider):
             try:
                 file_path = '/tmp/long_path_failure.html'
                 with open(file_path, "w", encoding="utf-8") as f:
-                    f.write(response.text)
+                    f.write(driver.page_source)
                 self.logger.info(f"LONG PATH: HTML da falha salvo em: {file_path}")
             except Exception as e:
                 self.logger.error(f"LONG PATH: Falha ao salvar o HTML de depuração: {e}")

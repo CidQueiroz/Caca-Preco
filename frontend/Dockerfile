@@ -1,19 +1,13 @@
-FROM node:20
+FROM node:20-alpine
+
 WORKDIR /app
 
-# Copia os arquivos de lock e package da raiz para o WORKDIR (/app)
-COPY package.json package-lock.json ./
+COPY package*.json ./
 
-# Instala as dependências a partir do lockfile da raiz
-RUN npm ci
+RUN npm install
 
-# Copia o código-fonte do frontend para o WORKDIR
-# O package.json do frontend vai sobrescrever o da raiz, o que é ok
-# pois o comando start está nele.
-COPY frontend/ .
+COPY . .
 
-# Expõe a porta 3001
-EXPOSE 3001
+EXPOSE 5173
 
-# Comando para iniciar o servidor
-CMD ["npm", "start"]
+CMD ["npm", "run", "dev"]

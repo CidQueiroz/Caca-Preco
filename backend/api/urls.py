@@ -17,7 +17,6 @@ from .views import (
     AvaliacaoLojaViewSet,
     SugestaoCreateView,
     ObterPerfilView,
-    
     RecuperarSenhaView,
     RedefinirSenhaView,
     VerificarEmailView,
@@ -25,9 +24,12 @@ from .views import (
     VariacaoCreateView,    
     AdminTestView,
     ClienteTestView,
-    
-
-)
+    DebugUserView,
+    ScrapeURLView,
+    LongPathScrapeView,
+    MonitoramentoViewSet,
+    IniciarMonitoramentoView
+    )
 from rest_framework_simplejwt.views import TokenRefreshView
 
 
@@ -49,21 +51,20 @@ router.register(r'valores-atributos', ValorAtributoViewSet, basename='valoratrib
 router.register(r'skus', SKUViewSet, basename='sku')
 
 urlpatterns = [
-    path('login/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('', include(router.urls)),
-    path('', include('scraper.urls')), # ADICIONADO PARA INCLUIR URLS DO SCRAPER
-    path('variacoes/', VariacaoCreateView.as_view(), name='criar_variacao'),
-    path('perfil/', ObterPerfilView.as_view(), name='obter_perfil'),
-    path('registrar/', UserCreateView.as_view(), name='registrar'),
-    path('sugestoes/', SugestaoCreateView.as_view(), name='criar_sugestao'),
+    path('register/', UserCreateView.as_view(), name='register'),
+    path('token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('recuperar-senha/', RecuperarSenhaView.as_view(), name='recuperar_senha'),
     path('redefinir-senha/<uuid:token>/', RedefinirSenhaView.as_view(), name='redefinir_senha'),
     path('verificar-email/<uuid:token>/', VerificarEmailView.as_view(), name='verificar_email'),
     path('reenviar-verificacao/', ReenviarVerificacaoView.as_view(), name='reenviar_verificacao'),
+    path('perfil/', ObterPerfilView.as_view(), name='obter_perfil'),
+    path('variacao/', VariacaoCreateView.as_view(), name='criar_variacao'),
+    path('debug-user/', DebugUserView.as_view(), name='debug_user'),
     path('admin-test/', AdminTestView.as_view(), name='admin_test'),
     path('cliente-test/', ClienteTestView.as_view(), name='cliente_test'),
-    
-    
-    
+    path('scrape/', ScrapeURLView.as_view(), name='scrape_url'),
+    path('scrape-long/', LongPathScrapeView.as_view(), name='scrape_long_path'),
+    path('monitoramento/', MonitoramentoViewSet.as_view({'get': 'list', 'post': 'create'}), name='monitoramento'),
+    path('iniciar-monitoramento/', IniciarMonitoramentoView.as_view(), name='iniciar_monitoramento'),
+    path('', include(router.urls)),
 ]

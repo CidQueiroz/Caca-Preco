@@ -1,0 +1,11 @@
+{
+  "progresso_total": 10.0,
+  "perguntas": {
+    "Jr": 26,
+    "Pl": 44,
+    "Sr": 17
+  },
+  "kpis_concluidos": {
+    "1.1": 100
+  }
+}

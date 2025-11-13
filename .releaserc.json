@@ -5,9 +5,21 @@
     "@semantic-release/release-notes-generator",
     "@semantic-release/changelog",
     [
+      "@semantic-release/exec",
+      {
+        "prepareCmd": "npm version ${nextRelease.version} --no-git-tag-version && npm version ${nextRelease.version} --no-git-tag-version --prefix frontend && npm version ${nextRelease.version} --no-git-tag-version --prefix mobile && (cd backend && poetry version ${nextRelease.version})"
+      }
+    ],
+    [
       "@semantic-release/git",
       {
-        "assets": ["CHANGELOG.md", "package.json"],
+        "assets": [
+          "CHANGELOG.md", 
+          "package.json", 
+          "frontend/package.json", 
+          "mobile/package.json", 
+          "backend/pyproject.toml"
+        ],
         "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
       }
     ],

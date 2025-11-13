@@ -13,9 +13,13 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 from datetime import timedelta # Import timedelta
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Explicitly load .env file from the project's base directory
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -90,16 +94,32 @@ CORS_ALLOWED_ORIGINS = [
 
 FRONTEND_BASE_URL = "http://localhost:3001"
 
+# Configuração do Banco de Dados Dinâmico (MySQL para Dev, Oracle para Prod)
+DB_ENGINE = os.environ.get('DB_ENGINE')
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('MYSQL_DATABASE', 'cacapreco_django'),
-        'USER': os.environ.get('MYSQL_USER', 'root'),
-        'PASSWORD': os.environ.get('MYSQL_ROOT_PASSWORD', 'rootpassword'),
-        'HOST': os.environ.get('MYSQL_HOST', 'localhost'),
-        'PORT': '3306',
-}}
+if DB_ENGINE == 'django_oracle_backend':
+    # Configuração para Oracle (Produção)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.oracle',
+            'NAME': os.environ.get('DB_NAME'),
+            'USER': os.environ.get('DB_USER'),
+            'PASSWORD': os.environ.get('DB_PASSWORD'),
+            'HOST': os.environ.get('DB_HOST'),
+            'PORT': os.environ.get('DB_PORT'),
+        }
+    }
+else:
+    # Configuração para MySQL (Desenvolvimento)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.environ.get('MYSQL_DATABASE', 'cacapreco_django'),
+            'USER': os.environ.get('MYSQL_USER', 'root'),
+            'PASSWORD': os.environ.get('MYSQL_ROOT_PASSWORD', 'rootpassword'),
+            'HOST': os.environ.get('MYSQL_HOST', 'localhost'),
+            'PORT': '3306',
+    }}
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (

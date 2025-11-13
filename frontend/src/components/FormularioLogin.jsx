@@ -21,8 +21,7 @@ const FormularioLogin = () => {
         try {
             const dataToSend = { email, password: senha };
             console.log('Enviando para o login:', dataToSend);
-            const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/login/`, dataToSend);
-            
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/token/`, dataToSend);
             const { access: token, user: dadosUsuario } = response.data;
             login(token, dadosUsuario); // Função do seu AuthContext
 

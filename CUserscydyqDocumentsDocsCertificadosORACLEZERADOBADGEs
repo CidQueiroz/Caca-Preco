@@ -1,0 +1,1524 @@
+#1 [internal] load local bake definitions
+#1 reading from stdin 1.70kB done
+#1 DONE 0.0s
+
+#2 [frontend internal] load build definition from Dockerfile
+#2 transferring dockerfile: 161B 0.1s done
+#2 DONE 0.1s
+
+#3 [backend internal] load build definition from Dockerfile
+#3 transferring dockerfile: 851B 0.2s done
+#3 DONE 0.2s
+
+#4 [celery internal] load metadata for docker.io/library/python:3.11-slim
+#4 ...
+
+#5 [frontend internal] load metadata for docker.io/library/node:20-alpine
+#5 DONE 0.9s
+
+#4 [backend internal] load metadata for docker.io/library/python:3.11-slim
+#4 DONE 0.8s
+
+#6 [backend internal] load .dockerignore
+#6 transferring context: 33B 0.0s
+#6 ...
+
+#7 [frontend internal] load .dockerignore
+#7 transferring context: 2B 0.1s done
+#7 DONE 0.2s
+
+#8 [frontend 1/5] FROM docker.io/library/node:20-alpine@sha256:6178e78b972f79c335df281f4b7674a2d85071aae2af020ffa39f0a770265435
+#8 resolve docker.io/library/node:20-alpine@sha256:6178e78b972f79c335df281f4b7674a2d85071aae2af020ffa39f0a770265435 0.1s done
+#8 DONE 0.1s
+
+#9 [frontend 2/5] WORKDIR /app
+#9 CACHED
+
+#6 [celery internal] load .dockerignore
+#6 transferring context: 502B 0.3s done
+#6 DONE 0.3s
+
+#10 [celery internal] load build context
+#10 ...
+
+#11 [backend 1/6] FROM docker.io/library/python:3.11-slim@sha256:8eb5fc663972b871c528fef04be4eaa9ab8ab4539a5316c4b8c133771214a617
+#11 resolve docker.io/library/python:3.11-slim@sha256:8eb5fc663972b871c528fef04be4eaa9ab8ab4539a5316c4b8c133771214a617 0.1s done
+#11 DONE 0.1s
+
+#12 [celery 2/6] WORKDIR /app
+#12 CACHED
+
+#10 [celery internal] load build context
+#10 ...
+
+#13 [frontend internal] load build context
+#13 transferring context: 6.23kB 2.5s done
+#13 DONE 2.6s
+
+#14 [frontend 3/5] COPY package*.json ./
+#14 DONE 0.1s
+
+#10 [celery internal] load build context
+#10 transferring context: 19.19kB 5.2s done
+#10 DONE 5.2s
+
+#15 [celery 3/6] RUN apt-get update && apt-get install -y default-libmysqlclient-dev gcc pkg-config && rm -rf /var/lib/apt/lists/*
+#15 1.254 Hit:1 http://deb.debian.org/debian trixie InRelease
+#15 1.254 Get:2 http://deb.debian.org/debian trixie-updates InRelease [47.3 kB]
+#15 1.300 Get:3 http://deb.debian.org/debian-security trixie-security InRelease [43.4 kB]
+#15 1.409 Get:4 http://deb.debian.org/debian trixie/main amd64 Packages [9669 kB]
+#15 ...
+
+#16 [frontend 4/5] RUN npm install
+#16 ...
+
+#15 [celery 3/6] RUN apt-get update && apt-get install -y default-libmysqlclient-dev gcc pkg-config && rm -rf /var/lib/apt/lists/*
+#15 17.44 Get:5 http://deb.debian.org/debian trixie-updates/main amd64 Packages [5412 B]
+#15 17.46 Get:6 http://deb.debian.org/debian-security trixie-security/main amd64 Packages [69.3 kB]
+#15 22.77 Fetched 9834 kB in 19s (519 kB/s)
+#15 22.77 Reading package lists...
+#15 24.84 Reading package lists...
+#15 26.87 Building dependency tree...
+#15 27.66 Reading state information...
+#15 28.62 The following additional packages will be installed:
+#15 28.62   binutils binutils-common binutils-x86-64-linux-gnu cpp cpp-14
+#15 28.62   cpp-14-x86-64-linux-gnu cpp-x86-64-linux-gnu gcc-14 gcc-14-x86-64-linux-gnu
+#15 28.62   gcc-x86-64-linux-gnu libasan8 libatomic1 libbinutils libc-dev-bin libc6-dev
+#15 28.62   libcc1-0 libcrypt-dev libctf-nobfd0 libctf0 libgcc-14-dev libgomp1
+#15 28.62   libgprofng0 libhwasan0 libisl23 libitm1 libjansson4 liblsan0 libmariadb-dev
+#15 28.62   libmariadb-dev-compat libmariadb3 libmpc3 libmpfr6 libpkgconf3 libquadmath0
+#15 28.63   libsframe1 libssl-dev libtsan2 libubsan1 linux-libc-dev manpages
+#15 28.63   manpages-dev mariadb-common mysql-common pkgconf pkgconf-bin rpcsvc-proto
+#15 28.63   zlib1g-dev
+#15 28.65 Suggested packages:
+#15 28.65   binutils-doc gprofng-gui binutils-gold cpp-doc gcc-14-locales cpp-14-doc
+#15 28.65   gcc-multilib make autoconf automake libtool flex bison gdb gcc-doc
+#15 28.65   gcc-14-multilib gcc-14-doc gdb-x86-64-linux-gnu libc-devtools glibc-doc
+#15 28.65   libssl-doc man-browser
+#15 29.46 The following NEW packages will be installed:
+#15 29.46   binutils binutils-common binutils-x86-64-linux-gnu cpp cpp-14
+#15 29.46   cpp-14-x86-64-linux-gnu cpp-x86-64-linux-gnu default-libmysqlclient-dev gcc
+#15 29.46   gcc-14 gcc-14-x86-64-linux-gnu gcc-x86-64-linux-gnu libasan8 libatomic1
+#15 29.46   libbinutils libc-dev-bin libc6-dev libcc1-0 libcrypt-dev libctf-nobfd0
+#15 29.47   libctf0 libgcc-14-dev libgomp1 libgprofng0 libhwasan0 libisl23 libitm1
+#15 29.47   libjansson4 liblsan0 libmariadb-dev libmariadb-dev-compat libmariadb3
+#15 29.47   libmpc3 libmpfr6 libpkgconf3 libquadmath0 libsframe1 libssl-dev libtsan2
+#15 29.47   libubsan1 linux-libc-dev manpages manpages-dev mariadb-common mysql-common
+#15 29.47   pkg-config pkgconf pkgconf-bin rpcsvc-proto zlib1g-dev
+#15 29.76 0 upgraded, 50 newly installed, 0 to remove and 0 not upgraded.
+#15 29.76 Need to get 64.8 MB of archives.
+#15 29.76 After this operation, 242 MB of additional disk space will be used.
+#15 29.76 Get:1 http://deb.debian.org/debian trixie/main amd64 manpages all 6.9.1-1 [1393 kB]
+#15 30.22 Get:2 http://deb.debian.org/debian trixie/main amd64 libsframe1 amd64 2.44-3 [78.4 kB]
+#15 30.23 Get:3 http://deb.debian.org/debian trixie/main amd64 binutils-common amd64 2.44-3 [2509 kB]
+#15 31.79 Get:4 http://deb.debian.org/debian trixie/main amd64 libbinutils amd64 2.44-3 [534 kB]
+#15 33.47 Get:5 http://deb.debian.org/debian trixie/main amd64 libgprofng0 amd64 2.44-3 [808 kB]
+#15 34.31 Get:6 http://deb.debian.org/debian trixie/main amd64 libctf-nobfd0 amd64 2.44-3 [156 kB]
+#15 34.37 Get:7 http://deb.debian.org/debian trixie/main amd64 libctf0 amd64 2.44-3 [88.6 kB]
+#15 34.39 Get:8 http://deb.debian.org/debian trixie/main amd64 libjansson4 amd64 2.14-2+b3 [39.8 kB]
+#15 34.43 Get:9 http://deb.debian.org/debian trixie/main amd64 binutils-x86-64-linux-gnu amd64 2.44-3 [1014 kB]
+#15 34.68 Get:10 http://deb.debian.org/debian trixie/main amd64 binutils amd64 2.44-3 [265 kB]
+#15 34.73 Get:11 http://deb.debian.org/debian trixie/main amd64 libisl23 amd64 0.27-1 [659 kB]
+#15 34.88 Get:12 http://deb.debian.org/debian trixie/main amd64 libmpfr6 amd64 4.2.2-1 [729 kB]
+#15 35.05 Get:13 http://deb.debian.org/debian trixie/main amd64 libmpc3 amd64 1.3.1-1+b3 [52.2 kB]
+#15 35.07 Get:14 http://deb.debian.org/debian trixie/main amd64 cpp-14-x86-64-linux-gnu amd64 14.2.0-19 [11.0 MB]
+#15 38.46 Get:15 http://deb.debian.org/debian trixie/main amd64 cpp-14 amd64 14.2.0-19 [1280 B]
+#15 38.46 Get:16 http://deb.debian.org/debian trixie/main amd64 cpp-x86-64-linux-gnu amd64 4:14.2.0-1 [4840 B]
+#15 38.47 Get:17 http://deb.debian.org/debian trixie/main amd64 cpp amd64 4:14.2.0-1 [1568 B]
+#15 38.47 Get:18 http://deb.debian.org/debian trixie/main amd64 mysql-common all 5.8+1.1.1 [6784 B]
+#15 38.47 Get:19 http://deb.debian.org/debian trixie/main amd64 mariadb-common all 1:11.8.3-0+deb13u1 [28.8 kB]
+#15 38.48 Get:20 http://deb.debian.org/debian trixie/main amd64 libmariadb3 amd64 1:11.8.3-0+deb13u1 [187 kB]
+#15 38.54 Get:21 http://deb.debian.org/debian-security trixie-security/main amd64 libssl-dev amd64 3.5.1-1+deb13u1 [2955 kB]
+#15 39.55 Get:22 http://deb.debian.org/debian trixie/main amd64 libc-dev-bin amd64 2.41-12 [58.2 kB]
+#15 39.60 Get:23 http://deb.debian.org/debian-security trixie-security/main amd64 linux-libc-dev all 6.12.48-1 [2671 kB]
+#15 41.03 Get:24 http://deb.debian.org/debian trixie/main amd64 libcrypt-dev amd64 1:4.4.38-1 [119 kB]
+#15 41.11 Get:25 http://deb.debian.org/debian trixie/main amd64 rpcsvc-proto amd64 1.4.3-1 [63.3 kB]
+#15 41.14 Get:26 http://deb.debian.org/debian trixie/main amd64 libc6-dev amd64 2.41-12 [1991 kB]
+#15 41.82 Get:27 http://deb.debian.org/debian trixie/main amd64 zlib1g-dev amd64 1:1.3.dfsg+really1.3.1-1+b1 [920 kB]
+#15 42.10 Get:28 http://deb.debian.org/debian trixie/main amd64 libmariadb-dev amd64 1:11.8.3-0+deb13u1 [277 kB]
+#15 42.28 Get:29 http://deb.debian.org/debian trixie/main amd64 libmariadb-dev-compat amd64 1:11.8.3-0+deb13u1 [27.5 kB]
+#15 42.31 Get:30 http://deb.debian.org/debian trixie/main amd64 default-libmysqlclient-dev amd64 1.1.1 [3252 B]
+#15 42.31 Get:31 http://deb.debian.org/debian trixie/main amd64 libcc1-0 amd64 14.2.0-19 [42.8 kB]
+#15 42.34 Get:32 http://deb.debian.org/debian trixie/main amd64 libgomp1 amd64 14.2.0-19 [137 kB]
+#15 42.45 Get:33 http://deb.debian.org/debian trixie/main amd64 libitm1 amd64 14.2.0-19 [26.0 kB]
+#15 42.45 Get:34 http://deb.debian.org/debian trixie/main amd64 libatomic1 amd64 14.2.0-19 [9308 B]
+#15 42.45 Get:35 http://deb.debian.org/debian trixie/main amd64 libasan8 amd64 14.2.0-19 [2725 kB]
+#15 45.38 Get:36 http://deb.debian.org/debian trixie/main amd64 liblsan0 amd64 14.2.0-19 [1204 kB]
+#15 48.61 Get:37 http://deb.debian.org/debian trixie/main amd64 libtsan2 amd64 14.2.0-19 [2460 kB]
+#15 50.32 Get:38 http://deb.debian.org/debian trixie/main amd64 libubsan1 amd64 14.2.0-19 [1074 kB]
+#15 53.08 Get:39 http://deb.debian.org/debian trixie/main amd64 libhwasan0 amd64 14.2.0-19 [1488 kB]
+#15 56.46 Get:40 http://deb.debian.org/debian trixie/main amd64 libquadmath0 amd64 14.2.0-19 [145 kB]
+#15 56.54 Get:41 http://deb.debian.org/debian trixie/main amd64 libgcc-14-dev amd64 14.2.0-19 [2672 kB]
+#15 57.91 Get:42 http://deb.debian.org/debian trixie/main amd64 gcc-14-x86-64-linux-gnu amd64 14.2.0-19 [21.4 MB]
+#15 66.82 Get:43 http://deb.debian.org/debian trixie/main amd64 gcc-14 amd64 14.2.0-19 [540 kB]
+#15 ...
+
+#16 [frontend 4/5] RUN npm install
+#16 65.31 
+#16 65.31 added 107 packages, and audited 108 packages in 1m
+#16 65.31 
+#16 65.31 15 packages are looking for funding
+#16 65.31   run `npm fund` for details
+#16 65.32 
+#16 65.32 found 0 vulnerabilities
+#16 65.33 npm notice
+#16 65.33 npm notice New major version of npm available! 10.8.2 -> 11.6.2
+#16 65.33 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.6.2
+#16 65.33 npm notice To update run: npm install -g npm@11.6.2
+#16 65.33 npm notice
+#16 DONE 66.7s
+
+#15 [celery 3/6] RUN apt-get update && apt-get install -y default-libmysqlclient-dev gcc pkg-config && rm -rf /var/lib/apt/lists/*
+#15 68.06 Get:44 http://deb.debian.org/debian trixie/main amd64 gcc-x86-64-linux-gnu amd64 4:14.2.0-1 [1436 B]
+#15 68.06 Get:45 http://deb.debian.org/debian trixie/main amd64 gcc amd64 4:14.2.0-1 [5136 B]
+#15 68.08 Get:46 http://deb.debian.org/debian trixie/main amd64 libpkgconf3 amd64 1.8.1-4 [36.4 kB]
+#15 68.16 Get:47 http://deb.debian.org/debian trixie/main amd64 manpages-dev all 6.9.1-1 [2122 kB]
+#15 69.48 Get:48 http://deb.debian.org/debian trixie/main amd64 pkgconf-bin amd64 1.8.1-4 [30.2 kB]
+#15 69.52 Get:49 http://deb.debian.org/debian trixie/main amd64 pkgconf amd64 1.8.1-4 [26.2 kB]
+#15 69.53 Get:50 http://deb.debian.org/debian trixie/main amd64 pkg-config amd64 1.8.1-4 [14.0 kB]
+#15 ...
+
+#17 [frontend 5/5] COPY . .
+#17 DONE 1.0s
+
+#18 [frontend] exporting to image
+#18 exporting layers
+#18 ...
+
+#15 [celery 3/6] RUN apt-get update && apt-get install -y default-libmysqlclient-dev gcc pkg-config && rm -rf /var/lib/apt/lists/*
+#15 70.94 debconf: unable to initialize frontend: Dialog
+#15 70.96 debconf: (TERM is not set, so the dialog frontend is not usable.)
+#15 70.96 debconf: falling back to frontend: Readline
+#15 70.98 debconf: unable to initialize frontend: Readline
+#15 70.98 debconf: (Can't locate Term/ReadLine.pm in @INC (you may need to install the Term::ReadLine module) (@INC entries checked: /etc/perl /usr/local/lib/x86_64-linux-gnu/perl/5.40.1 /usr/local/share/perl/5.40.1 /usr/lib/x86_64-linux-gnu/perl5/5.40 /usr/share/perl5 /usr/lib/x86_64-linux-gnu/perl-base /usr/lib/x86_64-linux-gnu/perl/5.40 /usr/share/perl/5.40 /usr/local/lib/site_perl) at /usr/share/perl5/Debconf/FrontEnd/Readline.pm line 8, <STDIN> line 50.)
+#15 70.98 debconf: falling back to frontend: Teletype
+#15 71.00 debconf: unable to initialize frontend: Teletype
+#15 71.00 debconf: (This frontend requires a controlling tty.)
+#15 71.00 debconf: falling back to frontend: Noninteractive
+#15 76.47 Fetched 64.8 MB in 37s (1742 kB/s)
+#15 76.58 Selecting previously unselected package manpages.
+#15 76.58 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 5644 files and directories currently installed.)
+#15 76.71 Preparing to unpack .../00-manpages_6.9.1-1_all.deb ...
+#15 76.72 Unpacking manpages (6.9.1-1) ...
+#15 76.91 Selecting previously unselected package libsframe1:amd64.
+#15 76.91 Preparing to unpack .../01-libsframe1_2.44-3_amd64.deb ...
+#15 76.94 Unpacking libsframe1:amd64 (2.44-3) ...
+#15 77.02 Selecting previously unselected package binutils-common:amd64.
+#15 77.03 Preparing to unpack .../02-binutils-common_2.44-3_amd64.deb ...
+#15 77.04 Unpacking binutils-common:amd64 (2.44-3) ...
+#15 77.47 Selecting previously unselected package libbinutils:amd64.
+#15 77.47 Preparing to unpack .../03-libbinutils_2.44-3_amd64.deb ...
+#15 77.48 Unpacking libbinutils:amd64 (2.44-3) ...
+#15 77.65 Selecting previously unselected package libgprofng0:amd64.
+#15 77.66 Preparing to unpack .../04-libgprofng0_2.44-3_amd64.deb ...
+#15 77.68 Unpacking libgprofng0:amd64 (2.44-3) ...
+#15 77.92 Selecting previously unselected package libctf-nobfd0:amd64.
+#15 77.92 Preparing to unpack .../05-libctf-nobfd0_2.44-3_amd64.deb ...
+#15 77.95 Unpacking libctf-nobfd0:amd64 (2.44-3) ...
+#15 78.07 Selecting previously unselected package libctf0:amd64.
+#15 78.07 Preparing to unpack .../06-libctf0_2.44-3_amd64.deb ...
+#15 78.09 Unpacking libctf0:amd64 (2.44-3) ...
+#15 78.19 Selecting previously unselected package libjansson4:amd64.
+#15 78.19 Preparing to unpack .../07-libjansson4_2.14-2+b3_amd64.deb ...
+#15 78.21 Unpacking libjansson4:amd64 (2.14-2+b3) ...
+#15 78.29 Selecting previously unselected package binutils-x86-64-linux-gnu.
+#15 78.29 Preparing to unpack .../08-binutils-x86-64-linux-gnu_2.44-3_amd64.deb ...
+#15 78.31 Unpacking binutils-x86-64-linux-gnu (2.44-3) ...
+#15 78.63 Selecting previously unselected package binutils.
+#15 78.63 Preparing to unpack .../09-binutils_2.44-3_amd64.deb ...
+#15 78.64 Unpacking binutils (2.44-3) ...
+#15 78.75 Selecting previously unselected package libisl23:amd64.
+#15 78.75 Preparing to unpack .../10-libisl23_0.27-1_amd64.deb ...
+#15 78.76 Unpacking libisl23:amd64 (0.27-1) ...
+#15 78.92 Selecting previously unselected package libmpfr6:amd64.
+#15 78.92 Preparing to unpack .../11-libmpfr6_4.2.2-1_amd64.deb ...
+#15 78.93 Unpacking libmpfr6:amd64 (4.2.2-1) ...
+#15 79.05 Selecting previously unselected package libmpc3:amd64.
+#15 79.06 Preparing to unpack .../12-libmpc3_1.3.1-1+b3_amd64.deb ...
+#15 79.07 Unpacking libmpc3:amd64 (1.3.1-1+b3) ...
+#15 79.14 Selecting previously unselected package cpp-14-x86-64-linux-gnu.
+#15 79.14 Preparing to unpack .../13-cpp-14-x86-64-linux-gnu_14.2.0-19_amd64.deb ...
+#15 79.15 Unpacking cpp-14-x86-64-linux-gnu (14.2.0-19) ...
+#15 80.47 Selecting previously unselected package cpp-14.
+#15 80.48 Preparing to unpack .../14-cpp-14_14.2.0-19_amd64.deb ...
+#15 80.49 Unpacking cpp-14 (14.2.0-19) ...
+#15 80.55 Selecting previously unselected package cpp-x86-64-linux-gnu.
+#15 80.55 Preparing to unpack .../15-cpp-x86-64-linux-gnu_4%3a14.2.0-1_amd64.deb ...
+#15 80.56 Unpacking cpp-x86-64-linux-gnu (4:14.2.0-1) ...
+#15 80.67 Selecting previously unselected package cpp.
+#15 80.70 Preparing to unpack .../16-cpp_4%3a14.2.0-1_amd64.deb ...
+#15 80.74 Unpacking cpp (4:14.2.0-1) ...
+#15 81.07 Selecting previously unselected package mysql-common.
+#15 81.07 Preparing to unpack .../17-mysql-common_5.8+1.1.1_all.deb ...
+#15 81.15 Unpacking mysql-common (5.8+1.1.1) ...
+#15 81.27 Selecting previously unselected package mariadb-common.
+#15 81.27 Preparing to unpack .../18-mariadb-common_1%3a11.8.3-0+deb13u1_all.deb ...
+#15 81.30 Unpacking mariadb-common (1:11.8.3-0+deb13u1) ...
+#15 81.39 Selecting previously unselected package libmariadb3:amd64.
+#15 81.39 Preparing to unpack .../19-libmariadb3_1%3a11.8.3-0+deb13u1_amd64.deb ...
+#15 81.41 Unpacking libmariadb3:amd64 (1:11.8.3-0+deb13u1) ...
+#15 81.53 Selecting previously unselected package libssl-dev:amd64.
+#15 81.54 Preparing to unpack .../20-libssl-dev_3.5.1-1+deb13u1_amd64.deb ...
+#15 81.55 Unpacking libssl-dev:amd64 (3.5.1-1+deb13u1) ...
+#15 82.31 Selecting previously unselected package libc-dev-bin.
+#15 82.32 Preparing to unpack .../21-libc-dev-bin_2.41-12_amd64.deb ...
+#15 82.33 Unpacking libc-dev-bin (2.41-12) ...
+#15 82.66 Selecting previously unselected package linux-libc-dev.
+#15 82.67 Preparing to unpack .../22-linux-libc-dev_6.12.48-1_all.deb ...
+#15 82.70 Unpacking linux-libc-dev (6.12.48-1) ...
+#15 84.42 Selecting previously unselected package libcrypt-dev:amd64.
+#15 84.43 Preparing to unpack .../23-libcrypt-dev_1%3a4.4.38-1_amd64.deb ...
+#15 84.48 Unpacking libcrypt-dev:amd64 (1:4.4.38-1) ...
+#15 84.57 Selecting previously unselected package rpcsvc-proto.
+#15 84.58 Preparing to unpack .../24-rpcsvc-proto_1.4.3-1_amd64.deb ...
+#15 84.59 Unpacking rpcsvc-proto (1.4.3-1) ...
+#15 84.70 Selecting previously unselected package libc6-dev:amd64.
+#15 84.71 Preparing to unpack .../25-libc6-dev_2.41-12_amd64.deb ...
+#15 84.72 Unpacking libc6-dev:amd64 (2.41-12) ...
+#15 88.88 Selecting previously unselected package zlib1g-dev:amd64.
+#15 88.88 Preparing to unpack .../26-zlib1g-dev_1%3a1.3.dfsg+really1.3.1-1+b1_amd64.deb ...
+#15 88.90 Unpacking zlib1g-dev:amd64 (1:1.3.dfsg+really1.3.1-1+b1) ...
+#15 89.00 Selecting previously unselected package libmariadb-dev.
+#15 89.00 Preparing to unpack .../27-libmariadb-dev_1%3a11.8.3-0+deb13u1_amd64.deb ...
+#15 89.01 Unpacking libmariadb-dev (1:11.8.3-0+deb13u1) ...
+#15 89.12 Selecting previously unselected package libmariadb-dev-compat.
+#15 89.12 Preparing to unpack .../28-libmariadb-dev-compat_1%3a11.8.3-0+deb13u1_amd64.deb ...
+#15 89.15 Unpacking libmariadb-dev-compat (1:11.8.3-0+deb13u1) ...
+#15 89.23 Selecting previously unselected package default-libmysqlclient-dev:amd64.
+#15 89.23 Preparing to unpack .../29-default-libmysqlclient-dev_1.1.1_amd64.deb ...
+#15 89.25 Unpacking default-libmysqlclient-dev:amd64 (1.1.1) ...
+#15 89.34 Selecting previously unselected package libcc1-0:amd64.
+#15 89.34 Preparing to unpack .../30-libcc1-0_14.2.0-19_amd64.deb ...
+#15 89.37 Unpacking libcc1-0:amd64 (14.2.0-19) ...
+#15 89.45 Selecting previously unselected package libgomp1:amd64.
+#15 89.46 Preparing to unpack .../31-libgomp1_14.2.0-19_amd64.deb ...
+#15 89.48 Unpacking libgomp1:amd64 (14.2.0-19) ...
+#15 89.58 Selecting previously unselected package libitm1:amd64.
+#15 89.58 Preparing to unpack .../32-libitm1_14.2.0-19_amd64.deb ...
+#15 89.60 Unpacking libitm1:amd64 (14.2.0-19) ...
+#15 89.71 Selecting previously unselected package libatomic1:amd64.
+#15 89.72 Preparing to unpack .../33-libatomic1_14.2.0-19_amd64.deb ...
+#15 89.73 Unpacking libatomic1:amd64 (14.2.0-19) ...
+#15 89.84 Selecting previously unselected package libasan8:amd64.
+#15 89.84 Preparing to unpack .../34-libasan8_14.2.0-19_amd64.deb ...
+#15 89.85 Unpacking libasan8:amd64 (14.2.0-19) ...
+#15 90.64 Selecting previously unselected package liblsan0:amd64.
+#15 90.64 Preparing to unpack .../35-liblsan0_14.2.0-19_amd64.deb ...
+#15 90.64 Unpacking liblsan0:amd64 (14.2.0-19) ...
+#15 91.00 Selecting previously unselected package libtsan2:amd64.
+#15 91.01 Preparing to unpack .../36-libtsan2_14.2.0-19_amd64.deb ...
+#15 91.02 Unpacking libtsan2:amd64 (14.2.0-19) ...
+#15 91.58 Selecting previously unselected package libubsan1:amd64.
+#15 91.58 Preparing to unpack .../37-libubsan1_14.2.0-19_amd64.deb ...
+#15 91.60 Unpacking libubsan1:amd64 (14.2.0-19) ...
+#15 91.80 Selecting previously unselected package libhwasan0:amd64.
+#15 91.81 Preparing to unpack .../38-libhwasan0_14.2.0-19_amd64.deb ...
+#15 91.82 Unpacking libhwasan0:amd64 (14.2.0-19) ...
+#15 92.13 Selecting previously unselected package libquadmath0:amd64.
+#15 92.15 Preparing to unpack .../39-libquadmath0_14.2.0-19_amd64.deb ...
+#15 92.16 Unpacking libquadmath0:amd64 (14.2.0-19) ...
+#15 92.29 Selecting previously unselected package libgcc-14-dev:amd64.
+#15 92.31 Preparing to unpack .../40-libgcc-14-dev_14.2.0-19_amd64.deb ...
+#15 92.33 Unpacking libgcc-14-dev:amd64 (14.2.0-19) ...
+#15 93.53 Selecting previously unselected package gcc-14-x86-64-linux-gnu.
+#15 93.53 Preparing to unpack .../41-gcc-14-x86-64-linux-gnu_14.2.0-19_amd64.deb ...
+#15 93.55 Unpacking gcc-14-x86-64-linux-gnu (14.2.0-19) ...
+#15 ...
+
+#18 [frontend] exporting to image
+#18 exporting layers 28.8s done
+#18 exporting manifest sha256:2fb861bcea90aa382bde7881aa79600317c839471aa24a109c4dd5fbcb799208 0.0s done
+#18 exporting config sha256:6c624fb5ce2f3d64800ea763f97634e42ce27928199b97d2a5ace57c516c1fb2 0.1s done
+#18 exporting attestation manifest sha256:81a41a06b297ec144e84ef726dfcfb047552c5d50c2dd01ecf4bf807e7279fd5 0.1s done
+#18 exporting manifest list sha256:3a6c2bf54e8362b828c136abe95a948574f1d51f919fac97f3d2e77a4d8f03a0 0.0s done
+#18 naming to docker.io/library/cacapreco-app-frontend:latest done
+#18 unpacking to docker.io/library/cacapreco-app-frontend:latest
+#18 ...
+
+#15 [backend 3/6] RUN apt-get update && apt-get install -y default-libmysqlclient-dev gcc pkg-config && rm -rf /var/lib/apt/lists/*
+#15 99.19 Selecting previously unselected package gcc-14.
+#15 99.20 Preparing to unpack .../42-gcc-14_14.2.0-19_amd64.deb ...
+#15 99.21 Unpacking gcc-14 (14.2.0-19) ...
+#15 99.33 Selecting previously unselected package gcc-x86-64-linux-gnu.
+#15 99.33 Preparing to unpack .../43-gcc-x86-64-linux-gnu_4%3a14.2.0-1_amd64.deb ...
+#15 99.35 Unpacking gcc-x86-64-linux-gnu (4:14.2.0-1) ...
+#15 99.45 Selecting previously unselected package gcc.
+#15 99.45 Preparing to unpack .../44-gcc_4%3a14.2.0-1_amd64.deb ...
+#15 99.47 Unpacking gcc (4:14.2.0-1) ...
+#15 99.58 Selecting previously unselected package libpkgconf3:amd64.
+#15 99.58 Preparing to unpack .../45-libpkgconf3_1.8.1-4_amd64.deb ...
+#15 99.62 Unpacking libpkgconf3:amd64 (1.8.1-4) ...
+#15 99.72 Selecting previously unselected package manpages-dev.
+#15 99.72 Preparing to unpack .../46-manpages-dev_6.9.1-1_all.deb ...
+#15 99.73 Unpacking manpages-dev (6.9.1-1) ...
+#15 100.1 Selecting previously unselected package pkgconf-bin.
+#15 100.1 Preparing to unpack .../47-pkgconf-bin_1.8.1-4_amd64.deb ...
+#15 100.1 Unpacking pkgconf-bin (1.8.1-4) ...
+#15 100.2 Selecting previously unselected package pkgconf:amd64.
+#15 100.2 Preparing to unpack .../48-pkgconf_1.8.1-4_amd64.deb ...
+#15 100.2 Unpacking pkgconf:amd64 (1.8.1-4) ...
+#15 100.3 Selecting previously unselected package pkg-config:amd64.
+#15 100.3 Preparing to unpack .../49-pkg-config_1.8.1-4_amd64.deb ...
+#15 100.3 Unpacking pkg-config:amd64 (1.8.1-4) ...
+#15 100.5 Setting up mysql-common (5.8+1.1.1) ...
+#15 100.6 update-alternatives: using /etc/mysql/my.cnf.fallback to provide /etc/mysql/my.cnf (my.cnf) in auto mode
+#15 100.7 Setting up manpages (6.9.1-1) ...
+#15 100.8 Setting up binutils-common:amd64 (2.44-3) ...
+#15 100.9 Setting up linux-libc-dev (6.12.48-1) ...
+#15 101.0 Setting up libctf-nobfd0:amd64 (2.44-3) ...
+#15 101.1 Setting up libgomp1:amd64 (14.2.0-19) ...
+#15 101.1 Setting up libsframe1:amd64 (2.44-3) ...
+#15 101.1 Setting up libjansson4:amd64 (2.14-2+b3) ...
+#15 101.1 Setting up mariadb-common (1:11.8.3-0+deb13u1) ...
+#15 101.2 update-alternatives: using /etc/mysql/mariadb.cnf to provide /etc/mysql/my.cnf (my.cnf) in auto mode
+#15 101.2 Setting up libpkgconf3:amd64 (1.8.1-4) ...
+#15 101.3 Setting up rpcsvc-proto (1.4.3-1) ...
+#15 101.3 Setting up libmpfr6:amd64 (4.2.2-1) ...
+#15 101.3 Setting up libquadmath0:amd64 (14.2.0-19) ...
+#15 101.4 Setting up libssl-dev:amd64 (3.5.1-1+deb13u1) ...
+#15 101.4 Setting up libmpc3:amd64 (1.3.1-1+b3) ...
+#15 101.4 Setting up libatomic1:amd64 (14.2.0-19) ...
+#15 101.5 Setting up libmariadb3:amd64 (1:11.8.3-0+deb13u1) ...
+#15 101.5 Setting up pkgconf-bin (1.8.1-4) ...
+#15 101.5 Setting up libubsan1:amd64 (14.2.0-19) ...
+#15 101.6 Setting up libhwasan0:amd64 (14.2.0-19) ...
+#15 101.6 Setting up libcrypt-dev:amd64 (1:4.4.38-1) ...
+#15 101.7 Setting up libasan8:amd64 (14.2.0-19) ...
+#15 101.7 Setting up libtsan2:amd64 (14.2.0-19) ...
+#15 101.7 Setting up libbinutils:amd64 (2.44-3) ...
+#15 101.7 Setting up libisl23:amd64 (0.27-1) ...
+#15 101.8 Setting up libc-dev-bin (2.41-12) ...
+#15 101.8 Setting up libcc1-0:amd64 (14.2.0-19) ...
+#15 101.8 Setting up liblsan0:amd64 (14.2.0-19) ...
+#15 101.9 Setting up libitm1:amd64 (14.2.0-19) ...
+#15 101.9 Setting up libctf0:amd64 (2.44-3) ...
+#15 101.9 Setting up manpages-dev (6.9.1-1) ...
+#15 101.9 Setting up pkgconf:amd64 (1.8.1-4) ...
+#15 102.0 Setting up libgprofng0:amd64 (2.44-3) ...
+#15 102.0 Setting up pkg-config:amd64 (1.8.1-4) ...
+#15 102.0 Setting up cpp-14-x86-64-linux-gnu (14.2.0-19) ...
+#15 102.1 Setting up cpp-14 (14.2.0-19) ...
+#15 102.1 Setting up libc6-dev:amd64 (2.41-12) ...
+#15 102.1 Setting up libgcc-14-dev:amd64 (14.2.0-19) ...
+#15 102.1 Setting up binutils-x86-64-linux-gnu (2.44-3) ...
+#15 102.2 Setting up cpp-x86-64-linux-gnu (4:14.2.0-1) ...
+#15 102.2 Setting up binutils (2.44-3) ...
+#15 102.2 Setting up zlib1g-dev:amd64 (1:1.3.dfsg+really1.3.1-1+b1) ...
+#15 102.3 Setting up cpp (4:14.2.0-1) ...
+#15 102.3 Setting up gcc-14-x86-64-linux-gnu (14.2.0-19) ...
+#15 102.4 Setting up gcc-x86-64-linux-gnu (4:14.2.0-1) ...
+#15 102.4 Setting up gcc-14 (14.2.0-19) ...
+#15 102.4 Setting up libmariadb-dev (1:11.8.3-0+deb13u1) ...
+#15 102.5 Setting up libmariadb-dev-compat (1:11.8.3-0+deb13u1) ...
+#15 102.5 Setting up gcc (4:14.2.0-1) ...
+#15 102.6 Setting up default-libmysqlclient-dev:amd64 (1.1.1) ...
+#15 102.6 Processing triggers for libc-bin (2.41-12) ...
+#15 DONE 104.2s
+
+#19 [backend 4/6] COPY requirements.txt .
+#19 DONE 0.7s
+
+#20 [backend 5/6] RUN pip install --no-cache-dir --verbose -r requirements.txt
+#20 ...
+
+#18 [frontend] exporting to image
+#18 unpacking to docker.io/library/cacapreco-app-frontend:latest 13.6s done
+#18 DONE 43.1s
+
+#20 [backend 5/6] RUN pip install --no-cache-dir --verbose -r requirements.txt
+#20 ...
+
+#21 [frontend] resolving provenance for metadata file
+#21 DONE 0.1s
+
+#20 [backend 5/6] RUN pip install --no-cache-dir --verbose -r requirements.txt
+#20 9.840 Using pip 24.0 from /usr/local/lib/python3.11/site-packages/pip (python 3.11)
+#20 10.70 Collecting beautifulsoup4 (from -r requirements.txt (line 1))
+#20 10.70   Obtaining dependency information for beautifulsoup4 from https://files.pythonhosted.org/packages/94/fe/3aed5d0be4d404d12d36ab97e2f1791424d9ca39c2f754a6285d59a3b01d/beautifulsoup4-4.14.2-py3-none-any.whl.metadata
+#20 10.95   Downloading beautifulsoup4-4.14.2-py3-none-any.whl.metadata (3.8 kB)
+#20 11.21 Collecting celery (from -r requirements.txt (line 2))
+#20 11.21   Obtaining dependency information for celery from https://files.pythonhosted.org/packages/c9/af/0dcccc7fdcdf170f9a1585e5e96b6fb0ba1749ef6be8c89a6202284759bd/celery-5.5.3-py3-none-any.whl.metadata
+#20 11.23   Downloading celery-5.5.3-py3-none-any.whl.metadata (22 kB)
+#20 11.56   Link requires a different Python (3.11.14 not in: '>=3.12'): https://files.pythonhosted.org/packages/f1/fd/92e699f92520168df34dce1d5e88322e2db3dcc2815c52fd7926eea608a6/django-6.0a1-py3-none-any.whl (from https://pypi.org/simple/django/) (requires-python:>=3.12)
+#20 11.56   Link requires a different Python (3.11.14 not in: '>=3.12'): https://files.pythonhosted.org/packages/91/12/a219b5c2a0c4377f58859f5b68f14449f36ea6668bc20816ad51bef3b5d0/django-6.0a1.tar.gz (from https://pypi.org/simple/django/) (requires-python:>=3.12)
+#20 11.56   Link requires a different Python (3.11.14 not in: '>=3.12'): https://files.pythonhosted.org/packages/0e/1a/306fda7e62e27ccbcb92d97f67f1094352a9f22c62f3c2b238fa50eb82d7/django-6.0b1-py3-none-any.whl (from https://pypi.org/simple/django/) (requires-python:>=3.12)
+#20 11.56   Link requires a different Python (3.11.14 not in: '>=3.12'): https://files.pythonhosted.org/packages/b4/33/7f7f188e31b3283f95112d0fa45bb2bdefb4d4aae203d8df816763f44677/django-6.0b1.tar.gz (from https://pypi.org/simple/django/) (requires-python:>=3.12)
+#20 11.65 Collecting django (from -r requirements.txt (line 3))
+#20 11.65   Obtaining dependency information for django from https://files.pythonhosted.org/packages/8f/ef/81f3372b5dd35d8d354321155d1a38894b2b766f576d0abffac4d8ae78d9/django-5.2.7-py3-none-any.whl.metadata
+#20 11.69   Downloading django-5.2.7-py3-none-any.whl.metadata (4.1 kB)
+#20 11.82 Collecting django-cors-headers (from -r requirements.txt (line 4))
+#20 11.82   Obtaining dependency information for django-cors-headers from https://files.pythonhosted.org/packages/30/d8/19ed1e47badf477d17fb177c1c19b5a21da0fd2d9f093f23be3fb86c5fab/django_cors_headers-4.9.0-py3-none-any.whl.metadata
+#20 11.84   Downloading django_cors_headers-4.9.0-py3-none-any.whl.metadata (16 kB)
+#20 11.99 Collecting djangorestframework (from -r requirements.txt (line 5))
+#20 11.99   Obtaining dependency information for djangorestframework from https://files.pythonhosted.org/packages/b0/ce/bf8b9d3f415be4ac5588545b5fcdbbb841977db1c1d923f7568eeabe1689/djangorestframework-3.16.1-py3-none-any.whl.metadata
+#20 12.02   Downloading djangorestframework-3.16.1-py3-none-any.whl.metadata (11 kB)
+#20 12.22   Link requires a different Python (3.11.14 not in: '>=3.6,<3.9'): https://files.pythonhosted.org/packages/0f/d4/5884ca048833d2492f0e666fcec9e1cae0f74100ba5050720506c99de209/djangorestframework_simplejwt-4.4.0-py3-none-any.whl (from https://pypi.org/simple/djangorestframework-simplejwt/) (requires-python:>=3.6,<3.9)
+#20 12.22   Link requires a different Python (3.11.14 not in: '>=3.6,<3.9'): https://files.pythonhosted.org/packages/4b/9d/dfa53910f35eb06ed465dc6d54f9dc4ab727ae71157f81e14f45f5d77479/djangorestframework_simplejwt-4.4.0.tar.gz (from https://pypi.org/simple/djangorestframework-simplejwt/) (requires-python:>=3.6,<3.9)
+#20 12.29 Collecting djangorestframework-simplejwt (from -r requirements.txt (line 6))
+#20 12.29   Obtaining dependency information for djangorestframework-simplejwt from https://files.pythonhosted.org/packages/60/94/fdfb7b2f0b16cd3ed4d4171c55c1c07a2d1e3b106c5978c8ad0c15b4a48b/djangorestframework_simplejwt-5.5.1-py3-none-any.whl.metadata
+#20 12.31   Downloading djangorestframework_simplejwt-5.5.1-py3-none-any.whl.metadata (4.6 kB)
+#20 12.39 Collecting django-filter (from -r requirements.txt (line 7))
+#20 12.39   Obtaining dependency information for django-filter from https://files.pythonhosted.org/packages/c1/40/6a02495c5658beb1f31eb09952d8aa12ef3c2a66342331ce3a35f7132439/django_filter-25.2-py3-none-any.whl.metadata
+#20 12.41   Downloading django_filter-25.2-py3-none-any.whl.metadata (5.1 kB)
+#20 13.83 Collecting mysqlclient (from -r requirements.txt (line 8))
+#20 13.85   Downloading mysqlclient-2.2.7.tar.gz (91 kB)
+#20 15.57      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 91.4/91.4 kB 3.2 MB/s eta 0:00:00
+#20 15.64   Installing build dependencies: started
+#20 15.64   Running command pip subprocess to install build dependencies
+#20 19.40   Collecting setuptools>=61
+#20 19.57     Downloading setuptools-80.9.0-py3-none-any.whl.metadata (6.6 kB)
+#20 19.73   Downloading setuptools-80.9.0-py3-none-any.whl (1.2 MB)
+#20 20.76      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 1.2 MB/s eta 0:00:00
+#20 21.07   Installing collected packages: setuptools
+#20 23.93   Successfully installed setuptools-80.9.0
+#20 23.93   WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+#20 24.23 
+#20 24.24   [notice] A new release of pip is available: 24.0 -> 25.3
+#20 24.24   [notice] To update, run: pip install --upgrade pip
+#20 24.50   Installing build dependencies: finished with status 'done'
+#20 24.50   Getting requirements to build wheel: started
+#20 24.50   Running command Getting requirements to build wheel
+#20 25.02   /tmp/pip-build-env-kdsih95n/overlay/lib/python3.11/site-packages/setuptools/config/_apply_pyprojecttoml.py:82: SetuptoolsDeprecationWarning: `project.license` as a TOML table is deprecated
+#20 25.02   !!
+#20 25.02 
+#20 25.02           ********************************************************************************
+#20 25.03           Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+#20 25.03 
+#20 25.03           By 2026-Feb-18, you need to update your project and remove deprecated calls
+#20 25.03           or your builds will no longer be supported.
+#20 25.04 
+#20 25.04           See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+#20 25.04           ********************************************************************************
+#20 25.04 
+#20 25.04   !!
+#20 25.04     corresp(dist, value, root_dir)
+#20 25.11   /tmp/pip-build-env-kdsih95n/overlay/lib/python3.11/site-packages/setuptools/config/_apply_pyprojecttoml.py:61: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+#20 25.11   !!
+#20 25.12 
+#20 25.12           ********************************************************************************
+#20 25.12           Please consider removing the following classifiers in favor of a SPDX license expression:
+#20 25.12 
+#20 25.12           License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)
+#20 25.12 
+#20 25.12           See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+#20 25.12           ********************************************************************************
+#20 25.13 
+#20 25.13   !!
+#20 25.13     dist._finalize_license_expression()
+#20 25.14   /tmp/pip-build-env-kdsih95n/overlay/lib/python3.11/site-packages/setuptools/dist.py:759: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+#20 25.14   !!
+#20 25.14 
+#20 25.14           ********************************************************************************
+#20 25.14           Please consider removing the following classifiers in favor of a SPDX license expression:
+#20 25.14 
+#20 25.17           License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)
+#20 25.17 
+#20 25.17           See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+#20 25.17           ********************************************************************************
+#20 25.17 
+#20 25.17   !!
+#20 25.17     self._finalize_license_expression()
+#20 25.17   Trying pkg-config --exists mysqlclient
+#20 25.17   # Options for building extension module:
+#20 25.17     extra_compile_args: ['-I/usr/include/mariadb/', '-std=c99']
+#20 25.17     extra_link_args: ['-L/usr/lib/x86_64-linux-gnu/', '-lmariadb']
+#20 25.20     define_macros: [('version_info', (2, 2, 7, 'final', 0)), ('__version__', '2.2.7')]
+#20 25.20   running egg_info
+#20 25.20   writing src/mysqlclient.egg-info/PKG-INFO
+#20 25.20   writing dependency_links to src/mysqlclient.egg-info/dependency_links.txt
+#20 25.20   writing top-level names to src/mysqlclient.egg-info/top_level.txt
+#20 25.20   reading manifest file 'src/mysqlclient.egg-info/SOURCES.txt'
+#20 25.21   reading manifest template 'MANIFEST.in'
+#20 25.22   adding license file 'LICENSE'
+#20 25.23   writing manifest file 'src/mysqlclient.egg-info/SOURCES.txt'
+#20 25.37   Getting requirements to build wheel: finished with status 'done'
+#20 25.38   Running command Preparing metadata (pyproject.toml)
+#20 25.38   Preparing metadata (pyproject.toml): started
+#20 25.83   /tmp/pip-build-env-kdsih95n/overlay/lib/python3.11/site-packages/setuptools/config/_apply_pyprojecttoml.py:82: SetuptoolsDeprecationWarning: `project.license` as a TOML table is deprecated
+#20 25.83   !!
+#20 25.83 
+#20 25.84           ********************************************************************************
+#20 25.84           Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+#20 25.84 
+#20 25.84           By 2026-Feb-18, you need to update your project and remove deprecated calls
+#20 25.84           or your builds will no longer be supported.
+#20 25.84 
+#20 25.84           See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+#20 25.84           ********************************************************************************
+#20 25.84 
+#20 25.85   !!
+#20 25.85     corresp(dist, value, root_dir)
+#20 25.94   /tmp/pip-build-env-kdsih95n/overlay/lib/python3.11/site-packages/setuptools/config/_apply_pyprojecttoml.py:61: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+#20 25.95   !!
+#20 25.95 
+#20 25.95           ********************************************************************************
+#20 25.95           Please consider removing the following classifiers in favor of a SPDX license expression:
+#20 25.95 
+#20 25.95           License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)
+#20 25.96 
+#20 25.96           See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+#20 25.96           ********************************************************************************
+#20 25.96 
+#20 25.96   !!
+#20 25.96     dist._finalize_license_expression()
+#20 25.96   /tmp/pip-build-env-kdsih95n/overlay/lib/python3.11/site-packages/setuptools/dist.py:759: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+#20 25.97   !!
+#20 25.97 
+#20 25.97           ********************************************************************************
+#20 25.97           Please consider removing the following classifiers in favor of a SPDX license expression:
+#20 25.97 
+#20 25.97           License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)
+#20 25.97 
+#20 25.98           See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+#20 25.98           ********************************************************************************
+#20 25.98 
+#20 26.00   !!
+#20 26.00     self._finalize_license_expression()
+#20 26.00   Trying pkg-config --exists mysqlclient
+#20 26.00   # Options for building extension module:
+#20 26.00     extra_compile_args: ['-I/usr/include/mariadb/', '-std=c99']
+#20 26.00     extra_link_args: ['-L/usr/lib/x86_64-linux-gnu/', '-lmariadb']
+#20 26.00     define_macros: [('version_info', (2, 2, 7, 'final', 0)), ('__version__', '2.2.7')]
+#20 26.00   running dist_info
+#20 26.00   creating /tmp/pip-modern-metadata-38uz61yw/mysqlclient.egg-info
+#20 26.00   writing /tmp/pip-modern-metadata-38uz61yw/mysqlclient.egg-info/PKG-INFO
+#20 26.00   writing dependency_links to /tmp/pip-modern-metadata-38uz61yw/mysqlclient.egg-info/dependency_links.txt
+#20 26.02   writing top-level names to /tmp/pip-modern-metadata-38uz61yw/mysqlclient.egg-info/top_level.txt
+#20 26.02   writing manifest file '/tmp/pip-modern-metadata-38uz61yw/mysqlclient.egg-info/SOURCES.txt'
+#20 26.02   reading manifest file '/tmp/pip-modern-metadata-38uz61yw/mysqlclient.egg-info/SOURCES.txt'
+#20 26.03   reading manifest template 'MANIFEST.in'
+#20 26.03   adding license file 'LICENSE'
+#20 26.05   writing manifest file '/tmp/pip-modern-metadata-38uz61yw/mysqlclient.egg-info/SOURCES.txt'
+#20 26.05   creating '/tmp/pip-modern-metadata-38uz61yw/mysqlclient-2.2.7.dist-info'
+#20 26.21   Preparing metadata (pyproject.toml): finished with status 'done'
+#20 26.49 Collecting playwright (from -r requirements.txt (line 9))
+#20 26.50   Obtaining dependency information for playwright from https://files.pythonhosted.org/packages/08/33/858312628aa16a6de97839adc2ca28031ebc5391f96b6fb8fdf1fcb15d6c/playwright-1.55.0-py3-none-manylinux1_x86_64.whl.metadata
+#20 26.52   Downloading playwright-1.55.0-py3-none-manylinux1_x86_64.whl.metadata (3.5 kB)
+#20 27.36 Collecting Pillow (from -r requirements.txt (line 10))
+#20 27.36   Obtaining dependency information for Pillow from https://files.pythonhosted.org/packages/41/1e/db9470f2d030b4995083044cd8738cdd1bf773106819f6d8ba12597d5352/pillow-12.0.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata
+#20 27.38   Downloading pillow-12.0.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (8.8 kB)
+#20 27.64 Collecting redis (from -r requirements.txt (line 11))
+#20 27.65   Obtaining dependency information for redis from https://files.pythonhosted.org/packages/e9/97/9f22a33c475cda519f20aba6babb340fb2f2254a02fb947816960d1e669a/redis-7.0.1-py3-none-any.whl.metadata
+#20 27.67   Downloading redis-7.0.1-py3-none-any.whl.metadata (12 kB)
+#20 27.81 Collecting requests (from -r requirements.txt (line 12))
+#20 27.82   Obtaining dependency information for requests from https://files.pythonhosted.org/packages/1e/db/4254e3eabe8020b458f1a747140d32277ec7a271daf1d235b70dc0b4e6e3/requests-2.32.5-py3-none-any.whl.metadata
+#20 27.85   Downloading requests-2.32.5-py3-none-any.whl.metadata (4.9 kB)
+#20 28.05 Collecting requests-html (from -r requirements.txt (line 13))
+#20 28.06   Obtaining dependency information for requests-html from https://files.pythonhosted.org/packages/24/bc/a4380f09bab3a776182578ce6b2771e57259d0d4dbce178205779abdc347/requests_html-0.10.0-py3-none-any.whl.metadata
+#20 28.09   Downloading requests_html-0.10.0-py3-none-any.whl.metadata (15 kB)
+#20 28.43 Collecting scrapy (from -r requirements.txt (line 14))
+#20 28.44   Obtaining dependency information for scrapy from https://files.pythonhosted.org/packages/53/cb/474b56910b9fb823298008444790a6d5fb9c8dfb936101136932d586287a/scrapy-2.13.3-py3-none-any.whl.metadata
+#20 28.46   Downloading scrapy-2.13.3-py3-none-any.whl.metadata (4.4 kB)
+#20 28.70 Collecting selenium (from -r requirements.txt (line 15))
+#20 28.70   Obtaining dependency information for selenium from https://files.pythonhosted.org/packages/8a/d3/76c8f4a8d99b9f1ebcf9a611b4dd992bf5ee082a6093cfc649af3d10f35b/selenium-4.38.0-py3-none-any.whl.metadata
+#20 28.72   Downloading selenium-4.38.0-py3-none-any.whl.metadata (7.5 kB)
+#20 29.07 Collecting undetected-chromedriver (from -r requirements.txt (line 16))
+#20 29.14   Downloading undetected-chromedriver-3.5.5.tar.gz (65 kB)
+#20 29.17      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 65.4/65.4 kB 3.1 MB/s eta 0:00:00
+#20 29.20   Preparing metadata (setup.py): started
+#20 29.21   Running command python setup.py egg_info
+#20 30.34   /usr/local/lib/python3.11/site-packages/setuptools/dist.py:759: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+#20 30.34   !!
+#20 30.34 
+#20 30.34           ********************************************************************************
+#20 30.34           Please consider removing the following classifiers in favor of a SPDX license expression:
+#20 30.34 
+#20 30.34           License :: OSI Approved :: GNU General Public License v3 (GPLv3)
+#20 30.34 
+#20 30.34           See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+#20 30.34           ********************************************************************************
+#20 30.35 
+#20 30.35   !!
+#20 30.35     self._finalize_license_expression()
+#20 30.47   running egg_info
+#20 30.49   creating /tmp/pip-pip-egg-info-bk_ftvn2/undetected_chromedriver.egg-info
+#20 30.49   writing /tmp/pip-pip-egg-info-bk_ftvn2/undetected_chromedriver.egg-info/PKG-INFO
+#20 30.50   writing dependency_links to /tmp/pip-pip-egg-info-bk_ftvn2/undetected_chromedriver.egg-info/dependency_links.txt
+#20 30.50   writing requirements to /tmp/pip-pip-egg-info-bk_ftvn2/undetected_chromedriver.egg-info/requires.txt
+#20 30.50   writing top-level names to /tmp/pip-pip-egg-info-bk_ftvn2/undetected_chromedriver.egg-info/top_level.txt
+#20 30.50   writing manifest file '/tmp/pip-pip-egg-info-bk_ftvn2/undetected_chromedriver.egg-info/SOURCES.txt'
+#20 30.55   reading manifest file '/tmp/pip-pip-egg-info-bk_ftvn2/undetected_chromedriver.egg-info/SOURCES.txt'
+#20 30.55   adding license file 'LICENSE'
+#20 30.56   writing manifest file '/tmp/pip-pip-egg-info-bk_ftvn2/undetected_chromedriver.egg-info/SOURCES.txt'
+#20 30.66   Preparing metadata (setup.py): finished with status 'done'
+#20 30.86 Collecting webdriver-manager (from -r requirements.txt (line 17))
+#20 30.86   Obtaining dependency information for webdriver-manager from https://files.pythonhosted.org/packages/b5/b5/3bd0b038d80950ec13e6a2c8d03ed8354867dc60064b172f2f4ffac8afbe/webdriver_manager-4.0.2-py2.py3-none-any.whl.metadata
+#20 30.89   Downloading webdriver_manager-4.0.2-py2.py3-none-any.whl.metadata (12 kB)
+#20 31.12 Collecting lxml_html_clean (from -r requirements.txt (line 18))
+#20 31.12   Obtaining dependency information for lxml_html_clean from https://files.pythonhosted.org/packages/10/4a/63a9540e3ca73709f4200564a737d63a4c8c9c4dd032bab8535f507c190a/lxml_html_clean-0.4.3-py3-none-any.whl.metadata
+#20 31.15   Downloading lxml_html_clean-0.4.3-py3-none-any.whl.metadata (2.3 kB)
+#20 31.32 Collecting playwright-stealth (from -r requirements.txt (line 19))
+#20 31.32   Obtaining dependency information for playwright-stealth from https://files.pythonhosted.org/packages/b9/4e/c37ac19cea166a97de3a9690ad5ba340b3f4f4fcd5bf8237cedb2c2c7076/playwright_stealth-2.0.0-py3-none-any.whl.metadata
+#20 31.34   Downloading playwright_stealth-2.0.0-py3-none-any.whl.metadata (4.0 kB)
+#20 31.78 Collecting oracledb (from -r requirements.txt (line 20))
+#20 31.78   Obtaining dependency information for oracledb from https://files.pythonhosted.org/packages/12/89/d4f1f925bcf6151f8035e86604df9bd6472fe6a4470064d243d4c6cdf8df/oracledb-3.4.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata
+#20 31.80   Downloading oracledb-3.4.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (7.7 kB)
+#20 31.92 Collecting soupsieve>1.2 (from beautifulsoup4->-r requirements.txt (line 1))
+#20 31.92   Obtaining dependency information for soupsieve>1.2 from https://files.pythonhosted.org/packages/14/a0/bb38d3b76b8cae341dad93a2dd83ab7462e6dbcdd84d43f54ee60a8dc167/soupsieve-2.8-py3-none-any.whl.metadata
+#20 31.94   Downloading soupsieve-2.8-py3-none-any.whl.metadata (4.6 kB)
+#20 32.06 Collecting typing-extensions>=4.0.0 (from beautifulsoup4->-r requirements.txt (line 1))
+#20 32.06   Obtaining dependency information for typing-extensions>=4.0.0 from https://files.pythonhosted.org/packages/18/67/36e9267722cc04a6b9f15c7f3441c2363321a3ea07da7ae0c0707beb2a9c/typing_extensions-4.15.0-py3-none-any.whl.metadata
+#20 32.27   Downloading typing_extensions-4.15.0-py3-none-any.whl.metadata (3.3 kB)
+#20 32.53 Collecting billiard<5.0,>=4.2.1 (from celery->-r requirements.txt (line 2))
+#20 32.53   Obtaining dependency information for billiard<5.0,>=4.2.1 from https://files.pythonhosted.org/packages/a6/80/ef8dff49aae0e4430f81842f7403e14e0ca59db7bbaf7af41245b67c6b25/billiard-4.2.2-py3-none-any.whl.metadata
+#20 32.55   Downloading billiard-4.2.2-py3-none-any.whl.metadata (4.8 kB)
+#20 32.78 Collecting kombu<5.6,>=5.5.2 (from celery->-r requirements.txt (line 2))
+#20 32.79   Obtaining dependency information for kombu<5.6,>=5.5.2 from https://files.pythonhosted.org/packages/ef/70/a07dcf4f62598c8ad579df241af55ced65bed76e42e45d3c368a6d82dbc1/kombu-5.5.4-py3-none-any.whl.metadata
+#20 32.80   Downloading kombu-5.5.4-py3-none-any.whl.metadata (3.5 kB)
+#20 32.89 Collecting vine<6.0,>=5.1.0 (from celery->-r requirements.txt (line 2))
+#20 32.89   Obtaining dependency information for vine<6.0,>=5.1.0 from https://files.pythonhosted.org/packages/03/ff/7c0c86c43b3cbb927e0ccc0255cb4057ceba4799cd44ae95174ce8e8b5b2/vine-5.1.0-py3-none-any.whl.metadata
+#20 32.91   Downloading vine-5.1.0-py3-none-any.whl.metadata (2.7 kB)
+#20 33.07 Collecting click<9.0,>=8.1.2 (from celery->-r requirements.txt (line 2))
+#20 33.07   Obtaining dependency information for click<9.0,>=8.1.2 from https://files.pythonhosted.org/packages/db/d3/9dcc0f5797f070ec8edf30fbadfb200e71d9db6b84d211e3b2085a7589a0/click-8.3.0-py3-none-any.whl.metadata
+#20 33.10   Downloading click-8.3.0-py3-none-any.whl.metadata (2.6 kB)
+#20 33.14 Collecting click-didyoumean>=0.3.0 (from celery->-r requirements.txt (line 2))
+#20 33.14   Obtaining dependency information for click-didyoumean>=0.3.0 from https://files.pythonhosted.org/packages/1b/5b/974430b5ffdb7a4f1941d13d83c64a0395114503cc357c6b9ae4ce5047ed/click_didyoumean-0.3.1-py3-none-any.whl.metadata
+#20 33.17   Downloading click_didyoumean-0.3.1-py3-none-any.whl.metadata (3.9 kB)
+#20 33.22 Collecting click-repl>=0.2.0 (from celery->-r requirements.txt (line 2))
+#20 33.23   Obtaining dependency information for click-repl>=0.2.0 from https://files.pythonhosted.org/packages/52/40/9d857001228658f0d59e97ebd4c346fe73e138c6de1bce61dc568a57c7f8/click_repl-0.3.0-py3-none-any.whl.metadata
+#20 33.24   Downloading click_repl-0.3.0-py3-none-any.whl.metadata (3.6 kB)
+#20 33.30 Collecting click-plugins>=1.1.1 (from celery->-r requirements.txt (line 2))
+#20 33.30   Obtaining dependency information for click-plugins>=1.1.1 from https://files.pythonhosted.org/packages/3d/9a/2abecb28ae875e39c8cad711eb1186d8d14eab564705325e77e4e6ab9ae5/click_plugins-1.1.1.2-py2.py3-none-any.whl.metadata
+#20 33.32   Downloading click_plugins-1.1.1.2-py2.py3-none-any.whl.metadata (6.5 kB)
+#20 33.39 Collecting python-dateutil>=2.8.2 (from celery->-r requirements.txt (line 2))
+#20 33.40   Obtaining dependency information for python-dateutil>=2.8.2 from https://files.pythonhosted.org/packages/ec/57/56b9bcc3c9c6a792fcbaf139543cee77261f3651ca9da0c93f5c1221264b/python_dateutil-2.9.0.post0-py2.py3-none-any.whl.metadata
+#20 33.42   Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl.metadata (8.4 kB)
+#20 33.54 Collecting asgiref>=3.8.1 (from django->-r requirements.txt (line 3))
+#20 33.54   Obtaining dependency information for asgiref>=3.8.1 from https://files.pythonhosted.org/packages/17/9c/fc2331f538fbf7eedba64b2052e99ccf9ba9d6888e2f41441ee28847004b/asgiref-3.10.0-py3-none-any.whl.metadata
+#20 33.56   Downloading asgiref-3.10.0-py3-none-any.whl.metadata (9.3 kB)
+#20 33.65 Collecting sqlparse>=0.3.1 (from django->-r requirements.txt (line 3))
+#20 33.65   Obtaining dependency information for sqlparse>=0.3.1 from https://files.pythonhosted.org/packages/a9/5c/bfd6bd0bf979426d405cc6e71eceb8701b148b16c21d2dc3c261efc61c7b/sqlparse-0.5.3-py3-none-any.whl.metadata
+#20 33.68   Downloading sqlparse-0.5.3-py3-none-any.whl.metadata (3.9 kB)
+#20 34.40 Collecting pyjwt>=1.7.1 (from djangorestframework-simplejwt->-r requirements.txt (line 6))
+#20 34.40   Obtaining dependency information for pyjwt>=1.7.1 from https://files.pythonhosted.org/packages/61/ad/689f02752eeec26aed679477e80e632ef1b682313be70793d798c1d5fc8f/PyJWT-2.10.1-py3-none-any.whl.metadata
+#20 34.60   Downloading PyJWT-2.10.1-py3-none-any.whl.metadata (4.0 kB)
+#20 34.91 Collecting pyee<14,>=13 (from playwright->-r requirements.txt (line 9))
+#20 34.91   Obtaining dependency information for pyee<14,>=13 from https://files.pythonhosted.org/packages/9b/4d/b9add7c84060d4c1906abe9a7e5359f2a60f7a9a4f67268b2766673427d8/pyee-13.0.0-py3-none-any.whl.metadata
+#20 34.93   Downloading pyee-13.0.0-py3-none-any.whl.metadata (2.9 kB)
+#20 35.91 Collecting greenlet<4.0.0,>=3.1.1 (from playwright->-r requirements.txt (line 9))
+#20 35.91   Obtaining dependency information for greenlet<4.0.0,>=3.1.1 from https://files.pythonhosted.org/packages/1f/8e/abdd3f14d735b2929290a018ecf133c901be4874b858dd1c604b9319f064/greenlet-3.2.4-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata
+#20 35.94   Downloading greenlet-3.2.4-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (4.1 kB)
+#20 36.72 Collecting charset_normalizer<4,>=2 (from requests->-r requirements.txt (line 12))
+#20 36.72   Obtaining dependency information for charset_normalizer<4,>=2 from https://files.pythonhosted.org/packages/6d/fc/de9cce525b2c5b94b47c70a4b4fb19f871b24995c728e957ee68ab1671ea/charset_normalizer-3.4.4-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata
+#20 36.75   Downloading charset_normalizer-3.4.4-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (37 kB)
+#20 36.98 Collecting idna<4,>=2.5 (from requests->-r requirements.txt (line 12))
+#20 36.98   Obtaining dependency information for idna<4,>=2.5 from https://files.pythonhosted.org/packages/0e/61/66938bbb5fc52dbdf84594873d5b51fb1f7c7794e9c0f5bd885f30bc507b/idna-3.11-py3-none-any.whl.metadata
+#20 37.06   Downloading idna-3.11-py3-none-any.whl.metadata (8.4 kB)
+#20 37.56 Collecting urllib3<3,>=1.21.1 (from requests->-r requirements.txt (line 12))
+#20 37.56   Obtaining dependency information for urllib3<3,>=1.21.1 from https://files.pythonhosted.org/packages/a7/c2/fe1e52489ae3122415c51f387e221dd0773709bad6c6cdaa599e8a2c5185/urllib3-2.5.0-py3-none-any.whl.metadata
+#20 37.59   Downloading urllib3-2.5.0-py3-none-any.whl.metadata (6.5 kB)
+#20 37.76 Collecting certifi>=2017.4.17 (from requests->-r requirements.txt (line 12))
+#20 37.77   Obtaining dependency information for certifi>=2017.4.17 from https://files.pythonhosted.org/packages/e4/37/af0d2ef3967ac0d6113837b44a4f0bfe1328c2b9763bd5b1744520e5cfed/certifi-2025.10.5-py3-none-any.whl.metadata
+#20 37.79   Downloading certifi-2025.10.5-py3-none-any.whl.metadata (2.5 kB)
+#20 37.92 Collecting pyquery (from requests-html->-r requirements.txt (line 13))
+#20 37.93   Obtaining dependency information for pyquery from https://files.pythonhosted.org/packages/76/f5/5067b48012967ea166b9bd0a015b69e0560e4c6e7c06f28d9bab8f9dd10b/pyquery-2.0.1-py3-none-any.whl.metadata
+#20 37.96   Downloading pyquery-2.0.1-py3-none-any.whl.metadata (9.0 kB)
+#20 38.42 Collecting fake-useragent (from requests-html->-r requirements.txt (line 13))
+#20 38.43   Obtaining dependency information for fake-useragent from https://files.pythonhosted.org/packages/51/37/b3ea9cd5558ff4cb51957caca2193981c6b0ff30bd0d2630ac62505d99d0/fake_useragent-2.2.0-py3-none-any.whl.metadata
+#20 38.48   Downloading fake_useragent-2.2.0-py3-none-any.whl.metadata (17 kB)
+#20 38.59 Collecting parse (from requests-html->-r requirements.txt (line 13))
+#20 38.60   Obtaining dependency information for parse from https://files.pythonhosted.org/packages/d0/31/ba45bf0b2aa7898d81cbbfac0e88c267befb59ad91a19e36e1bc5578ddb1/parse-1.20.2-py2.py3-none-any.whl.metadata
+#20 38.62   Downloading parse-1.20.2-py2.py3-none-any.whl.metadata (22 kB)
+#20 38.74 Collecting bs4 (from requests-html->-r requirements.txt (line 13))
+#20 38.75   Obtaining dependency information for bs4 from https://files.pythonhosted.org/packages/51/bb/bf7aab772a159614954d84aa832c129624ba6c32faa559dfb200a534e50b/bs4-0.0.2-py2.py3-none-any.whl.metadata
+#20 38.77   Downloading bs4-0.0.2-py2.py3-none-any.whl.metadata (411 bytes)
+#20 39.17 Collecting w3lib (from requests-html->-r requirements.txt (line 13))
+#20 39.17   Obtaining dependency information for w3lib from https://files.pythonhosted.org/packages/58/dd/56f0d8af71e475ed194d702f8b4cf9cea812c95e82ad823d239023c6558c/w3lib-2.3.1-py3-none-any.whl.metadata
+#20 39.19   Downloading w3lib-2.3.1-py3-none-any.whl.metadata (2.3 kB)
+#20 39.37 Collecting pyppeteer>=0.0.14 (from requests-html->-r requirements.txt (line 13))
+#20 39.37   Obtaining dependency information for pyppeteer>=0.0.14 from https://files.pythonhosted.org/packages/3d/ee/fb2757a38025421fd3844a0ed0a230b78c9c04a66355024436cf3005a70c/pyppeteer-2.0.0-py3-none-any.whl.metadata
+#20 39.39   Downloading pyppeteer-2.0.0-py3-none-any.whl.metadata (7.1 kB)
+#20 40.33 Collecting cryptography>=37.0.0 (from scrapy->-r requirements.txt (line 14))
+#20 40.33   Obtaining dependency information for cryptography>=37.0.0 from https://files.pythonhosted.org/packages/8f/29/798fc4ec461a1c9e9f735f2fc58741b0daae30688f41b2497dcbc9ed1355/cryptography-46.0.3-cp311-abi3-manylinux_2_34_x86_64.whl.metadata
+#20 40.36   Downloading cryptography-46.0.3-cp311-abi3-manylinux_2_34_x86_64.whl.metadata (5.7 kB)
+#20 40.41 Collecting cssselect>=0.9.1 (from scrapy->-r requirements.txt (line 14))
+#20 40.41   Obtaining dependency information for cssselect>=0.9.1 from https://files.pythonhosted.org/packages/ee/58/257350f7db99b4ae12b614a36256d9cc870d71d9e451e79c2dc3b23d7c3c/cssselect-1.3.0-py3-none-any.whl.metadata
+#20 40.44   Downloading cssselect-1.3.0-py3-none-any.whl.metadata (2.6 kB)
+#20 40.51 Collecting defusedxml>=0.7.1 (from scrapy->-r requirements.txt (line 14))
+#20 40.51   Obtaining dependency information for defusedxml>=0.7.1 from https://files.pythonhosted.org/packages/07/6c/aa3f2f849e01cb6a001cd8554a88d4c77c5c1a31c95bdf1cf9301e6d9ef4/defusedxml-0.7.1-py2.py3-none-any.whl.metadata
+#20 40.53   Downloading defusedxml-0.7.1-py2.py3-none-any.whl.metadata (32 kB)
+#20 40.60 Collecting itemadapter>=0.1.0 (from scrapy->-r requirements.txt (line 14))
+#20 40.61   Obtaining dependency information for itemadapter>=0.1.0 from https://files.pythonhosted.org/packages/9a/ce/b2d995ddf3d493849f5608c7eab92c24cc50933503c645de3e4843aa7800/itemadapter-0.12.2-py3-none-any.whl.metadata
+#20 40.64   Downloading itemadapter-0.12.2-py3-none-any.whl.metadata (22 kB)
+#20 40.81 Collecting itemloaders>=1.0.1 (from scrapy->-r requirements.txt (line 14))
+#20 40.81   Obtaining dependency information for itemloaders>=1.0.1 from https://files.pythonhosted.org/packages/d5/68/9592dcfd9c24467b545fac17b098a171e372bf0d775400fa1971712bca57/itemloaders-1.3.2-py3-none-any.whl.metadata
+#20 40.82   Downloading itemloaders-1.3.2-py3-none-any.whl.metadata (3.9 kB)
+#20 41.76 Collecting lxml>=4.6.0 (from scrapy->-r requirements.txt (line 14))
+#20 41.76   Obtaining dependency information for lxml>=4.6.0 from https://files.pythonhosted.org/packages/b8/89/ea8f91594bc5dbb879734d35a6f2b0ad50605d7fb419de2b63d4211765cc/lxml-6.0.2-cp311-cp311-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl.metadata
+#20 41.78   Downloading lxml-6.0.2-cp311-cp311-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl.metadata (3.6 kB)
+#20 41.88 Collecting packaging (from scrapy->-r requirements.txt (line 14))
+#20 41.88   Obtaining dependency information for packaging from https://files.pythonhosted.org/packages/20/12/38679034af332785aac8774540895e234f4d07f7545804097de4b666afd8/packaging-25.0-py3-none-any.whl.metadata
+#20 41.90   Downloading packaging-25.0-py3-none-any.whl.metadata (3.3 kB)
+#20 42.06 Collecting parsel>=1.5.0 (from scrapy->-r requirements.txt (line 14))
+#20 42.06   Obtaining dependency information for parsel>=1.5.0 from https://files.pythonhosted.org/packages/12/18/35d1d947553d24909dca37e2ff11720eecb601360d1bac8d7a9a1bc7eb08/parsel-1.10.0-py2.py3-none-any.whl.metadata
+#20 42.08   Downloading parsel-1.10.0-py2.py3-none-any.whl.metadata (11 kB)
+#20 42.14 Collecting protego>=0.1.15 (from scrapy->-r requirements.txt (line 14))
+#20 42.15   Obtaining dependency information for protego>=0.1.15 from https://files.pythonhosted.org/packages/3a/cb/4347985f89ca3e4beb5d0cb85f8b951c9e339564bd2a3f388d6fb78382cc/protego-0.5.0-py3-none-any.whl.metadata
+#20 42.17   Downloading protego-0.5.0-py3-none-any.whl.metadata (6.4 kB)
+#20 42.32 Collecting pydispatcher>=2.0.5 (from scrapy->-r requirements.txt (line 14))
+#20 42.33   Obtaining dependency information for pydispatcher>=2.0.5 from https://files.pythonhosted.org/packages/66/0e/9ee7bc0b48ec45d93b302fa2d787830dca4dc454d31a237faa5815995988/PyDispatcher-2.0.7-py3-none-any.whl.metadata
+#20 42.35   Downloading PyDispatcher-2.0.7-py3-none-any.whl.metadata (2.4 kB)
+#20 42.43 Collecting pyopenssl>=22.0.0 (from scrapy->-r requirements.txt (line 14))
+#20 42.43   Obtaining dependency information for pyopenssl>=22.0.0 from https://files.pythonhosted.org/packages/d1/81/ef2b1dfd1862567d573a4fdbc9f969067621764fbb74338496840a1d2977/pyopenssl-25.3.0-py3-none-any.whl.metadata
+#20 42.47   Downloading pyopenssl-25.3.0-py3-none-any.whl.metadata (17 kB)
+#20 42.66 Collecting queuelib>=1.4.2 (from scrapy->-r requirements.txt (line 14))
+#20 42.66   Obtaining dependency information for queuelib>=1.4.2 from https://files.pythonhosted.org/packages/70/44/542f4e702fafc477260d3463ae1bcdd113faac9d42336601af50985af914/queuelib-1.8.0-py3-none-any.whl.metadata
+#20 42.68   Downloading queuelib-1.8.0-py3-none-any.whl.metadata (6.1 kB)
+#20 42.73 Collecting service-identity>=18.1.0 (from scrapy->-r requirements.txt (line 14))
+#20 42.73   Obtaining dependency information for service-identity>=18.1.0 from https://files.pythonhosted.org/packages/08/2c/ca6dd598b384bc1ce581e24aaae0f2bed4ccac57749d5c3befbb5e742081/service_identity-24.2.0-py3-none-any.whl.metadata
+#20 42.75   Downloading service_identity-24.2.0-py3-none-any.whl.metadata (5.1 kB)
+#20 42.99 Collecting tldextract (from scrapy->-r requirements.txt (line 14))
+#20 42.99   Obtaining dependency information for tldextract from https://files.pythonhosted.org/packages/67/7c/ea488ef48f2f544566947ced88541bc45fae9e0e422b2edbf165ee07da99/tldextract-5.3.0-py3-none-any.whl.metadata
+#20 43.01   Downloading tldextract-5.3.0-py3-none-any.whl.metadata (11 kB)
+#20 43.16 Collecting twisted>=21.7.0 (from scrapy->-r requirements.txt (line 14))
+#20 43.16   Obtaining dependency information for twisted>=21.7.0 from https://files.pythonhosted.org/packages/eb/66/ab7efd8941f0bc7b2bd555b0f0471bff77df4c88e0cc31120c82737fec77/twisted-25.5.0-py3-none-any.whl.metadata
+#20 43.35   Downloading twisted-25.5.0-py3-none-any.whl.metadata (22 kB)
+#20 44.01 Collecting zope-interface>=5.1.0 (from scrapy->-r requirements.txt (line 14))
+#20 44.01   Obtaining dependency information for zope-interface>=5.1.0 from https://files.pythonhosted.org/packages/e2/fd/908b0fd4b1ab6e412dfac9bd2b606f2893ef9ba3dd36d643f5e5b94c57b3/zope_interface-8.0.1-cp311-cp311-manylinux1_x86_64.manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_5_x86_64.whl.metadata
+#20 44.04   Downloading zope_interface-8.0.1-cp311-cp311-manylinux1_x86_64.manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_5_x86_64.whl.metadata (44 kB)
+#20 44.11      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 44.9/44.9 kB 615.7 kB/s eta 0:00:00
+#20 44.27 Collecting trio<1.0,>=0.31.0 (from selenium->-r requirements.txt (line 15))
+#20 44.27   Obtaining dependency information for trio<1.0,>=0.31.0 from https://files.pythonhosted.org/packages/41/bf/945d527ff706233636c73880b22c7c953f3faeb9d6c7e2e85bfbfd0134a0/trio-0.32.0-py3-none-any.whl.metadata
+#20 44.31   Downloading trio-0.32.0-py3-none-any.whl.metadata (8.5 kB)
+#20 44.42 Collecting trio-websocket<1.0,>=0.12.2 (from selenium->-r requirements.txt (line 15))
+#20 44.42   Obtaining dependency information for trio-websocket<1.0,>=0.12.2 from https://files.pythonhosted.org/packages/c7/19/eb640a397bba49ba49ef9dbe2e7e5c04202ba045b6ce2ec36e9cadc51e04/trio_websocket-0.12.2-py3-none-any.whl.metadata
+#20 44.45   Downloading trio_websocket-0.12.2-py3-none-any.whl.metadata (5.1 kB)
+#20 44.64 Collecting websocket-client<2.0,>=1.8.0 (from selenium->-r requirements.txt (line 15))
+#20 44.64   Obtaining dependency information for websocket-client<2.0,>=1.8.0 from https://files.pythonhosted.org/packages/34/db/b10e48aa8fff7407e67470363eac595018441cf32d5e1001567a7aeba5d2/websocket_client-1.9.0-py3-none-any.whl.metadata
+#20 44.66   Downloading websocket_client-1.9.0-py3-none-any.whl.metadata (8.3 kB)
+#20 45.08 Collecting websockets (from undetected-chromedriver->-r requirements.txt (line 16))
+#20 45.08   Obtaining dependency information for websockets from https://files.pythonhosted.org/packages/93/1f/5d6dbf551766308f6f50f8baf8e9860be6182911e8106da7a7f73785f4c4/websockets-15.0.1-cp311-cp311-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata
+#20 45.11   Downloading websockets-15.0.1-cp311-cp311-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.8 kB)
+#20 45.25 Collecting python-dotenv (from webdriver-manager->-r requirements.txt (line 17))
+#20 45.25   Obtaining dependency information for python-dotenv from https://files.pythonhosted.org/packages/14/1b/a298b06749107c305e1fe0f814c6c74aea7b2f1e10989cb30f544a1b3253/python_dotenv-1.2.1-py3-none-any.whl.metadata
+#20 45.27   Downloading python_dotenv-1.2.1-py3-none-any.whl.metadata (25 kB)
+#20 48.44 Collecting prompt-toolkit>=3.0.36 (from click-repl>=0.2.0->celery->-r requirements.txt (line 2))
+#20 48.44   Obtaining dependency information for prompt-toolkit>=3.0.36 from https://files.pythonhosted.org/packages/84/03/0d3ce49e2505ae70cf43bc5bb3033955d2fc9f932163e84dc0779cc47f48/prompt_toolkit-3.0.52-py3-none-any.whl.metadata
+#20 48.46   Downloading prompt_toolkit-3.0.52-py3-none-any.whl.metadata (6.4 kB)
+#20 49.50 Collecting cffi>=2.0.0 (from cryptography>=37.0.0->scrapy->-r requirements.txt (line 14))
+#20 49.50   Obtaining dependency information for cffi>=2.0.0 from https://files.pythonhosted.org/packages/d7/91/500d892b2bf36529a75b77958edfcd5ad8e2ce4064ce2ecfeab2125d72d1/cffi-2.0.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata
+#20 49.58   Downloading cffi-2.0.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.6 kB)
+#20 49.88 Collecting jmespath>=0.9.5 (from itemloaders>=1.0.1->scrapy->-r requirements.txt (line 14))
+#20 49.88   Obtaining dependency information for jmespath>=0.9.5 from https://files.pythonhosted.org/packages/31/b4/b9b800c45527aadd64d5b442f9b932b00648617eb5d63d2c7a6587b7cafc/jmespath-1.0.1-py3-none-any.whl.metadata
+#20 49.90   Downloading jmespath-1.0.1-py3-none-any.whl.metadata (7.6 kB)
+#20 50.07 Collecting amqp<6.0.0,>=5.1.1 (from kombu<5.6,>=5.5.2->celery->-r requirements.txt (line 2))
+#20 50.07   Obtaining dependency information for amqp<6.0.0,>=5.1.1 from https://files.pythonhosted.org/packages/26/99/fc813cd978842c26c82534010ea849eee9ab3a13ea2b74e95cb9c99e747b/amqp-5.3.1-py3-none-any.whl.metadata
+#20 50.10   Downloading amqp-5.3.1-py3-none-any.whl.metadata (8.9 kB)
+#20 50.17 Collecting tzdata>=2025.2 (from kombu<5.6,>=5.5.2->celery->-r requirements.txt (line 2))
+#20 50.17   Obtaining dependency information for tzdata>=2025.2 from https://files.pythonhosted.org/packages/5c/23/c7abc0ca0a1526a0774eca151daeb8de62ec457e77262b66b359c3c7679e/tzdata-2025.2-py2.py3-none-any.whl.metadata
+#20 50.19   Downloading tzdata-2025.2-py2.py3-none-any.whl.metadata (1.4 kB)
+#20 50.64 Collecting appdirs<2.0.0,>=1.4.3 (from pyppeteer>=0.0.14->requests-html->-r requirements.txt (line 13))
+#20 50.64   Obtaining dependency information for appdirs<2.0.0,>=1.4.3 from https://files.pythonhosted.org/packages/3b/00/2344469e2084fb287c2e0b57b72910309874c3245463acd6cf5e3db69324/appdirs-1.4.4-py2.py3-none-any.whl.metadata
+#20 50.66   Downloading appdirs-1.4.4-py2.py3-none-any.whl.metadata (9.0 kB)
+#20 50.87 Collecting importlib-metadata>=1.4 (from pyppeteer>=0.0.14->requests-html->-r requirements.txt (line 13))
+#20 50.88   Obtaining dependency information for importlib-metadata>=1.4 from https://files.pythonhosted.org/packages/20/b0/36bd937216ec521246249be3bf9855081de4c5e06a0c9b4219dbeda50373/importlib_metadata-8.7.0-py3-none-any.whl.metadata
+#20 50.89   Downloading importlib_metadata-8.7.0-py3-none-any.whl.metadata (4.8 kB)
+#20 50.92 INFO: pip is looking at multiple versions of pyppeteer to determine which version is compatible with other requirements. This could take a while.
+#20 50.93 Collecting pyppeteer>=0.0.14 (from requests-html->-r requirements.txt (line 13))
+#20 50.93   Obtaining dependency information for pyppeteer>=0.0.14 from https://files.pythonhosted.org/packages/10/46/33c0a9e7d37bf33487074de4399963462093043ad224d1881e41cbd937f3/pyppeteer-1.0.2-py3-none-any.whl.metadata
+#20 50.96   Downloading pyppeteer-1.0.2-py3-none-any.whl.metadata (6.9 kB)
+#20 51.02   Obtaining dependency information for pyppeteer>=0.0.14 from https://files.pythonhosted.org/packages/40/29/0d439e328b2b537675ccdb2bf37bbfc0cb524d3c7c70ea9f442a305fb11e/pyppeteer-1.0.1-py3-none-any.whl.metadata
+#20 51.04   Downloading pyppeteer-1.0.1-py3-none-any.whl.metadata (6.9 kB)
+#20 51.07   Obtaining dependency information for pyppeteer>=0.0.14 from https://files.pythonhosted.org/packages/10/9f/0ef17140586d66956a7cfc35d81c2ca26af820ab7bbf1b133e923232d650/pyppeteer-1.0.0-py3-none-any.whl.metadata
+#20 51.08   Downloading pyppeteer-1.0.0-py3-none-any.whl.metadata (6.9 kB)
+#20 51.11   Obtaining dependency information for pyppeteer>=0.0.14 from https://files.pythonhosted.org/packages/ba/68/9b4a31277ec342730bf31ffe0f9dbf2d02411ba32438b142f3a111816804/pyppeteer-0.2.6-py3-none-any.whl.metadata
+#20 51.13   Downloading pyppeteer-0.2.6-py3-none-any.whl.metadata (6.9 kB)
+#20 51.16   Obtaining dependency information for pyppeteer>=0.0.14 from https://files.pythonhosted.org/packages/4a/05/ea3250282e46fda60df1f1d5246bb8cdc022abb89969c61a98ea28fd6b82/pyppeteer-0.2.5-py3-none-any.whl.metadata
+#20 51.20   Downloading pyppeteer-0.2.5-py3-none-any.whl.metadata (6.9 kB)
+#20 51.24   Obtaining dependency information for pyppeteer>=0.0.14 from https://files.pythonhosted.org/packages/8d/5f/e2741951d1966ab1acfba323436ff1a0481ea86dada21e7b5b3ca05e674d/pyppeteer-0.2.4-py3-none-any.whl.metadata
+#20 51.26   Downloading pyppeteer-0.2.4-py3-none-any.whl.metadata (6.8 kB)
+#20 51.29   Obtaining dependency information for pyppeteer>=0.0.14 from https://files.pythonhosted.org/packages/48/ae/36527c5ec7b18b59ba541f1865993ba06c45fd22dfd643ca0d2667b2c2c3/pyppeteer-0.2.3-py3-none-any.whl.metadata
+#20 51.31   Downloading pyppeteer-0.2.3-py3-none-any.whl.metadata (6.8 kB)
+#20 51.34 INFO: pip is still looking at multiple versions of pyppeteer to determine which version is compatible with other requirements. This could take a while.
+#20 51.35   Obtaining dependency information for pyppeteer>=0.0.14 from https://files.pythonhosted.org/packages/5d/4b/3c2aabdd1b91fa52aa9de6cde33b488b0592b4d48efb0ad9efbf71c49f5b/pyppeteer-0.2.2-py3-none-any.whl.metadata
+#20 51.38   Downloading pyppeteer-0.2.2-py3-none-any.whl.metadata (6.6 kB)
+#20 51.42   Downloading pyppeteer-0.0.25.tar.gz (1.2 MB)
+#20 52.27      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 1.4 MB/s eta 0:00:00
+#20 52.39   Preparing metadata (setup.py): started
+#20 52.40   Running command python setup.py egg_info
+#20 52.86   /usr/local/lib/python3.11/site-packages/setuptools/_distutils/dist.py:289: UserWarning: Unknown distribution option: 'test_suite'
+#20 52.87     warnings.warn(msg)
+#20 52.87   /usr/local/lib/python3.11/site-packages/setuptools/_distutils/dist.py:289: UserWarning: Unknown distribution option: 'tests_require'
+#20 52.87     warnings.warn(msg)
+#20 52.89   /usr/local/lib/python3.11/site-packages/setuptools/dist.py:759: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+#20 52.89   !!
+#20 52.89 
+#20 52.89           ********************************************************************************
+#20 52.89           Please consider removing the following classifiers in favor of a SPDX license expression:
+#20 52.89 
+#20 52.89           License :: OSI Approved :: MIT License
+#20 52.90 
+#20 52.91           See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+#20 52.91           ********************************************************************************
+#20 52.91 
+#20 52.91   !!
+#20 52.91     self._finalize_license_expression()
+#20 52.94   running egg_info
+#20 52.95   creating /tmp/pip-pip-egg-info-3up374u6/pyppeteer.egg-info
+#20 52.95   writing /tmp/pip-pip-egg-info-3up374u6/pyppeteer.egg-info/PKG-INFO
+#20 52.95   writing dependency_links to /tmp/pip-pip-egg-info-3up374u6/pyppeteer.egg-info/dependency_links.txt
+#20 52.95   writing entry points to /tmp/pip-pip-egg-info-3up374u6/pyppeteer.egg-info/entry_points.txt
+#20 52.96   writing requirements to /tmp/pip-pip-egg-info-3up374u6/pyppeteer.egg-info/requires.txt
+#20 52.96   writing top-level names to /tmp/pip-pip-egg-info-3up374u6/pyppeteer.egg-info/top_level.txt
+#20 52.96   writing manifest file '/tmp/pip-pip-egg-info-3up374u6/pyppeteer.egg-info/SOURCES.txt'
+#20 52.99   reading manifest file '/tmp/pip-pip-egg-info-3up374u6/pyppeteer.egg-info/SOURCES.txt'
+#20 52.99   reading manifest template 'MANIFEST.in'
+#20 53.01   warning: no previously-included files matching '__pycache__' found under directory '*'
+#20 53.02   warning: no previously-included files matching '*.py[co]' found under directory '*'
+#20 53.03   warning: no files found matching '*.rst' under directory 'docs'
+#20 53.03   warning: no files found matching '*.jpg' under directory 'docs'
+#20 53.03   warning: no files found matching '*.png' under directory 'docs'
+#20 53.03   warning: no files found matching '*.gif' under directory 'docs'
+#20 53.03   warning: no files found matching '*.js' under directory 'docs'
+#20 53.04   no previously-included directories found matching 'docs/_build'
+#20 53.04   adding license file 'LICENSE'
+#20 53.06   writing manifest file '/tmp/pip-pip-egg-info-3up374u6/pyppeteer.egg-info/SOURCES.txt'
+#20 53.11   Preparing metadata (setup.py): finished with status 'done'
+#20 53.34 Collecting tqdm (from pyppeteer>=0.0.14->requests-html->-r requirements.txt (line 13))
+#20 53.34   Obtaining dependency information for tqdm from https://files.pythonhosted.org/packages/d0/30/dc54f88dd4a2b5dc8a0279bdd7270e735851848b762aeb1c1184ed1f6b14/tqdm-4.67.1-py3-none-any.whl.metadata
+#20 53.36   Downloading tqdm-4.67.1-py3-none-any.whl.metadata (57 kB)
+#20 53.40      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 57.7/57.7 kB 1.8 MB/s eta 0:00:00
+#20 53.51 Collecting six>=1.5 (from python-dateutil>=2.8.2->celery->-r requirements.txt (line 2))
+#20 53.51   Obtaining dependency information for six>=1.5 from https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl.metadata
+#20 53.54   Downloading six-1.17.0-py2.py3-none-any.whl.metadata (1.7 kB)
+#20 53.89 Collecting attrs>=19.1.0 (from service-identity>=18.1.0->scrapy->-r requirements.txt (line 14))
+#20 53.89   Obtaining dependency information for attrs>=19.1.0 from https://files.pythonhosted.org/packages/3a/2a/7cc015f5b9f5db42b7d48157e23356022889fc354a2813c15934b7cb5c0e/attrs-25.4.0-py3-none-any.whl.metadata
+#20 54.00   Downloading attrs-25.4.0-py3-none-any.whl.metadata (10 kB)
+#20 54.29 Collecting pyasn1 (from service-identity>=18.1.0->scrapy->-r requirements.txt (line 14))
+#20 54.29   Obtaining dependency information for pyasn1 from https://files.pythonhosted.org/packages/c8/f1/d6a797abb14f6283c0ddff96bbdd46937f64122b8c925cab503dd37f8214/pyasn1-0.6.1-py3-none-any.whl.metadata
+#20 54.34   Downloading pyasn1-0.6.1-py3-none-any.whl.metadata (8.4 kB)
+#20 54.55 Collecting pyasn1-modules (from service-identity>=18.1.0->scrapy->-r requirements.txt (line 14))
+#20 54.55   Obtaining dependency information for pyasn1-modules from https://files.pythonhosted.org/packages/47/8d/d529b5d697919ba8c11ad626e835d4039be708a35b0d22de83a269a6682c/pyasn1_modules-0.4.2-py3-none-any.whl.metadata
+#20 54.57   Downloading pyasn1_modules-0.4.2-py3-none-any.whl.metadata (3.5 kB)
+#20 54.73 Collecting sortedcontainers (from trio<1.0,>=0.31.0->selenium->-r requirements.txt (line 15))
+#20 54.73   Obtaining dependency information for sortedcontainers from https://files.pythonhosted.org/packages/32/46/9cb0e58b2deb7f82b84065f37f3bffeb12413f947f9388e4cac22c4621ce/sortedcontainers-2.4.0-py2.py3-none-any.whl.metadata
+#20 54.75   Downloading sortedcontainers-2.4.0-py2.py3-none-any.whl.metadata (10 kB)
+#20 54.81 Collecting outcome (from trio<1.0,>=0.31.0->selenium->-r requirements.txt (line 15))
+#20 54.81   Obtaining dependency information for outcome from https://files.pythonhosted.org/packages/55/8b/5ab7257531a5d830fc8000c476e63c935488d74609b50f9384a643ec0a62/outcome-1.3.0.post0-py2.py3-none-any.whl.metadata
+#20 54.82   Downloading outcome-1.3.0.post0-py2.py3-none-any.whl.metadata (2.6 kB)
+#20 55.08 Collecting sniffio>=1.3.0 (from trio<1.0,>=0.31.0->selenium->-r requirements.txt (line 15))
+#20 55.08   Obtaining dependency information for sniffio>=1.3.0 from https://files.pythonhosted.org/packages/e9/44/75a9c9421471a6c4805dbf2356f7c181a29c1879239abab1ea2cc8f38b40/sniffio-1.3.1-py3-none-any.whl.metadata
+#20 55.10   Downloading sniffio-1.3.1-py3-none-any.whl.metadata (3.9 kB)
+#20 55.20 Collecting wsproto>=0.14 (from trio-websocket<1.0,>=0.12.2->selenium->-r requirements.txt (line 15))
+#20 55.20   Obtaining dependency information for wsproto>=0.14 from https://files.pythonhosted.org/packages/78/58/e860788190eba3bcce367f74d29c4675466ce8dddfba85f7827588416f01/wsproto-1.2.0-py3-none-any.whl.metadata
+#20 55.22   Downloading wsproto-1.2.0-py3-none-any.whl.metadata (5.6 kB)
+#20 55.76 Collecting automat>=24.8.0 (from twisted>=21.7.0->scrapy->-r requirements.txt (line 14))
+#20 55.76   Obtaining dependency information for automat>=24.8.0 from https://files.pythonhosted.org/packages/02/ff/1175b0b7371e46244032d43a56862d0af455823b5280a50c63d99cc50f18/automat-25.4.16-py3-none-any.whl.metadata
+#20 55.79   Downloading automat-25.4.16-py3-none-any.whl.metadata (8.4 kB)
+#20 55.84 Collecting constantly>=15.1 (from twisted>=21.7.0->scrapy->-r requirements.txt (line 14))
+#20 55.84   Obtaining dependency information for constantly>=15.1 from https://files.pythonhosted.org/packages/b8/40/c199d095151addf69efdb4b9ca3a4f20f70e20508d6222bffb9b76f58573/constantly-23.10.4-py3-none-any.whl.metadata
+#20 55.90   Downloading constantly-23.10.4-py3-none-any.whl.metadata (1.8 kB)
+#20 55.98 Collecting hyperlink>=17.1.1 (from twisted>=21.7.0->scrapy->-r requirements.txt (line 14))
+#20 55.98   Obtaining dependency information for hyperlink>=17.1.1 from https://files.pythonhosted.org/packages/6e/aa/8caf6a0a3e62863cbb9dab27135660acba46903b703e224f14f447e57934/hyperlink-21.0.0-py2.py3-none-any.whl.metadata
+#20 56.01   Downloading hyperlink-21.0.0-py2.py3-none-any.whl.metadata (1.5 kB)
+#20 56.09 Collecting incremental>=24.7.0 (from twisted>=21.7.0->scrapy->-r requirements.txt (line 14))
+#20 56.09   Obtaining dependency information for incremental>=24.7.0 from https://files.pythonhosted.org/packages/0d/38/221e5b2ae676a3938c2c1919131410c342b6efc2baffeda395dd66eeca8f/incremental-24.7.2-py3-none-any.whl.metadata
+#20 56.11   Downloading incremental-24.7.2-py3-none-any.whl.metadata (8.1 kB)
+#20 56.50 Collecting pysocks!=1.5.7,<2.0,>=1.5.6 (from urllib3[socks]<3.0,>=2.5.0->selenium->-r requirements.txt (line 15))
+#20 56.51   Obtaining dependency information for pysocks!=1.5.7,<2.0,>=1.5.6 from https://files.pythonhosted.org/packages/8d/59/b4572118e098ac8e46e399a1dd0f2d85403ce8bbaad9ec79373ed6badaf9/PySocks-1.7.1-py3-none-any.whl.metadata
+#20 56.54   Downloading PySocks-1.7.1-py3-none-any.whl.metadata (13 kB)
+#20 57.24 Collecting requests-file>=1.4 (from tldextract->scrapy->-r requirements.txt (line 14))
+#20 57.24   Obtaining dependency information for requests-file>=1.4 from https://files.pythonhosted.org/packages/e1/d5/de8f089119205a09da657ed4784c584ede8381a0ce6821212a6d4ca47054/requests_file-3.0.1-py2.py3-none-any.whl.metadata
+#20 57.27   Downloading requests_file-3.0.1-py2.py3-none-any.whl.metadata (1.7 kB)
+#20 57.56 Collecting filelock>=3.0.8 (from tldextract->scrapy->-r requirements.txt (line 14))
+#20 57.56   Obtaining dependency information for filelock>=3.0.8 from https://files.pythonhosted.org/packages/76/91/7216b27286936c16f5b4d0c530087e4a54eead683e6b0b73dd0c64844af6/filelock-3.20.0-py3-none-any.whl.metadata
+#20 57.59   Downloading filelock-3.20.0-py3-none-any.whl.metadata (2.1 kB)
+#20 57.83 Collecting pycparser (from cffi>=2.0.0->cryptography>=37.0.0->scrapy->-r requirements.txt (line 14))
+#20 57.83   Obtaining dependency information for pycparser from https://files.pythonhosted.org/packages/a0/e3/59cd50310fc9b59512193629e1984c1f95e5c8ae6e5d8c69532ccc65a7fe/pycparser-2.23-py3-none-any.whl.metadata
+#20 57.90   Downloading pycparser-2.23-py3-none-any.whl.metadata (993 bytes)
+#20 58.02 Requirement already satisfied: setuptools>=61.0 in /usr/local/lib/python3.11/site-packages (from incremental>=24.7.0->twisted>=21.7.0->scrapy->-r requirements.txt (line 14)) (79.0.1)
+#20 58.26 Collecting wcwidth (from prompt-toolkit>=3.0.36->click-repl>=0.2.0->celery->-r requirements.txt (line 2))
+#20 58.26   Obtaining dependency information for wcwidth from https://files.pythonhosted.org/packages/af/b5/123f13c975e9f27ab9c0770f514345bd406d0e8d3b7a0723af9d43f710af/wcwidth-0.2.14-py2.py3-none-any.whl.metadata
+#20 58.35   Downloading wcwidth-0.2.14-py2.py3-none-any.whl.metadata (15 kB)
+#20 58.69 Collecting h11<1,>=0.9.0 (from wsproto>=0.14->trio-websocket<1.0,>=0.12.2->selenium->-r requirements.txt (line 15))
+#20 58.69   Obtaining dependency information for h11<1,>=0.9.0 from https://files.pythonhosted.org/packages/04/4b/29cac41a4d98d144bf5f6d33995617b185d14b22401f75ca86f384e87ff1/h11-0.16.0-py3-none-any.whl.metadata
+#20 58.77   Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+#20 59.25 Downloading beautifulsoup4-4.14.2-py3-none-any.whl (106 kB)
+#20 59.31    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 106.4/106.4 kB 1.9 MB/s eta 0:00:00
+#20 59.34 Downloading celery-5.5.3-py3-none-any.whl (438 kB)
+#20 59.78    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 438.8/438.8 kB 1.0 MB/s eta 0:00:00
+#20 59.81 Downloading django-5.2.7-py3-none-any.whl (8.3 MB)
+#20 63.98    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 8.3/8.3 MB 2.0 MB/s eta 0:00:00
+#20 64.00 Downloading django_cors_headers-4.9.0-py3-none-any.whl (12 kB)
+#20 64.01 Downloading djangorestframework-3.16.1-py3-none-any.whl (1.1 MB)
+#20 64.59    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.1/1.1 MB 1.9 MB/s eta 0:00:00
+#20 64.61 Downloading djangorestframework_simplejwt-5.5.1-py3-none-any.whl (107 kB)
+#20 64.70    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 107.7/107.7 kB 1.5 MB/s eta 0:00:00
+#20 64.77 Downloading django_filter-25.2-py3-none-any.whl (94 kB)
+#20 64.82    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 94.1/94.1 kB 2.2 MB/s eta 0:00:00
+#20 64.85 Downloading playwright-1.55.0-py3-none-manylinux1_x86_64.whl (45.9 MB)
+#20 101.4    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 45.9/45.9 MB 1.6 MB/s eta 0:00:00
+#20 101.5 Downloading pillow-12.0.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (7.0 MB)
+#20 106.8    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.0/7.0 MB 1.3 MB/s eta 0:00:00
+#20 106.8 Downloading redis-7.0.1-py3-none-any.whl (339 kB)
+#20 107.2    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 339.9/339.9 kB 1.7 MB/s eta 0:00:00
+#20 107.4 Downloading requests-2.32.5-py3-none-any.whl (64 kB)
+#20 107.5    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 64.7/64.7 kB 3.0 MB/s eta 0:00:00
+#20 107.5 Downloading requests_html-0.10.0-py3-none-any.whl (13 kB)
+#20 107.5 Downloading scrapy-2.13.3-py3-none-any.whl (321 kB)
+#20 107.8    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 321.8/321.8 kB 1.2 MB/s eta 0:00:00
+#20 107.8 Downloading selenium-4.38.0-py3-none-any.whl (9.7 MB)
+#20 120.3    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 9.7/9.7 MB 1.0 MB/s eta 0:00:00
+#20 120.3 Downloading webdriver_manager-4.0.2-py2.py3-none-any.whl (27 kB)
+#20 120.3 Downloading lxml_html_clean-0.4.3-py3-none-any.whl (14 kB)
+#20 120.4 Downloading playwright_stealth-2.0.0-py3-none-any.whl (32 kB)
+#20 120.4 Downloading oracledb-3.4.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (2.7 MB)
+#20 122.0    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.7/2.7 MB 1.7 MB/s eta 0:00:00
+#20 122.1 Downloading asgiref-3.10.0-py3-none-any.whl (24 kB)
+#20 122.1 Downloading billiard-4.2.2-py3-none-any.whl (86 kB)
+#20 122.1    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 86.9/86.9 kB 3.9 MB/s eta 0:00:00
+#20 122.1 Downloading certifi-2025.10.5-py3-none-any.whl (163 kB)
+#20 122.2    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 163.3/163.3 kB 5.7 MB/s eta 0:00:00
+#20 122.2 Downloading charset_normalizer-3.4.4-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (151 kB)
+#20 122.3    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 151.6/151.6 kB 3.4 MB/s eta 0:00:00
+#20 122.3 Downloading click-8.3.0-py3-none-any.whl (107 kB)
+#20 122.3    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 107.3/107.3 kB 3.5 MB/s eta 0:00:00
+#20 122.3 Downloading click_didyoumean-0.3.1-py3-none-any.whl (3.6 kB)
+#20 122.3 Downloading click_plugins-1.1.1.2-py2.py3-none-any.whl (11 kB)
+#20 122.4 Downloading click_repl-0.3.0-py3-none-any.whl (10 kB)
+#20 122.4 Downloading cryptography-46.0.3-cp311-abi3-manylinux_2_34_x86_64.whl (4.5 MB)
+#20 125.0    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.5/4.5 MB 1.7 MB/s eta 0:00:00
+#20 125.0 Downloading cssselect-1.3.0-py3-none-any.whl (18 kB)
+#20 125.1 Downloading defusedxml-0.7.1-py2.py3-none-any.whl (25 kB)
+#20 125.1 Downloading greenlet-3.2.4-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (587 kB)
+#20 126.0    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 587.7/587.7 kB 642.7 kB/s eta 0:00:00
+#20 126.0 Downloading idna-3.11-py3-none-any.whl (71 kB)
+#20 126.4    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 71.0/71.0 kB 910.7 kB/s eta 0:00:00
+#20 126.4 Downloading itemadapter-0.12.2-py3-none-any.whl (18 kB)
+#20 126.4 Downloading itemloaders-1.3.2-py3-none-any.whl (12 kB)
+#20 126.5 Downloading kombu-5.5.4-py3-none-any.whl (210 kB)
+#20 126.9    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 210.0/210.0 kB 469.3 kB/s eta 0:00:00
+#20 126.9 Downloading vine-5.1.0-py3-none-any.whl (9.6 kB)
+#20 127.0 Downloading lxml-6.0.2-cp311-cp311-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl (5.2 MB)
+#20 131.7    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.2/5.2 MB 1.1 MB/s eta 0:00:00
+#20 131.8 Downloading parsel-1.10.0-py2.py3-none-any.whl (17 kB)
+#20 131.8 Downloading protego-0.5.0-py3-none-any.whl (10 kB)
+#20 131.8 Downloading PyDispatcher-2.0.7-py3-none-any.whl (12 kB)
+#20 131.8 Downloading pyee-13.0.0-py3-none-any.whl (15 kB)
+#20 131.8 Downloading PyJWT-2.10.1-py3-none-any.whl (22 kB)
+#20 131.9 Downloading pyopenssl-25.3.0-py3-none-any.whl (57 kB)
+#20 131.9    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 57.3/57.3 kB 3.8 MB/s eta 0:00:00
+#20 131.9 Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
+#20 132.0    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 229.9/229.9 kB 4.6 MB/s eta 0:00:00
+#20 132.0 Downloading queuelib-1.8.0-py3-none-any.whl (13 kB)
+#20 132.0 Downloading service_identity-24.2.0-py3-none-any.whl (11 kB)
+#20 132.1 Downloading soupsieve-2.8-py3-none-any.whl (36 kB)
+#20 132.1 Downloading sqlparse-0.5.3-py3-none-any.whl (44 kB)
+#20 132.1    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 44.4/44.4 kB 1.9 MB/s eta 0:00:00
+#20 132.2 Downloading trio-0.32.0-py3-none-any.whl (512 kB)
+#20 132.3    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 512.0/512.0 kB 4.2 MB/s eta 0:00:00
+#20 132.3 Downloading trio_websocket-0.12.2-py3-none-any.whl (21 kB)
+#20 132.3 Downloading twisted-25.5.0-py3-none-any.whl (3.2 MB)
+#20 133.4    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.2/3.2 MB 3.1 MB/s eta 0:00:00
+#20 133.4 Downloading typing_extensions-4.15.0-py3-none-any.whl (44 kB)
+#20 133.4    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 44.6/44.6 kB 1.8 MB/s eta 0:00:00
+#20 133.5 Downloading urllib3-2.5.0-py3-none-any.whl (129 kB)
+#20 133.5    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 129.8/129.8 kB 4.0 MB/s eta 0:00:00
+#20 133.5 Downloading w3lib-2.3.1-py3-none-any.whl (21 kB)
+#20 133.6 Downloading websocket_client-1.9.0-py3-none-any.whl (82 kB)
+#20 133.6    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 82.6/82.6 kB 2.9 MB/s eta 0:00:00
+#20 133.6 Downloading zope_interface-8.0.1-cp311-cp311-manylinux1_x86_64.manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_5_x86_64.whl (259 kB)
+#20 133.9    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 259.8/259.8 kB 1.1 MB/s eta 0:00:00
+#20 133.9 Downloading bs4-0.0.2-py2.py3-none-any.whl (1.2 kB)
+#20 133.9 Downloading fake_useragent-2.2.0-py3-none-any.whl (161 kB)
+#20 134.0    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 161.7/161.7 kB 2.6 MB/s eta 0:00:00
+#20 134.0 Downloading packaging-25.0-py3-none-any.whl (66 kB)
+#20 134.0    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 66.5/66.5 kB 5.3 MB/s eta 0:00:00
+#20 134.0 Downloading parse-1.20.2-py2.py3-none-any.whl (20 kB)
+#20 134.1 Downloading pyquery-2.0.1-py3-none-any.whl (22 kB)
+#20 134.1 Downloading python_dotenv-1.2.1-py3-none-any.whl (21 kB)
+#20 134.1 Downloading tldextract-5.3.0-py3-none-any.whl (107 kB)
+#20 134.3    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 107.4/107.4 kB 424.2 kB/s eta 0:00:00
+#20 134.4 Downloading websockets-15.0.1-cp311-cp311-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl (182 kB)
+#20 134.9    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 182.3/182.3 kB 381.9 kB/s eta 0:00:00
+#20 134.9 Downloading amqp-5.3.1-py3-none-any.whl (50 kB)
+#20 135.0    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 50.9/50.9 kB 1.2 MB/s eta 0:00:00
+#20 135.0 Downloading attrs-25.4.0-py3-none-any.whl (67 kB)
+#20 135.2    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 67.6/67.6 kB 317.9 kB/s eta 0:00:00
+#20 135.2 Downloading automat-25.4.16-py3-none-any.whl (42 kB)
+#20 135.5    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 42.8/42.8 kB 110.2 kB/s eta 0:00:00
+#20 135.5 Downloading cffi-2.0.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (215 kB)
+#20 135.7    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 215.6/215.6 kB 1.9 MB/s eta 0:00:00
+#20 135.7 Downloading constantly-23.10.4-py3-none-any.whl (13 kB)
+#20 135.7 Downloading filelock-3.20.0-py3-none-any.whl (16 kB)
+#20 135.7 Downloading hyperlink-21.0.0-py2.py3-none-any.whl (74 kB)
+#20 135.8    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 74.6/74.6 kB 3.2 MB/s eta 0:00:00
+#20 135.8 Downloading incremental-24.7.2-py3-none-any.whl (20 kB)
+#20 135.8 Downloading jmespath-1.0.1-py3-none-any.whl (20 kB)
+#20 135.8 Downloading outcome-1.3.0.post0-py2.py3-none-any.whl (10 kB)
+#20 135.8 Downloading prompt_toolkit-3.0.52-py3-none-any.whl (391 kB)
+#20 136.2    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 391.4/391.4 kB 982.7 kB/s eta 0:00:00
+#20 136.3 Downloading PySocks-1.7.1-py3-none-any.whl (16 kB)
+#20 136.3 Downloading requests_file-3.0.1-py2.py3-none-any.whl (4.5 kB)
+#20 136.3 Downloading six-1.17.0-py2.py3-none-any.whl (11 kB)
+#20 136.3 Downloading sniffio-1.3.1-py3-none-any.whl (10 kB)
+#20 136.3 Downloading tzdata-2025.2-py2.py3-none-any.whl (347 kB)
+#20 136.7    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 347.8/347.8 kB 874.1 kB/s eta 0:00:00
+#20 136.8 Downloading wsproto-1.2.0-py3-none-any.whl (24 kB)
+#20 136.8 Downloading appdirs-1.4.4-py2.py3-none-any.whl (9.6 kB)
+#20 136.8 Downloading pyasn1-0.6.1-py3-none-any.whl (83 kB)
+#20 137.3    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 83.1/83.1 kB 212.1 kB/s eta 0:00:00
+#20 137.3 Downloading pyasn1_modules-0.4.2-py3-none-any.whl (181 kB)
+#20 138.1    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 181.3/181.3 kB 255.7 kB/s eta 0:00:00
+#20 138.1 Downloading sortedcontainers-2.4.0-py2.py3-none-any.whl (29 kB)
+#20 138.4 Downloading tqdm-4.67.1-py3-none-any.whl (78 kB)
+#20 138.5    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 78.5/78.5 kB 660.5 kB/s eta 0:00:00
+#20 138.5 Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+#20 138.6 Downloading pycparser-2.23-py3-none-any.whl (118 kB)
+#20 138.7    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 118.1/118.1 kB 1.8 MB/s eta 0:00:00
+#20 138.7 Downloading wcwidth-0.2.14-py2.py3-none-any.whl (37 kB)
+#20 139.6 Building wheels for collected packages: mysqlclient, undetected-chromedriver, pyppeteer
+#20 139.6   Building wheel for mysqlclient (pyproject.toml): started
+#20 139.7   Running command Building wheel for mysqlclient (pyproject.toml)
+#20 140.4   /tmp/pip-build-env-kdsih95n/overlay/lib/python3.11/site-packages/setuptools/config/_apply_pyprojecttoml.py:82: SetuptoolsDeprecationWarning: `project.license` as a TOML table is deprecated
+#20 140.4   !!
+#20 140.4 
+#20 140.4           ********************************************************************************
+#20 140.5           Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+#20 140.5 
+#20 140.5           By 2026-Feb-18, you need to update your project and remove deprecated calls
+#20 140.5           or your builds will no longer be supported.
+#20 140.5 
+#20 140.5           See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+#20 140.5           ********************************************************************************
+#20 140.5 
+#20 140.5   !!
+#20 140.5     corresp(dist, value, root_dir)
+#20 140.5   /tmp/pip-build-env-kdsih95n/overlay/lib/python3.11/site-packages/setuptools/config/_apply_pyprojecttoml.py:61: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+#20 140.5   !!
+#20 140.5 
+#20 140.5           ********************************************************************************
+#20 140.5           Please consider removing the following classifiers in favor of a SPDX license expression:
+#20 140.5 
+#20 140.5           License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)
+#20 140.5 
+#20 140.5           See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+#20 140.5           ********************************************************************************
+#20 140.5 
+#20 140.5   !!
+#20 140.5     dist._finalize_license_expression()
+#20 140.6   /tmp/pip-build-env-kdsih95n/overlay/lib/python3.11/site-packages/setuptools/dist.py:759: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+#20 140.6   !!
+#20 140.6 
+#20 140.6           ********************************************************************************
+#20 140.6           Please consider removing the following classifiers in favor of a SPDX license expression:
+#20 140.6 
+#20 140.6           License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)
+#20 140.6 
+#20 140.6           See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+#20 140.6           ********************************************************************************
+#20 140.6 
+#20 140.6   !!
+#20 140.6     self._finalize_license_expression()
+#20 140.6   Trying pkg-config --exists mysqlclient
+#20 140.6   # Options for building extension module:
+#20 140.6     extra_compile_args: ['-I/usr/include/mariadb/', '-std=c99']
+#20 140.6     extra_link_args: ['-L/usr/lib/x86_64-linux-gnu/', '-lmariadb']
+#20 140.6     define_macros: [('version_info', (2, 2, 7, 'final', 0)), ('__version__', '2.2.7')]
+#20 140.6   running bdist_wheel
+#20 140.6   running build
+#20 140.6   running build_py
+#20 140.6   creating build/lib.linux-x86_64-cpython-311/MySQLdb
+#20 140.6   copying src/MySQLdb/times.py -> build/lib.linux-x86_64-cpython-311/MySQLdb
+#20 140.6   copying src/MySQLdb/cursors.py -> build/lib.linux-x86_64-cpython-311/MySQLdb
+#20 140.6   copying src/MySQLdb/converters.py -> build/lib.linux-x86_64-cpython-311/MySQLdb
+#20 140.6   copying src/MySQLdb/_exceptions.py -> build/lib.linux-x86_64-cpython-311/MySQLdb
+#20 140.6   copying src/MySQLdb/release.py -> build/lib.linux-x86_64-cpython-311/MySQLdb
+#20 140.6   copying src/MySQLdb/connections.py -> build/lib.linux-x86_64-cpython-311/MySQLdb
+#20 140.6   copying src/MySQLdb/__init__.py -> build/lib.linux-x86_64-cpython-311/MySQLdb
+#20 140.6   creating build/lib.linux-x86_64-cpython-311/MySQLdb/constants
+#20 140.6   copying src/MySQLdb/constants/FIELD_TYPE.py -> build/lib.linux-x86_64-cpython-311/MySQLdb/constants
+#20 140.6   copying src/MySQLdb/constants/ER.py -> build/lib.linux-x86_64-cpython-311/MySQLdb/constants
+#20 140.6   copying src/MySQLdb/constants/CLIENT.py -> build/lib.linux-x86_64-cpython-311/MySQLdb/constants
+#20 140.6   copying src/MySQLdb/constants/FLAG.py -> build/lib.linux-x86_64-cpython-311/MySQLdb/constants
+#20 140.6   copying src/MySQLdb/constants/CR.py -> build/lib.linux-x86_64-cpython-311/MySQLdb/constants
+#20 140.6   copying src/MySQLdb/constants/__init__.py -> build/lib.linux-x86_64-cpython-311/MySQLdb/constants
+#20 140.6   running egg_info
+#20 140.6   writing src/mysqlclient.egg-info/PKG-INFO
+#20 140.6   writing dependency_links to src/mysqlclient.egg-info/dependency_links.txt
+#20 140.6   writing top-level names to src/mysqlclient.egg-info/top_level.txt
+#20 140.6   reading manifest file 'src/mysqlclient.egg-info/SOURCES.txt'
+#20 140.6   reading manifest template 'MANIFEST.in'
+#20 140.6   adding license file 'LICENSE'
+#20 140.6   writing manifest file 'src/mysqlclient.egg-info/SOURCES.txt'
+#20 140.6   copying src/MySQLdb/_mysql.c -> build/lib.linux-x86_64-cpython-311/MySQLdb
+#20 140.6   running build_ext
+#20 140.7   building 'MySQLdb._mysql' extension
+#20 140.7   creating build/temp.linux-x86_64-cpython-311/src/MySQLdb
+#20 140.7   gcc -Wsign-compare -DNDEBUG -g -fwrapv -O3 -Wall -fPIC "-Dversion_info=(2, 2, 7, 'final', 0)" -D__version__=2.2.7 -I/usr/local/include/python3.11 -c src/MySQLdb/_mysql.c -o build/temp.linux-x86_64-cpython-311/src/MySQLdb/_mysql.o -I/usr/include/mariadb/ -std=c99
+#20 141.4   In file included from /usr/local/include/python3.11/Python.h:87,
+#20 141.4                    from src/MySQLdb/_mysql.c:52:
+#20 141.4   /usr/local/include/python3.11/cpython/pytime.h:208:60: warning: ‘struct timespec’ declared inside parameter list will not be visible outside of this definition or declaration
+#20 141.4     208 | PyAPI_FUNC(int) _PyTime_FromTimespec(_PyTime_t *tp, struct timespec *ts);
+#20 141.4         |                                                            ^~~~~~~~
+#20 141.4   /usr/local/include/python3.11/cpython/pytime.h:213:56: warning: ‘struct timespec’ declared inside parameter list will not be visible outside of this definition or declaration
+#20 141.4     213 | PyAPI_FUNC(int) _PyTime_AsTimespec(_PyTime_t t, struct timespec *ts);
+#20 141.4         |                                                        ^~~~~~~~
+#20 141.4   /usr/local/include/python3.11/cpython/pytime.h:217:63: warning: ‘struct timespec’ declared inside parameter list will not be visible outside of this definition or declaration
+#20 141.4     217 | PyAPI_FUNC(void) _PyTime_AsTimespec_clamp(_PyTime_t t, struct timespec *ts);
+#20 141.4         |                                                               ^~~~~~~~
+#20 141.5   src/MySQLdb/_mysql.c: In function ‘_mysql_ConnectionObject_Initialize’:
+#20 141.5   src/MySQLdb/_mysql.c:488:10: warning: variable ‘ssl_mode_set’ set but not used [-Wunused-but-set-variable]
+#20 141.5     488 |     char ssl_mode_set = 0;
+#20 141.5         |          ^~~~~~~~~~~~
+#20 143.5   gcc -shared build/temp.linux-x86_64-cpython-311/src/MySQLdb/_mysql.o -L/usr/local/lib -o build/lib.linux-x86_64-cpython-311/MySQLdb/_mysql.cpython-311-x86_64-linux-gnu.so -L/usr/lib/x86_64-linux-gnu/ -lmariadb
+#20 143.6   installing to build/bdist.linux-x86_64/wheel
+#20 143.6   running install
+#20 143.6   running install_lib
+#20 143.6   creating build/bdist.linux-x86_64/wheel
+#20 143.6   creating build/bdist.linux-x86_64/wheel/MySQLdb
+#20 143.6   copying build/lib.linux-x86_64-cpython-311/MySQLdb/times.py -> build/bdist.linux-x86_64/wheel/./MySQLdb
+#20 143.6   copying build/lib.linux-x86_64-cpython-311/MySQLdb/cursors.py -> build/bdist.linux-x86_64/wheel/./MySQLdb
+#20 143.6   copying build/lib.linux-x86_64-cpython-311/MySQLdb/_mysql.c -> build/bdist.linux-x86_64/wheel/./MySQLdb
+#20 143.6   copying build/lib.linux-x86_64-cpython-311/MySQLdb/converters.py -> build/bdist.linux-x86_64/wheel/./MySQLdb
+#20 143.6   copying build/lib.linux-x86_64-cpython-311/MySQLdb/_exceptions.py -> build/bdist.linux-x86_64/wheel/./MySQLdb
+#20 143.6   copying build/lib.linux-x86_64-cpython-311/MySQLdb/release.py -> build/bdist.linux-x86_64/wheel/./MySQLdb
+#20 143.6   copying build/lib.linux-x86_64-cpython-311/MySQLdb/connections.py -> build/bdist.linux-x86_64/wheel/./MySQLdb
+#20 143.6   creating build/bdist.linux-x86_64/wheel/MySQLdb/constants
+#20 143.6   copying build/lib.linux-x86_64-cpython-311/MySQLdb/constants/FIELD_TYPE.py -> build/bdist.linux-x86_64/wheel/./MySQLdb/constants
+#20 143.6   copying build/lib.linux-x86_64-cpython-311/MySQLdb/constants/ER.py -> build/bdist.linux-x86_64/wheel/./MySQLdb/constants
+#20 143.6   copying build/lib.linux-x86_64-cpython-311/MySQLdb/constants/CLIENT.py -> build/bdist.linux-x86_64/wheel/./MySQLdb/constants
+#20 143.6   copying build/lib.linux-x86_64-cpython-311/MySQLdb/constants/FLAG.py -> build/bdist.linux-x86_64/wheel/./MySQLdb/constants
+#20 143.6   copying build/lib.linux-x86_64-cpython-311/MySQLdb/constants/CR.py -> build/bdist.linux-x86_64/wheel/./MySQLdb/constants
+#20 143.6   copying build/lib.linux-x86_64-cpython-311/MySQLdb/constants/__init__.py -> build/bdist.linux-x86_64/wheel/./MySQLdb/constants
+#20 143.6   copying build/lib.linux-x86_64-cpython-311/MySQLdb/__init__.py -> build/bdist.linux-x86_64/wheel/./MySQLdb
+#20 143.6   copying build/lib.linux-x86_64-cpython-311/MySQLdb/_mysql.cpython-311-x86_64-linux-gnu.so -> build/bdist.linux-x86_64/wheel/./MySQLdb
+#20 143.6   running install_egg_info
+#20 143.6   Copying src/mysqlclient.egg-info to build/bdist.linux-x86_64/wheel/./mysqlclient-2.2.7-py3.11.egg-info
+#20 143.7   running install_scripts
+#20 143.7   creating build/bdist.linux-x86_64/wheel/mysqlclient-2.2.7.dist-info/WHEEL
+#20 143.7   creating '/tmp/pip-wheel-sotiyfi_/.tmp-24d8jdvl/mysqlclient-2.2.7-cp311-cp311-linux_x86_64.whl' and adding 'build/bdist.linux-x86_64/wheel' to it
+#20 143.7   adding 'MySQLdb/__init__.py'
+#20 143.7   adding 'MySQLdb/_exceptions.py'
+#20 143.7   adding 'MySQLdb/_mysql.c'
+#20 143.7   adding 'MySQLdb/_mysql.cpython-311-x86_64-linux-gnu.so'
+#20 143.8   adding 'MySQLdb/connections.py'
+#20 143.8   adding 'MySQLdb/converters.py'
+#20 143.8   adding 'MySQLdb/cursors.py'
+#20 143.8   adding 'MySQLdb/release.py'
+#20 143.8   adding 'MySQLdb/times.py'
+#20 143.8   adding 'MySQLdb/constants/CLIENT.py'
+#20 143.8   adding 'MySQLdb/constants/CR.py'
+#20 143.8   adding 'MySQLdb/constants/ER.py'
+#20 143.8   adding 'MySQLdb/constants/FIELD_TYPE.py'
+#20 143.8   adding 'MySQLdb/constants/FLAG.py'
+#20 143.8   adding 'MySQLdb/constants/__init__.py'
+#20 143.8   adding 'mysqlclient-2.2.7.dist-info/licenses/LICENSE'
+#20 143.8   adding 'mysqlclient-2.2.7.dist-info/METADATA'
+#20 143.8   adding 'mysqlclient-2.2.7.dist-info/WHEEL'
+#20 143.8   adding 'mysqlclient-2.2.7.dist-info/top_level.txt'
+#20 143.8   adding 'mysqlclient-2.2.7.dist-info/RECORD'
+#20 143.8   removing build/bdist.linux-x86_64/wheel
+#20 145.0   Building wheel for mysqlclient (pyproject.toml): finished with status 'done'
+#20 145.0   Created wheel for mysqlclient: filename=mysqlclient-2.2.7-cp311-cp311-linux_x86_64.whl size=136637 sha256=69b334038cde58f8b330dc26f5cb0b32bdf790e6e330ede547022dd3a54dfd86
+#20 145.0   Stored in directory: /tmp/pip-ephem-wheel-cache-7corx9om/wheels/cd/5f/fb/dbe9e6e7e1e24f9e73164c77b5fdc19bd36240425835c0e635
+#20 145.0   Building wheel for undetected-chromedriver (setup.py): started
+#20 145.1   Running command python setup.py bdist_wheel
+#20 147.1   /usr/local/lib/python3.11/site-packages/setuptools/dist.py:759: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+#20 147.1   !!
+#20 147.1 
+#20 147.1           ********************************************************************************
+#20 147.1           Please consider removing the following classifiers in favor of a SPDX license expression:
+#20 147.1 
+#20 147.1           License :: OSI Approved :: GNU General Public License v3 (GPLv3)
+#20 147.1 
+#20 147.1           See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+#20 147.1           ********************************************************************************
+#20 147.1 
+#20 147.1   !!
+#20 147.1     self._finalize_license_expression()
+#20 147.1   running bdist_wheel
+#20 147.2   running build
+#20 147.2   running build_py
+#20 147.2   creating build/lib/undetected_chromedriver
+#20 147.2   copying undetected_chromedriver/devtool.py -> build/lib/undetected_chromedriver
+#20 147.2   copying undetected_chromedriver/cdp.py -> build/lib/undetected_chromedriver
+#20 147.2   copying undetected_chromedriver/reactor.py -> build/lib/undetected_chromedriver
+#20 147.2   copying undetected_chromedriver/webelement.py -> build/lib/undetected_chromedriver
+#20 147.2   copying undetected_chromedriver/patcher.py -> build/lib/undetected_chromedriver
+#20 147.2   copying undetected_chromedriver/dprocess.py -> build/lib/undetected_chromedriver
+#20 147.2   copying undetected_chromedriver/options.py -> build/lib/undetected_chromedriver
+#20 147.2   copying undetected_chromedriver/__init__.py -> build/lib/undetected_chromedriver
+#20 147.2   /usr/local/lib/python3.11/site-packages/setuptools/_distutils/cmd.py:90: SetuptoolsDeprecationWarning: setup.py install is deprecated.
+#20 147.2   !!
+#20 147.2 
+#20 147.2           ********************************************************************************
+#20 147.2           Please avoid running ``setup.py`` directly.
+#20 147.2           Instead, use pypa/build, pypa/installer or other
+#20 147.2           standards-based tools.
+#20 147.2 
+#20 147.2           See https://blog.ganssle.io/articles/2021/10/setup-py-deprecated.html for details.
+#20 147.2           ********************************************************************************
+#20 147.2 
+#20 147.2   !!
+#20 147.2     self.initialize_options()
+#20 147.3   installing to build/bdist.linux-x86_64/wheel
+#20 147.3   running install
+#20 147.3   running install_lib
+#20 147.3   creating build/bdist.linux-x86_64/wheel
+#20 147.3   creating build/bdist.linux-x86_64/wheel/undetected_chromedriver
+#20 147.3   copying build/lib/undetected_chromedriver/devtool.py -> build/bdist.linux-x86_64/wheel/./undetected_chromedriver
+#20 147.3   copying build/lib/undetected_chromedriver/cdp.py -> build/bdist.linux-x86_64/wheel/./undetected_chromedriver
+#20 147.3   copying build/lib/undetected_chromedriver/reactor.py -> build/bdist.linux-x86_64/wheel/./undetected_chromedriver
+#20 147.3   copying build/lib/undetected_chromedriver/webelement.py -> build/bdist.linux-x86_64/wheel/./undetected_chromedriver
+#20 147.3   copying build/lib/undetected_chromedriver/patcher.py -> build/bdist.linux-x86_64/wheel/./undetected_chromedriver
+#20 147.3   copying build/lib/undetected_chromedriver/dprocess.py -> build/bdist.linux-x86_64/wheel/./undetected_chromedriver
+#20 147.3   copying build/lib/undetected_chromedriver/options.py -> build/bdist.linux-x86_64/wheel/./undetected_chromedriver
+#20 147.3   copying build/lib/undetected_chromedriver/__init__.py -> build/bdist.linux-x86_64/wheel/./undetected_chromedriver
+#20 147.3   running install_egg_info
+#20 147.3   running egg_info
+#20 147.3   writing undetected_chromedriver.egg-info/PKG-INFO
+#20 147.4   writing dependency_links to undetected_chromedriver.egg-info/dependency_links.txt
+#20 147.4   writing requirements to undetected_chromedriver.egg-info/requires.txt
+#20 147.4   writing top-level names to undetected_chromedriver.egg-info/top_level.txt
+#20 147.4   reading manifest file 'undetected_chromedriver.egg-info/SOURCES.txt'
+#20 147.4   adding license file 'LICENSE'
+#20 147.4   writing manifest file 'undetected_chromedriver.egg-info/SOURCES.txt'
+#20 147.4   Copying undetected_chromedriver.egg-info to build/bdist.linux-x86_64/wheel/./undetected_chromedriver-3.5.5-py3.11.egg-info
+#20 147.4   running install_scripts
+#20 147.4   creating build/bdist.linux-x86_64/wheel/undetected_chromedriver-3.5.5.dist-info/WHEEL
+#20 147.4   creating '/tmp/pip-wheel-m0e7v0iu/undetected_chromedriver-3.5.5-py3-none-any.whl' and adding 'build/bdist.linux-x86_64/wheel' to it
+#20 147.4   adding 'undetected_chromedriver/__init__.py'
+#20 147.4   adding 'undetected_chromedriver/cdp.py'
+#20 147.4   adding 'undetected_chromedriver/devtool.py'
+#20 147.4   adding 'undetected_chromedriver/dprocess.py'
+#20 147.4   adding 'undetected_chromedriver/options.py'
+#20 147.4   adding 'undetected_chromedriver/patcher.py'
+#20 147.4   adding 'undetected_chromedriver/reactor.py'
+#20 147.4   adding 'undetected_chromedriver/webelement.py'
+#20 147.4   adding 'undetected_chromedriver-3.5.5.dist-info/licenses/LICENSE'
+#20 147.4   adding 'undetected_chromedriver-3.5.5.dist-info/METADATA'
+#20 147.4   adding 'undetected_chromedriver-3.5.5.dist-info/WHEEL'
+#20 147.4   adding 'undetected_chromedriver-3.5.5.dist-info/top_level.txt'
+#20 147.4   adding 'undetected_chromedriver-3.5.5.dist-info/RECORD'
+#20 147.5   removing build/bdist.linux-x86_64/wheel
+#20 147.5   Building wheel for undetected-chromedriver (setup.py): finished with status 'done'
+#20 147.5   Created wheel for undetected-chromedriver: filename=undetected_chromedriver-3.5.5-py3-none-any.whl size=47130 sha256=3880cb995abbb677bb2d6d48f272bba9927678aceabfc83182d3b88ad784e460
+#20 147.5   Stored in directory: /tmp/pip-ephem-wheel-cache-7corx9om/wheels/5c/b9/03/4b6e38f019d6170e8c25df2e1e362d7bdf9ff4012df2dc85c0
+#20 147.6   Building wheel for pyppeteer (setup.py): started
+#20 147.6   Running command python setup.py bdist_wheel
+#20 147.9   /usr/local/lib/python3.11/site-packages/setuptools/_distutils/dist.py:289: UserWarning: Unknown distribution option: 'test_suite'
+#20 147.9     warnings.warn(msg)
+#20 147.9   /usr/local/lib/python3.11/site-packages/setuptools/_distutils/dist.py:289: UserWarning: Unknown distribution option: 'tests_require'
+#20 147.9     warnings.warn(msg)
+#20 147.9   /usr/local/lib/python3.11/site-packages/setuptools/dist.py:759: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+#20 147.9   !!
+#20 147.9 
+#20 147.9           ********************************************************************************
+#20 147.9           Please consider removing the following classifiers in favor of a SPDX license expression:
+#20 147.9 
+#20 147.9           License :: OSI Approved :: MIT License
+#20 147.9 
+#20 147.9           See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+#20 147.9           ********************************************************************************
+#20 147.9 
+#20 147.9   !!
+#20 147.9     self._finalize_license_expression()
+#20 147.9   running bdist_wheel
+#20 148.0   running build
+#20 148.0   running build_py
+#20 148.0   creating build/lib/pyppeteer
+#20 148.0   copying pyppeteer/dialog.py -> build/lib/pyppeteer
+#20 148.0   copying pyppeteer/chromium_downloader.py -> build/lib/pyppeteer
+#20 148.0   copying pyppeteer/command.py -> build/lib/pyppeteer
+#20 148.0   copying pyppeteer/us_keyboard_layout.py -> build/lib/pyppeteer
+#20 148.0   copying pyppeteer/helper.py -> build/lib/pyppeteer
+#20 148.0   copying pyppeteer/navigator_watcher.py -> build/lib/pyppeteer
+#20 148.0   copying pyppeteer/input.py -> build/lib/pyppeteer
+#20 148.0   copying pyppeteer/page.py -> build/lib/pyppeteer
+#20 148.0   copying pyppeteer/multimap.py -> build/lib/pyppeteer
+#20 148.0   copying pyppeteer/util.py -> build/lib/pyppeteer
+#20 148.0   copying pyppeteer/element_handle.py -> build/lib/pyppeteer
+#20 148.0   copying pyppeteer/launcher.py -> build/lib/pyppeteer
+#20 148.0   copying pyppeteer/network_manager.py -> build/lib/pyppeteer
+#20 148.1   copying pyppeteer/frame_manager.py -> build/lib/pyppeteer
+#20 148.1   copying pyppeteer/target.py -> build/lib/pyppeteer
+#20 148.1   copying pyppeteer/errors.py -> build/lib/pyppeteer
+#20 148.1   copying pyppeteer/execution_context.py -> build/lib/pyppeteer
+#20 148.1   copying pyppeteer/emulation_manager.py -> build/lib/pyppeteer
+#20 148.1   copying pyppeteer/coverage.py -> build/lib/pyppeteer
+#20 148.1   copying pyppeteer/tracing.py -> build/lib/pyppeteer
+#20 148.1   copying pyppeteer/options.py -> build/lib/pyppeteer
+#20 148.1   copying pyppeteer/worker.py -> build/lib/pyppeteer
+#20 148.1   copying pyppeteer/__init__.py -> build/lib/pyppeteer
+#20 148.1   copying pyppeteer/connection.py -> build/lib/pyppeteer
+#20 148.1   copying pyppeteer/browser.py -> build/lib/pyppeteer
+#20 148.1   running egg_info
+#20 148.1   writing pyppeteer.egg-info/PKG-INFO
+#20 148.1   writing dependency_links to pyppeteer.egg-info/dependency_links.txt
+#20 148.1   writing entry points to pyppeteer.egg-info/entry_points.txt
+#20 148.1   writing requirements to pyppeteer.egg-info/requires.txt
+#20 148.1   writing top-level names to pyppeteer.egg-info/top_level.txt
+#20 148.1   reading manifest file 'pyppeteer.egg-info/SOURCES.txt'
+#20 148.1   reading manifest template 'MANIFEST.in'
+#20 148.1   warning: no previously-included files matching '__pycache__' found under directory '*'
+#20 148.1   warning: no previously-included files matching '*.py[co]' found under directory '*'
+#20 148.1   warning: no files found matching '*.rst' under directory 'docs'
+#20 148.1   warning: no files found matching '*.jpg' under directory 'docs'
+#20 148.1   warning: no files found matching '*.png' under directory 'docs'
+#20 148.1   warning: no files found matching '*.gif' under directory 'docs'
+#20 148.1   warning: no files found matching '*.js' under directory 'docs'
+#20 148.1   no previously-included directories found matching 'docs/_build'
+#20 148.2   adding license file 'LICENSE'
+#20 148.2   writing manifest file 'pyppeteer.egg-info/SOURCES.txt'
+#20 148.2   /usr/local/lib/python3.11/site-packages/setuptools/_distutils/cmd.py:90: SetuptoolsDeprecationWarning: setup.py install is deprecated.
+#20 148.2   !!
+#20 148.2 
+#20 148.2           ********************************************************************************
+#20 148.2           Please avoid running ``setup.py`` directly.
+#20 148.2           Instead, use pypa/build, pypa/installer or other
+#20 148.2           standards-based tools.
+#20 148.2 
+#20 148.2           See https://blog.ganssle.io/articles/2021/10/setup-py-deprecated.html for details.
+#20 148.2           ********************************************************************************
+#20 148.2 
+#20 148.2   !!
+#20 148.2     self.initialize_options()
+#20 148.2   installing to build/bdist.linux-x86_64/wheel
+#20 148.2   running install
+#20 148.2   running install_lib
+#20 148.2   creating build/bdist.linux-x86_64/wheel
+#20 148.2   creating build/bdist.linux-x86_64/wheel/pyppeteer
+#20 148.2   copying build/lib/pyppeteer/dialog.py -> build/bdist.linux-x86_64/wheel/./pyppeteer
+#20 148.2   copying build/lib/pyppeteer/chromium_downloader.py -> build/bdist.linux-x86_64/wheel/./pyppeteer
+#20 148.2   copying build/lib/pyppeteer/command.py -> build/bdist.linux-x86_64/wheel/./pyppeteer
+#20 148.2   copying build/lib/pyppeteer/us_keyboard_layout.py -> build/bdist.linux-x86_64/wheel/./pyppeteer
+#20 148.2   copying build/lib/pyppeteer/helper.py -> build/bdist.linux-x86_64/wheel/./pyppeteer
+#20 148.3   copying build/lib/pyppeteer/navigator_watcher.py -> build/bdist.linux-x86_64/wheel/./pyppeteer
+#20 148.3   copying build/lib/pyppeteer/input.py -> build/bdist.linux-x86_64/wheel/./pyppeteer
+#20 148.3   copying build/lib/pyppeteer/page.py -> build/bdist.linux-x86_64/wheel/./pyppeteer
+#20 148.3   copying build/lib/pyppeteer/multimap.py -> build/bdist.linux-x86_64/wheel/./pyppeteer
+#20 148.3   copying build/lib/pyppeteer/util.py -> build/bdist.linux-x86_64/wheel/./pyppeteer
+#20 148.3   copying build/lib/pyppeteer/element_handle.py -> build/bdist.linux-x86_64/wheel/./pyppeteer
+#20 148.3   copying build/lib/pyppeteer/launcher.py -> build/bdist.linux-x86_64/wheel/./pyppeteer
+#20 148.3   copying build/lib/pyppeteer/network_manager.py -> build/bdist.linux-x86_64/wheel/./pyppeteer
+#20 148.3   copying build/lib/pyppeteer/frame_manager.py -> build/bdist.linux-x86_64/wheel/./pyppeteer
+#20 148.3   copying build/lib/pyppeteer/target.py -> build/bdist.linux-x86_64/wheel/./pyppeteer
+#20 148.3   copying build/lib/pyppeteer/errors.py -> build/bdist.linux-x86_64/wheel/./pyppeteer
+#20 148.3   copying build/lib/pyppeteer/execution_context.py -> build/bdist.linux-x86_64/wheel/./pyppeteer
+#20 148.3   copying build/lib/pyppeteer/emulation_manager.py -> build/bdist.linux-x86_64/wheel/./pyppeteer
+#20 148.3   copying build/lib/pyppeteer/coverage.py -> build/bdist.linux-x86_64/wheel/./pyppeteer
+#20 148.3   copying build/lib/pyppeteer/tracing.py -> build/bdist.linux-x86_64/wheel/./pyppeteer
+#20 148.3   copying build/lib/pyppeteer/options.py -> build/bdist.linux-x86_64/wheel/./pyppeteer
+#20 148.3   copying build/lib/pyppeteer/worker.py -> build/bdist.linux-x86_64/wheel/./pyppeteer
+#20 148.3   copying build/lib/pyppeteer/__init__.py -> build/bdist.linux-x86_64/wheel/./pyppeteer
+#20 148.3   copying build/lib/pyppeteer/connection.py -> build/bdist.linux-x86_64/wheel/./pyppeteer
+#20 148.3   copying build/lib/pyppeteer/browser.py -> build/bdist.linux-x86_64/wheel/./pyppeteer
+#20 148.3   running install_egg_info
+#20 148.3   Copying pyppeteer.egg-info to build/bdist.linux-x86_64/wheel/./pyppeteer-0.0.25-py3.11.egg-info
+#20 148.3   running install_scripts
+#20 148.4   creating build/bdist.linux-x86_64/wheel/pyppeteer-0.0.25.dist-info/WHEEL
+#20 148.4   creating '/tmp/pip-wheel-deekxjf9/pyppeteer-0.0.25-py3-none-any.whl' and adding 'build/bdist.linux-x86_64/wheel' to it
+#20 148.4   adding 'pyppeteer/__init__.py'
+#20 148.4   adding 'pyppeteer/browser.py'
+#20 148.4   adding 'pyppeteer/chromium_downloader.py'
+#20 148.4   adding 'pyppeteer/command.py'
+#20 148.4   adding 'pyppeteer/connection.py'
+#20 148.4   adding 'pyppeteer/coverage.py'
+#20 148.4   adding 'pyppeteer/dialog.py'
+#20 148.4   adding 'pyppeteer/element_handle.py'
+#20 148.4   adding 'pyppeteer/emulation_manager.py'
+#20 148.4   adding 'pyppeteer/errors.py'
+#20 148.4   adding 'pyppeteer/execution_context.py'
+#20 148.4   adding 'pyppeteer/frame_manager.py'
+#20 148.4   adding 'pyppeteer/helper.py'
+#20 148.4   adding 'pyppeteer/input.py'
+#20 148.4   adding 'pyppeteer/launcher.py'
+#20 148.4   adding 'pyppeteer/multimap.py'
+#20 148.4   adding 'pyppeteer/navigator_watcher.py'
+#20 148.4   adding 'pyppeteer/network_manager.py'
+#20 148.4   adding 'pyppeteer/options.py'
+#20 148.4   adding 'pyppeteer/page.py'
+#20 148.4   adding 'pyppeteer/target.py'
+#20 148.4   adding 'pyppeteer/tracing.py'
+#20 148.4   adding 'pyppeteer/us_keyboard_layout.py'
+#20 148.5   adding 'pyppeteer/util.py'
+#20 148.5   adding 'pyppeteer/worker.py'
+#20 148.5   adding 'pyppeteer-0.0.25.dist-info/licenses/LICENSE'
+#20 148.5   adding 'pyppeteer-0.0.25.dist-info/METADATA'
+#20 148.5   adding 'pyppeteer-0.0.25.dist-info/WHEEL'
+#20 148.5   adding 'pyppeteer-0.0.25.dist-info/entry_points.txt'
+#20 148.5   adding 'pyppeteer-0.0.25.dist-info/top_level.txt'
+#20 148.5   adding 'pyppeteer-0.0.25.dist-info/RECORD'
+#20 148.5   removing build/bdist.linux-x86_64/wheel
+#20 148.5   Building wheel for pyppeteer (setup.py): finished with status 'done'
+#20 148.5   Created wheel for pyppeteer: filename=pyppeteer-0.0.25-py3-none-any.whl size=78442 sha256=4e1906bed7f7563cd9911a8b4312b2de2ede3a28963245342c7365b0390a2385
+#20 148.5   Stored in directory: /tmp/pip-ephem-wheel-cache-7corx9om/wheels/73/a3/1e/3a15782836222d82b917f1ebf652f9db54eec93f3268a42bcf
+#20 148.6 Successfully built mysqlclient undetected-chromedriver pyppeteer
+#20 150.1 Installing collected packages: sortedcontainers, pydispatcher, parse, appdirs, zope-interface, websockets, websocket-client, wcwidth, w3lib, vine, urllib3, tzdata, typing-extensions, tqdm, sqlparse, soupsieve, sniffio, six, redis, queuelib, python-dotenv, pysocks, pyjwt, pycparser, pyasn1, protego, Pillow, packaging, mysqlclient, lxml, jmespath, itemadapter, incremental, idna, h11, greenlet, filelock, fake-useragent, defusedxml, cssselect, constantly, click, charset_normalizer, certifi, billiard, automat, attrs, asgiref, wsproto, requests, python-dateutil, pyquery, pyee, pyasn1-modules, prompt-toolkit, parsel, outcome, lxml_html_clean, hyperlink, django, click-plugins, click-didyoumean, cffi, beautifulsoup4, amqp, webdriver-manager, twisted, trio, requests-file, pyppeteer, playwright, kombu, itemloaders, djangorestframework, django-filter, django-cors-headers, cryptography, click-repl, bs4, trio-websocket, tldextract, service-identity, requests-html, pyopenssl, playwright-stealth, oracledb, djangorestframework-simplejwt, celery, selenium, scrapy, undetected-chromedriver
+#20 150.7   changing mode of /usr/local/bin/websockets to 755
+#20 150.9   changing mode of /usr/local/bin/wsdump to 755
+#20 151.7   changing mode of /usr/local/bin/tqdm to 755
+#20 151.8   changing mode of /usr/local/bin/sqlformat to 755
+#20 152.7   changing mode of /usr/local/bin/dotenv to 755
+#20 156.0   changing mode of /usr/local/bin/normalizer to 755
+#20 156.2   changing mode of /usr/local/bin/automat-visualize to 755
+#20 167.2   changing mode of /usr/local/bin/django-admin to 755
+#20 173.9   changing mode of /usr/local/bin/cftp to 755
+#20 173.9   changing mode of /usr/local/bin/ckeygen to 755
+#20 173.9   changing mode of /usr/local/bin/conch to 755
+#20 173.9   changing mode of /usr/local/bin/mailmail to 755
+#20 173.9   changing mode of /usr/local/bin/pyhtmlizer to 755
+#20 173.9   changing mode of /usr/local/bin/tkconch to 755
+#20 173.9   changing mode of /usr/local/bin/trial to 755
+#20 173.9   changing mode of /usr/local/bin/twist to 755
+#20 173.9   changing mode of /usr/local/bin/twistd to 755
+#20 174.8   changing mode of /usr/local/bin/pyppeteer-install to 755
+#20 182.1   changing mode of /usr/local/bin/playwright to 755
+#20 184.3   changing mode of /usr/local/bin/tldextract to 755
+#20 186.0   changing mode of /usr/local/bin/celery to 755
+#20 190.1   changing mode of /usr/local/bin/scrapy to 755
+#20 195.1 Successfully installed Pillow-12.0.0 amqp-5.3.1 appdirs-1.4.4 asgiref-3.10.0 attrs-25.4.0 automat-25.4.16 beautifulsoup4-4.14.2 billiard-4.2.2 bs4-0.0.2 celery-5.5.3 certifi-2025.10.5 cffi-2.0.0 charset_normalizer-3.4.4 click-8.3.0 click-didyoumean-0.3.1 click-plugins-1.1.1.2 click-repl-0.3.0 constantly-23.10.4 cryptography-46.0.3 cssselect-1.3.0 defusedxml-0.7.1 django-5.2.7 django-cors-headers-4.9.0 django-filter-25.2 djangorestframework-3.16.1 djangorestframework-simplejwt-5.5.1 fake-useragent-2.2.0 filelock-3.20.0 greenlet-3.2.4 h11-0.16.0 hyperlink-21.0.0 idna-3.11 incremental-24.7.2 itemadapter-0.12.2 itemloaders-1.3.2 jmespath-1.0.1 kombu-5.5.4 lxml-6.0.2 lxml_html_clean-0.4.3 mysqlclient-2.2.7 oracledb-3.4.0 outcome-1.3.0.post0 packaging-25.0 parse-1.20.2 parsel-1.10.0 playwright-1.55.0 playwright-stealth-2.0.0 prompt-toolkit-3.0.52 protego-0.5.0 pyasn1-0.6.1 pyasn1-modules-0.4.2 pycparser-2.23 pydispatcher-2.0.7 pyee-13.0.0 pyjwt-2.10.1 pyopenssl-25.3.0 pyppeteer-0.0.25 pyquery-2.0.1 pysocks-1.7.1 python-dateutil-2.9.0.post0 python-dotenv-1.2.1 queuelib-1.8.0 redis-7.0.1 requests-2.32.5 requests-file-3.0.1 requests-html-0.10.0 scrapy-2.13.3 selenium-4.38.0 service-identity-24.2.0 six-1.17.0 sniffio-1.3.1 sortedcontainers-2.4.0 soupsieve-2.8 sqlparse-0.5.3 tldextract-5.3.0 tqdm-4.67.1 trio-0.32.0 trio-websocket-0.12.2 twisted-25.5.0 typing-extensions-4.15.0 tzdata-2025.2 undetected-chromedriver-3.5.5 urllib3-2.5.0 vine-5.1.0 w3lib-2.3.1 wcwidth-0.2.14 webdriver-manager-4.0.2 websocket-client-1.9.0 websockets-15.0.1 wsproto-1.2.0 zope-interface-8.0.1
+#20 195.1 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+#20 195.4 
+#20 195.4 [notice] A new release of pip is available: 24.0 -> 25.3
+#20 195.4 [notice] To update, run: pip install --upgrade pip
+#20 DONE 199.2s
+
+#22 [backend 6/6] COPY . .
+#22 DONE 3.8s
+
+#23 [backend] exporting to image
+#23 exporting layers
+#23 ...
+
+#24 [celery] exporting to image
+#24 exporting layers 62.2s done
+#24 exporting manifest sha256:2bcf13ec206afa7ad92d6985173b89d3549b7ed3440f61e18b732e1023e65206 0.0s done
+#24 exporting config sha256:fde815d1020313613f182b1d2910a53fd8ca6fdc68be567d3598b1744d0c0ffc 0.0s done
+#24 ...
+
+#23 [backend] exporting to image
+#23 exporting layers 62.3s done
+#23 exporting manifest sha256:b6c9e784f922037099d81a6fe5faafb3af247db838a30674e3fd82ff7f118d79 0.1s done
+#23 exporting config sha256:95822d4f0cd33eca7c4d04f761c5b613f403f687c95055ca2b7cfa057f3dc861 0.0s done
+#23 exporting attestation manifest sha256:819d11857ffb9fc67077875bc896df9d434412ab0a43057fe9a7c201723228fb
+#23 exporting attestation manifest sha256:819d11857ffb9fc67077875bc896df9d434412ab0a43057fe9a7c201723228fb 0.1s done
+#23 exporting manifest list sha256:5221c06c2702245f243ae1ab3fd219ee019c87fb44b9b002b4cbb9205cd6e18f 0.0s done
+#23 naming to docker.io/library/cacapreco-app-backend:latest 0.0s done
+#23 unpacking to docker.io/library/cacapreco-app-backend:latest
+#23 ...
+
+#24 [celery] exporting to image
+#24 exporting attestation manifest sha256:6425319407cab59d438a964503e3156841262c68015be6a229f52af3ad3e2fcd 0.1s done
+#24 exporting manifest list sha256:61fbfadb32591082f79cf078067dc9751754bf06409334e28aebf4314fa04234 0.0s done
+#24 naming to docker.io/library/cacapreco-app-celery:latest 0.0s done
+#24 unpacking to docker.io/library/cacapreco-app-celery:latest
+#24 ...
+
+#23 [backend] exporting to image
+#23 unpacking to docker.io/library/cacapreco-app-backend:latest 71.9s done
+#23 DONE 134.7s
+
+#24 [celery] exporting to image
+#24 unpacking to docker.io/library/cacapreco-app-celery:latest 71.9s done
+#24 DONE 134.7s
+
+#25 [backend] resolving provenance for metadata file
+#25 DONE 0.5s
+
+#26 [celery] resolving provenance for metadata file
+#26 DONE 0.1s
+ cacapreco-app-frontend  Built
+ cacapreco-app-backend  Built
+ cacapreco-app-celery  Built

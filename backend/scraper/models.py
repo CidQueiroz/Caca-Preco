@@ -1,108 +1,94 @@
 from django.db import models
+from django.conf import settings
+from api.models import Vendedor # Import Vendedor from api app
+from urllib.parse import urlparse
 import hashlib
-from urllib.parse import urlparse, urlunparse
 
-# Create your models here.
-
-def get_canonical_url(url):
-    """Gera uma URL canônica removendo parâmetros de consulta e fragmentos."""
+def get_canonical_url(url: str) -> str:
+    """
+    Normaliza uma URL para sua forma canônica, removendo parâmetros de query
+    e fragmentos que não afetam a identificação do produto.
+    """
     parsed_url = urlparse(url)
-    # Reconstrói a URL apenas com scheme, netloc e path
-    canonical_url = urlunparse((parsed_url.scheme, parsed_url.netloc, parsed_url.path, '', '', ''))
-    return canonical_url
+    # Reconstroi a URL apenas com esquema, netloc e path
+    canonical_url = parsed_url.scheme + "://" + parsed_url.netloc + parsed_url.path
+    return canonical_url.lower() # Retorna em minúsculas para consistência
 
-class ProdutosMonitoradosExternos(models.Model):
-    vendedor = models.ForeignKey('api.Vendedor', on_delete=models.CASCADE)
-    url_produto = models.URLField(max_length=2048)
-    url_hash = models.CharField(max_length=64, blank=True, help_text="Hash SHA-256 da URL canônica para garantir unicidade.")
-    nome_produto = models.CharField(max_length=255, blank=True, null=True)
-    preco_atual = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    ultima_coleta = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        unique_together = ('vendedor', 'url_hash')
-
-    def save(self, *args, **kwargs):
-        if not self.url_hash:
-            canonical_url = get_canonical_url(self.url_produto)
-            self.url_hash = hashlib.sha256(canonical_url.encode()).hexdigest()
-        super().save(*args, **kwargs)
+class ScrapedData(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='scraped_data')
+    url = models.URLField(max_length=1024)
+    product_name = models.CharField(max_length=512)
+    product_price = models.DecimalField(max_digits=10, decimal_places=2)
+    scraped_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'{self.nome_produto} ({self.vendedor.nome_loja})'
-
-class HistoricoPrecos(models.Model):
-    produto_monitorado = models.ForeignKey(ProdutosMonitoradosExternos, related_name='historico', on_delete=models.CASCADE)
-    preco = models.DecimalField(max_digits=10, decimal_places=2)
-    data_coleta = models.DateTimeField(auto_now_add=True)
+        return f'{self.product_name} - {self.product_price}'
 
     class Meta:
-        ordering = ['-data_coleta']
-
-    def __str__(self):
-        return f'{self.produto_monitorado.nome_produto} - R${self.preco} em {self.data_coleta.strftime("%d/%m/%Y %H:%M")}'
-
+        ordering = ['-scraped_at']
+        verbose_name = 'Dado Raspado'
+        verbose_name_plural = 'Dados Raspados'
 
 class Dominio(models.Model):
-    """
-    Representa um domínio de site a ser monitorado (ex: 'americanas.com.br').
-    """
-    nome_dominio = models.CharField(
-        max_length=255, 
-        unique=True, 
-        help_text="O nome de domínio principal, ex: 'americanas.com.br'"
-    )
-    ativo = models.BooleanField(
-        default=True, 
-        help_text="Desmarque para desativar temporariamente o scraping neste domínio."
-    )
-    # Futuramente, podemos adicionar campos de configuração aqui, 
-    # como 'precisa_js', 'usa_proxy', etc.
+    nome_dominio = models.CharField(max_length=255, unique=True)
+    ativo = models.BooleanField(default=True)
+    data_cadastro = models.DateTimeField(auto_now_add=True)
+    data_atualizacao = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.nome_dominio
 
     class Meta:
-        verbose_name = "Domínio"
-        verbose_name_plural = "Domínios"
-        ordering = ['nome_dominio']
-
+        verbose_name = 'Domínio de Scraping'
+        verbose_name_plural = 'Domínios de Scraping'
 
 class Seletor(models.Model):
-    """
-    Armazena um seletor específico (CSS, XPath, etc.) para um tipo de dado em um domínio.
-    """
     class TipoSeletor(models.TextChoices):
-        NOME = 'nome', 'Nome do Produto'
-        PRECO = 'preco', 'Preço do Produto'
-        JSON_LD = 'json_ld', 'JSON-LD'
-        API_URL = 'api_url', 'URL de API'
+        NOME = 'NOME', 'Nome do Produto'
+        PRECO = 'PRECO', 'Preço do Produto'
+        API_URL = 'API_URL', 'URL da API de Dados'
 
-    dominio = models.ForeignKey(
-        Dominio, 
-        related_name='seletores', 
-        on_delete=models.CASCADE
-    )
-    tipo = models.CharField(
-        max_length=10, 
-        choices=TipoSeletor.choices,
-        help_text="O tipo de dado que este seletor extrai."
-    )
-    seletor = models.CharField(
-        max_length=512, 
-        help_text="O seletor (CSS, XPath, chave JSON) ou padrão de URL."
-    )
-    prioridade = models.PositiveSmallIntegerField(
-        default=0, 
-        help_text="Define a ordem de tentativa (0 é a primeira)."
-    )
+    dominio = models.ForeignKey(Dominio, on_delete=models.CASCADE, related_name='seletores')
+    tipo = models.CharField(max_length=10, choices=TipoSeletor.choices)
+    seletor = models.CharField(max_length=512) # O seletor CSS/XPath/JSONPath
+    prioridade = models.PositiveSmallIntegerField(default=0) # Para ordenar a tentativa de seletores
+    data_cadastro = models.DateTimeField(auto_now_add=True)
+    data_atualizacao = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.dominio.nome_dominio} - {self.get_tipo_display()} (Prioridade: {self.prioridade})"
+        return f'{self.dominio.nome_dominio} - {self.get_tipo_display()}: {self.seletor}'
 
     class Meta:
-        verbose_name = "Seletor"
-        verbose_name_plural = "Seletores"
-        # Garante que não haja seletores do mesmo tipo com a mesma prioridade para um domínio
-        unique_together = ('dominio', 'tipo', 'prioridade')
+        unique_together = ('dominio', 'tipo', 'seletor')
         ordering = ['dominio', 'tipo', 'prioridade']
+        verbose_name = 'Seletor de Scraping'
+        verbose_name_plural = 'Seletores de Scraping'
+
+class ProdutosMonitoradosExternos(models.Model):
+    vendedor = models.ForeignKey(Vendedor, on_delete=models.CASCADE, related_name='produtos_monitorados')
+    url_hash = models.CharField(max_length=64, unique=True, help_text="Hash SHA256 da URL canônica do produto.")
+    url_produto = models.URLField(max_length=1024)
+    nome_produto = models.CharField(max_length=512)
+    preco_atual = models.DecimalField(max_digits=10, decimal_places=2)
+    ultima_coleta = models.DateTimeField(auto_now=True)
+    data_cadastro = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.nome_produto} ({self.vendedor.nome_loja})'
+
+    class Meta:
+        verbose_name = 'Produto Monitorado Externamente'
+        verbose_name_plural = 'Produtos Monitorados Externamente'
+
+class HistoricoPrecos(models.Model):
+    produto_monitorado = models.ForeignKey(ProdutosMonitoradosExternos, on_delete=models.CASCADE, related_name='historico_precos')
+    preco = models.DecimalField(max_digits=10, decimal_places=2)
+    data_coleta = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.produto_monitorado.nome_produto} - R${self.preco} em {self.data_coleta.strftime("%Y-%m-%d")}'
+
+    class Meta:
+        ordering = ['-data_coleta']
+        verbose_name = 'Histórico de Preço'
+        verbose_name_plural = 'Históricos de Preços'

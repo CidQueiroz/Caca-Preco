@@ -4,8 +4,10 @@ django
 django-cors-headers
 djangorestframework
 djangorestframework-simplejwt
+django-filter
 mysqlclient
 playwright
+Pillow
 redis
 requests
 requests-html
@@ -13,3 +15,11 @@ scrapy
 selenium
 undetected-chromedriver
 webdriver-manager
+lxml_html_clean
+playwright-stealth
+oracledb
+
+# Testing
+pytest
+pytest-django
+pytest-mock

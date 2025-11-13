@@ -4,14 +4,16 @@ FROM python:3.11-slim
 # Define o diretório de trabalho no contêiner
 WORKDIR /app
 
-# Instala dependências do sistema (para o mysqlclient)
-RUN apt-get update && apt-get install -y default-libmysqlclient-dev gcc && rm -rf /var/lib/apt/lists/*
+# Instala dependências do sistema, incluindo o cliente MySQL, gcc, xvfb para headless browser e chromium
+RUN apt-get update && apt-get install -y default-libmysqlclient-dev gcc pkg-config xvfb chromium && \
+    # Limpa o cache do apt
+    rm -rf /var/lib/apt/lists/*
 
 # Copia o arquivo de dependências
 COPY requirements.txt .
 
 # Instala as dependências do Python
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --verbose -r requirements.txt
 
 # Copia o resto do código do backend para o diretório de trabalho
 COPY . .

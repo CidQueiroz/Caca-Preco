@@ -1,19 +1,4 @@
 services:
-  db:
-    image: mysql:8.0
-    container_name: cacapreco_db
-    environment:
-      MYSQL_ROOT_PASSWORD: 'rootpassword'
-      MYSQL_DATABASE: 'testecacapreco_django'
-    volumes:
-      - mysql_data:/var/lib/mysql
-    ports:
-      - "3307:3306"
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
-
   redis:
     image: redis:6.2-alpine
     container_name: cacapreco_redis
@@ -31,17 +16,13 @@ services:
     ports:
       - "8000:8000"
     env_file:
-      - ./backend/.env
+      - ./backend/.env.prod
     environment:
       - PYTHONUNBUFFERED=1
       - DJANGO_SETTINGS_MODULE=core.settings
-      - MYSQL_HOST=db
       - REDIS_HOST=redis
     depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_started
+      - redis
 
   celery:
     build: ./backend
@@ -49,17 +30,13 @@ services:
     volumes:
       - ./backend:/app
     env_file:
-      - ./backend/.env
+      - ./backend/.env.prod
     environment:
       - PYTHONUNBUFFERED=1
       - DJANGO_SETTINGS_MODULE=core.settings
-      - MYSQL_HOST=db
       - REDIS_HOST=redis
     depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_started
+      - redis
 
   frontend:
     build:
@@ -75,6 +52,3 @@ services:
       - CHOKIDAR_USEPOLLING=true
     depends_on:
       - backend
-
-volumes:
-  mysql_data:
