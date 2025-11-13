@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/CidQueiroz/Caca-Preco/compare/v1.0.0...v1.0.1) (2025-10-14)
+
+
+### Bug Fixes
+
+* **build:** correct docker networking and finalize dependencies ([223eba2](https://github.com/CidQueiroz/Caca-Preco/commit/223eba2590da614dd9e1836898604c8c9e488480))
+
 # 1.0.0 (2025-10-14)
 
 
