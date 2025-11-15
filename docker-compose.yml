@@ -10,24 +10,36 @@ services:
     ports:
       - "3307:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
       timeout: 20s
       retries: 10
+    networks:
+      - cacapreco_network
 
   redis:
     image: redis:6.2-alpine
     container_name: cacapreco_redis
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+    networks:
+      - cacapreco_network
 
   backend:
-    build: ./backend
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
     dns:
       - 8.8.8.8
       - 8.8.4.4
     container_name: cacapreco_backend
     volumes:
       - ./backend:/app
+      - playwright_cache:/ms-playwright  # Cache dos navegadores Playwright
     ports:
       - "8000:8000"
     env_file:
@@ -37,15 +49,64 @@ services:
       - DJANGO_SETTINGS_MODULE=core.settings
       - MYSQL_HOST=db
       - REDIS_HOST=redis
+      - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
     depends_on:
       db:
         condition: service_healthy
       redis:
-        condition: service_started
+        condition: service_healthy
+    networks:
+      - cacapreco_network
+    # Aumenta recursos para scraping pesado
+    shm_size: 2gb
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          memory: 2G
 
   celery:
-    build: ./backend
-    command: celery -A core worker -l info
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    command: celery -A core worker -l info --concurrency=4
+    container_name: cacapreco_celery
+    volumes:
+      - ./backend:/app
+      - playwright_cache:/ms-playwright
+    env_file:
+      - ./backend/.env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DJANGO_SETTINGS_MODULE=core.settings
+      - MYSQL_HOST=db
+      - REDIS_HOST=redis
+      - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - cacapreco_network
+    # Recursos para múltiplos workers
+    shm_size: 2gb
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+        reservations:
+          memory: 4G
+
+  celery-beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: celery -A core beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    container_name: cacapreco_celery_beat
     volumes:
       - ./backend:/app
     env_file:
@@ -59,7 +120,9 @@ services:
       db:
         condition: service_healthy
       redis:
-        condition: service_started
+        condition: service_healthy
+    networks:
+      - cacapreco_network
 
   frontend:
     build:
@@ -73,8 +136,16 @@ services:
       - "3001:3001"
     environment:
       - CHOKIDAR_USEPOLLING=true
+      - REACT_APP_API_URL=http://localhost:8000
     depends_on:
       - backend
+    networks:
+      - cacapreco_network
 
 volumes:
   mysql_data:
+  playwright_cache:  # Persist navegadores Playwright entre rebuilds
+
+networks:
+  cacapreco_network:
+    driver: bridge

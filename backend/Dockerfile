@@ -1,26 +1,75 @@
-# Usar uma imagem base do Python
-FROM python:3.11-slim
+FROM oraclelinux:9
 
-# Define o diretório de trabalho no contêiner
 WORKDIR /app
 
-# Instala dependências do sistema, incluindo o cliente MySQL, gcc, xvfb para headless browser e chromium
-RUN apt-get update && apt-get install -y default-libmysqlclient-dev gcc pkg-config xvfb chromium && \
-    # Limpa o cache do apt
-    rm -rf /var/lib/apt/lists/*
+# Instala Python e dependências básicas
+RUN dnf --enablerepo=ol9_codeready_builder --enablerepo=ol9_appstream install -y \
+    python3.11 \
+    python3.11-pip \
+    python3.11-devel \
+    mariadb-devel \
+    gcc \
+    pkgconf \
+    wget \
+    tar \
+    gzip \
+    findutils && \
+    dnf clean all
 
-# Copia o arquivo de dependências
+# Cria link simbólico para python3
+RUN ln -sf /usr/bin/python3.11 /usr/bin/python3 && \
+    ln -sf /usr/bin/pip3.11 /usr/bin/pip3
+
+# Instala TODAS as dependências do Playwright manualmente (Oracle Linux)
+RUN dnf --enablerepo=ol9_codeready_builder --enablerepo=ol9_appstream install -y \
+    # Fontes
+    liberation-fonts \
+    liberation-sans-fonts \
+    liberation-serif-fonts \
+    liberation-mono-fonts \
+    # Bibliotecas gráficas
+    nss \
+    nspr \
+    atk \
+    at-spi2-atk \
+    at-spi2-core \
+    cups-libs \
+    gtk3 \
+    alsa-lib \
+    # Dependências do Chromium
+    libdrm \
+    libxcb \
+    libxkbcommon \
+    mesa-libgbm \
+    libX11 \
+    libXcomposite \
+    libXdamage \
+    libXext \
+    libXfixes \
+    libXrandr \
+    # Servidor X virtual
+    xorg-x11-server-Xvfb \
+    dbus-glib \
+    dbus-libs && \
+    dnf clean all
+
+# Copia e instala requirements
 COPY requirements.txt .
+RUN python3.11 -m pip install --upgrade pip && \
+    python3.11 -m pip install --no-cache-dir -r requirements.txt
 
-# Instala as dependências do Python
-RUN pip install --no-cache-dir --verbose -r requirements.txt
+# Instala apenas o Playwright (Python package)
+RUN python3.11 -m pip install playwright
 
-# Copia o resto do código do backend para o diretório de trabalho
+# Baixa o navegador Chromium (SEM tentar instalar dependências)
+RUN PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=0 python3.11 -m playwright install chromium
+
+# Copia o código
 COPY . .
 
-# Expõe a porta 8000 para que o servidor de desenvolvimento do Django possa ser acessado
-EXPOSE 8000
+# Variáveis de ambiente
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+ENV PYTHONUNBUFFERED=1
 
-# Comando para iniciar o servidor de desenvolvimento do Django
-# O servidor será acessível de fora do contêiner em 0.0.0.0
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+# Comando padrão
+CMD ["python3.11", "manage.py", "runserver", "0.0.0.0:8000"]

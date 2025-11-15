@@ -118,7 +118,7 @@ else:
             'USER': os.environ.get('MYSQL_USER', 'root'),
             'PASSWORD': os.environ.get('MYSQL_ROOT_PASSWORD', 'rootpassword'),
             'HOST': os.environ.get('MYSQL_HOST', 'localhost'),
-            'PORT': '3306',
+            'PORT': os.environ.get('MYSQL_PORT', '3307'), # Default to 3307 for local access to Docker
     }}
 
 REST_FRAMEWORK = {

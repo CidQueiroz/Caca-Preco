@@ -1,25 +1,34 @@
-beautifulsoup4
-celery
-django
-django-cors-headers
-djangorestframework
-djangorestframework-simplejwt
-django-filter
-mysqlclient
-playwright
-Pillow
-redis
-requests
-requests-html
-scrapy
-selenium
-undetected-chromedriver
-webdriver-manager
-lxml_html_clean
-playwright-stealth
-oracledb
+# Django e Core
+Django==4.2.7
+djangorestframework==3.14.0
+django-cors-headers==4.3.1
+django-environ==0.11.2
 
-# Testing
-pytest
-pytest-django
-pytest-mock
+# Banco de dados
+mysqlclient==2.2.0
+redis==5.0.1
+
+# Celery
+celery==5.3.4
+django-celery-beat==2.5.0
+django-celery-results==2.5.1
+
+# Scraping - Fast Path
+requests==2.31.0
+beautifulsoup4==4.12.2
+lxml==4.9.3
+
+# Scraping - Medium Path (Scrapy)
+Scrapy==2.11.0
+scrapy-user-agents==0.1.1
+
+# Scraping - Long Path (Playwright)
+playwright==1.40.0
+# Nota: Após pip install, executar: python -m playwright install chromium
+
+# Utilidades
+python-dotenv==1.0.0
+Pillow==10.1.0
+
+# Segurança e validação
+cryptography==41.0.7
