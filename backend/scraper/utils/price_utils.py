@@ -1,3 +1,6 @@
+"""
+Funções utilitárias para manipulação de preços
+"""
 import re
 from decimal import Decimal, InvalidOperation
 import logging

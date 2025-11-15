@@ -310,7 +310,7 @@ log_section "FASE 6: Rebuild e Testes"
 cd ..  # Volta para raiz
 
 log_info "Rebuilding containers..."
-docker-compose build backend celery 2>&1 | tee build.log
+docker compose build backend celery 2>&1 | tee build.log
 
 if [ $? -eq 0 ]; then
     log_success "Build concluído com sucesso"
