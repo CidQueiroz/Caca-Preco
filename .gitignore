@@ -116,3 +116,13 @@ backend/**/screenshot*.png
 **/*.pyc
 **/.pytest_cache/
 **/.coverage
+
+# Arquivos de backup da migração
+*.bak
+*.backup
+
+# Scraping debug
+backend/**/*.html
+backend/**/*.png
+backend/**/screenshot*.png
+backend/**/scrapy_output.log

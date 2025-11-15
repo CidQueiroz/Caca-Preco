@@ -56,7 +56,7 @@ git checkout -b refactor/unify-scraping-architecture 2>/dev/null && log_success 
 
 # Para containers
 log_info "Parando containers..."
-docker-compose down > /dev/null 2>&1 && log_success "Containers parados"
+docker compose down > /dev/null 2>&1 && log_success "Containers parados"
 
 # ═══════════════════════════════════════════════════
 # FASE 2: CRIAR ESTRUTURA
@@ -320,20 +320,20 @@ else
 fi
 
 log_info "Subindo containers..."
-docker-compose up -d
+docker compose up -d
 
 log_info "Aguardando containers ficarem prontos..."
 sleep 15
 
 # Verifica status
 log_info "Verificando status dos containers..."
-docker-compose ps
+docker compose ps
 
 log_info "Verificando logs do backend..."
-docker-compose logs --tail=20 backend
+docker compose logs --tail=20 backend
 
 log_info "Verificando logs do Celery..."
-docker-compose logs --tail=20 celery
+docker compose logs --tail=20 celery
 
 # ═══════════════════════════════════════════════════
 # FASE 7: TESTES AUTOMÁTICOS
@@ -411,7 +411,7 @@ log_success "Containers rodando"
 echo ""
 log_info "Próximos passos:"
 echo "  1. Testar API: curl -X POST http://localhost:8000/api/teste-fast-path/ -H 'Content-Type: application/json' -d '{\"url\": \"https://www.mercadolivre.com.br/produto/MLB123\"}'"
-echo "  2. Monitorar logs: docker-compose logs -f celery | grep TASK"
+echo "  2. Monitorar logs: docker compose logs -f celery | grep TASK"
 echo "  3. Verificar banco após 24h"
 echo "  4. Remover arquivos .bak após validação"
 echo ""
