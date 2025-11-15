@@ -2,7 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
     UserCreateView, 
-    MyTokenObtainPairView, 
+    # MyTokenObtainPairView, 
     CategoriaLojaViewSet, 
     SubcategoriaProdutoViewSet,
     AtributoViewSet, 
@@ -30,7 +30,7 @@ from .views import (
     MonitoramentoViewSet,
     IniciarMonitoramentoView
     )
-from rest_framework_simplejwt.views import TokenRefreshView
+# from rest_framework_simplejwt.views import TokenRefreshView
 
 
 router = DefaultRouter()
@@ -52,7 +52,7 @@ router.register(r'skus', SKUViewSet, basename='sku')
 
 urlpatterns = [
     path('register/', UserCreateView.as_view(), name='register'),
-    path('token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    # path('token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('recuperar-senha/', RecuperarSenhaView.as_view(), name='recuperar_senha'),
     path('redefinir-senha/<uuid:token>/', RedefinirSenhaView.as_view(), name='redefinir_senha'),
     path('verificar-email/<uuid:token>/', VerificarEmailView.as_view(), name='verificar_email'),

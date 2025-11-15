@@ -1,87 +1,95 @@
-import sys
-import os
-import django
-
-# Aponta para a pasta do seu projeto Django
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
-os.environ['DJANGO_SETTINGS_MODULE'] = 'core.settings' # Substitua pelo nome do seu projeto
-django.setup()
-
 # Scrapy settings for cacapreco_scraper project
-#
-# For simplicity, this file contains only settings considered important or
-# commonly used. You can find more settings consulting the documentation:
-#
-#     https://docs.scrapy.org/en/latest/topics/settings.html
-#     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
-#     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME = "cacapreco_scraper"
+BOT_NAME = 'cacapreco_scraper'
 
-SPIDER_MODULES = ["cacapreco_scraper.spiders"]
-NEWSPIDER_MODULE = "cacapreco_scraper.spiders"
+SPIDER_MODULES = ['cacapreco_scraper.spiders']
+NEWSPIDER_MODULE = 'cacapreco_scraper.spiders'
 
-USER_AGENTS = [
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 13_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15',
-]
-
-# Obey robots.txt rules
+# Respeita robots.txt
 ROBOTSTXT_OBEY = False
 
-# --- Configurações de Concorrência e Atraso ---
-# Para evitar sobrecarregar os sites e diminuir a chance de ser bloqueado.
-CONCURRENT_REQUESTS_PER_DOMAIN = 1
-DOWNLOAD_DELAY = 2 # Aumentar o delay pode ser mais seguro
+# Configurações de concorrência
+CONCURRENT_REQUESTS = 16
+CONCURRENT_REQUESTS_PER_DOMAIN = 1  # Evita rate limiting
+DOWNLOAD_DELAY = 2  # 2 segundos entre requests
 
-# --- Configurações do Selenium ---
-# Caminho para o perfil do Chrome para sessões persistentes
-CHROME_PROFILE_PATH = os.path.join(os.path.dirname(__file__), "perfil_chrome")
+# Configurações de timeout
+DOWNLOAD_TIMEOUT = 30
 
-# Habilita o manipulador de download do Playwright para requisições HTTP e HTTPS
-# DOWNLOAD_HANDLERS = {
-#     "http": "scrapy_playwright.handler.ScrapyPlaywrightDownloadHandler",
-#     "https": "scrapy_playwright.handler.ScrapyPlaywrightDownloadHandler",
-# }
+# User Agents rotativos
+USER_AGENTS = [
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15',
+]
 
-# Reator Twisted necessário para o Playwright
-# TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
-
-# Configurações de lançamento do navegador Playwright
-PLAYWRIGHT_LAUNCH_OPTIONS = {
-    "headless": True,  # Mude para False para ver o navegador durante os testes
-    "args": [
-        "--disable-blink-features=AutomationControlled",
-    ],
+# Headers padrão
+DEFAULT_REQUEST_HEADERS = {
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
 }
 
-# Timeout de navegação padrão do Playwright
-PLAYWRIGHT_DEFAULT_NAVIGATION_TIMEOUT = 60 * 1000  # 60 segundos
-
-# Define o tipo de navegador a ser usado pelo Playwright
-PLAYWRIGHT_BROWSER_TYPE = "chromium"
-
-
-DOWNLOADER_MIDDLEWARES = {
-   # 'cacapreco_scraper.middlewares.SeleniumMiddleware': 543, # Desativado para usar Playwright
-}
-
-# --- Pipeline de Itens ---
-# Ativa o pipeline para salvar os dados no banco de dados Django.
+# Pipelines (ordem importa!)
 ITEM_PIPELINES = {
-   "cacapreco_scraper.pipelines.DjangoPipeline": 300,
+    # 'cacapreco_scraper.pipelines.DebugPipeline': 100,        # Debug (descomente se precisar)
+    'cacapreco_scraper.pipelines.ValidationPipeline': 200,     # Validação primeiro
+    'cacapreco_scraper.pipelines.DjangoPipeline': 300,         # Salva no Django
 }
 
-# --- API Settings ---
-DJANGO_API_URL = "http://localhost:8000"
-SCRAPY_API_KEY = "your_secret_api_key"
+# Corrige o warning de REQUEST_FINGERPRINTER
+REQUEST_FINGERPRINTER_IMPLEMENTATION = '2.7'
 
-# --- Codificação de Saída ---
-FEED_EXPORT_ENCODING = "utf-8"
-FEED_FORMAT = 'json'
-FEED_URI = 'file:///tmp/scrapy_output.json'
+# Configurações de feed (export)
+FEEDS = {
+    '/tmp/scrapy_output.json': {
+        'format': 'json',
+        'encoding': 'utf-8',
+        'store_empty': False,
+        'overwrite': True,
+    }
+}
+
+# Middlewares
+DOWNLOADER_MIDDLEWARES = {
+    'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
+    'scrapy_user_agents.middlewares.RandomUserAgentMiddleware': 400,  # Se instalado
+}
+
+# Log
+LOG_LEVEL = 'INFO'  # DEBUG, INFO, WARNING, ERROR
+LOG_ENABLED = True
+
+# Autothrottle (ajusta velocidade automaticamente)
+AUTOTHROTTLE_ENABLED = True
+AUTOTHROTTLE_START_DELAY = 2
+AUTOTHROTTLE_MAX_DELAY = 10
+AUTOTHROTTLE_TARGET_CONCURRENCY = 2.0
+
+# Cache (útil para desenvolvimento)
+HTTPCACHE_ENABLED = False
+HTTPCACHE_EXPIRATION_SECS = 0
+HTTPCACHE_DIR = 'httpcache'
+
+# Retry
+RETRY_ENABLED = True
+RETRY_TIMES = 3
+RETRY_HTTP_CODES = [500, 502, 503, 504, 408, 429]
+
+# Telnet (console remoto para debug)
+TELNETCONSOLE_ENABLED = True
+TELNETCONSOLE_PORT = [6023, 6024]
+
+# Extensões
+EXTENSIONS = {
+    'scrapy.extensions.telnet.TelnetConsole': None,  # Desabilita se não usar
+}
+
+# Twisted Reactor (performance)
+TWISTED_REACTOR = 'twisted.internet.asyncioreactor.AsyncioSelectorReactor'
+
+# Memory usage
+MEMUSAGE_ENABLED = True
+MEMUSAGE_LIMIT_MB = 512  # Alerta se passar de 512MB
+MEMUSAGE_WARNING_MB = 256

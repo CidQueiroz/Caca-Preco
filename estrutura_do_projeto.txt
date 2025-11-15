@@ -1,0 +1,258 @@
+.
+├── available_packages.txt
+├── backend
+│   ├── api
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── fast_path_failure.html
+│   │   ├── __init__.py
+│   │   ├── management
+│   │   │   └── commands
+│   │   │       ├── clean_subcategories.py
+│   │   │       └── import_legacy_data.py
+│   │   ├── migrations
+│   │   │   ├── 0001_initial.py
+│   │   │   ├── 0002_alter_produtosmonitoradosexternos_unique_together_and_more.py
+│   │   │   └── __init__.py
+│   │   ├── models.py
+│   │   ├── permissions.py
+│   │   ├── playwright_scraper.py
+│   │   ├── scraper.py
+│   │   ├── serializers.py
+│   │   ├── teste_scraper.py
+│   │   ├── test_models.py
+│   │   ├── test_permissions.py
+│   │   ├── test_serializers.py
+│   │   ├── test_views.py
+│   │   ├── urls.py
+│   │   └── views.py
+│   ├── cacapreco_scraper
+│   │   ├── cacapreco_scraper
+│   │   │   ├── __init__.py
+│   │   │   ├── middlewares.py
+│   │   │   ├── pipelines.py
+│   │   │   ├── settings.py
+│   │   │   └── spiders
+│   │   │       ├── generic_scrapy_spider.py
+│   │   │       ├── __init__.py
+│   │   │       ├── playwright_spider.py
+│   │   │       └── selenium_spider.py.bak
+│   │   ├── casasbahia.html
+│   │   ├── casasbahia_invalid_price.html
+│   │   ├── casasbahia_malformed_jsonld.html
+│   │   ├── .coverage
+│   │   ├── empty.html
+│   │   ├── __init__.py
+│   │   ├── mercadolivre.html
+│   │   ├── output.json
+│   │   ├── produto_ml.html
+│   │   ├── .pytest_cache
+│   │   │   ├── CACHEDIR.TAG
+│   │   │   ├── .gitignore
+│   │   │   ├── README.md
+│   │   │   └── v
+│   │   │       └── cache
+│   │   │           └── nodeids
+│   │   ├── quotes.json
+│   │   ├── resultado..json
+│   │   ├── scrapy.cfg
+│   │   ├── scrapy_output.log
+│   │   ├── screenshot_falha_selenium.png
+│   │   └── tests
+│   │       ├── __init__.py
+│   │       ├── test_middlewares.py
+│   │       ├── test_pipelines.py
+│   │       ├── test_selenium_spider.py
+│   │       └── test_spiders.py
+│   ├── core
+│   │   ├── asgi.py
+│   │   ├── celery.py
+│   │   ├── __init__.py
+│   │   ├── settings.py
+│   │   ├── tests.py
+│   │   ├── urls.py
+│   │   └── wsgi.py
+│   ├── .coverage
+│   ├── Dockerfile
+│   ├── .dockerignore
+│   ├── .env
+│   ├── .env.prod
+│   ├── initial_data.json
+│   ├── manage.py
+│   ├── media
+│   │   ├── produtos
+│   │   │   ├── github1.png
+│   │   │   ├── ia_dAymS62.png
+│   │   │   ├── IMG-20210604-WA0008.jpg
+│   │   │   ├── IMG-20210615-WA0321.jpg
+│   │   │   ├── IMG-20210620-WA0025.jpg
+│   │   │   ├── IMG-20210626-WA0053.jpg
+│   │   │   └── logo_metalico_sem_fundo.png
+│   │   └── uploads
+│   ├── pyproject.toml
+│   ├── .pytest_cache
+│   │   ├── CACHEDIR.TAG
+│   │   ├── .gitignore
+│   │   ├── README.md
+│   │   └── v
+│   │       └── cache
+│   │           ├── lastfailed
+│   │           └── nodeids
+│   ├── pytest.ini
+│   ├── requirements.lock
+│   ├── requirements.txt
+│   ├── scraper
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── __init__.py
+│   │   ├── management
+│   │   │   ├── commands
+│   │   │   │   ├── __init__.py
+│   │   │   │   └── populate_selectors.py
+│   │   │   └── __init__.py
+│   │   ├── migrations
+│   │   │   ├── 0001_initial.py
+│   │   │   ├── 0002_alter_dominio_options_alter_historicoprecos_options_and_more.py
+│   │   │   └── __init__.py
+│   │   ├── models.py
+│   │   ├── orchestrator.py
+│   │   ├── scraping_service.py
+│   │   ├── scraping_strategies.py
+│   │   ├── serializers.py
+│   │   ├── tasks.py
+│   │   ├── tests.py
+│   │   ├── urls.py
+│   │   ├── utils
+│   │   │   ├── __init__.py
+│   │   │   └── price_utils.py
+│   │   └── views.py
+│   ├── scrapy_output.log
+│   ├── teste.http
+│   └── test_selenium.py
+├── backup_cacapreco.sql
+├── build_log.txt
+├── caca-preco.md
+├── CHANGELOG.md
+├── C:UserscydyqDocumentsDocsCertificadosORACLEZERADOBADGEs
+├── docker-compose.prod.yml
+├── docker-compose.yml
+├── docs
+│   ├── backend
+│   │   ├── api-referencia.md
+│   │   ├── authentication.md
+│   │   └── database.md
+│   ├── frontend-mobile
+│   │   ├── getting-started.md
+│   │   ├── navigation.md
+│   │   └── state-management.md
+│   ├── frontend-web
+│   │   ├── components.md
+│   │   ├── getting-started.md
+│   │   └── state-management.md
+│   ├── privacy-policy.md
+│   └── terms-of-service.md
+├── estrutura_do_projeto.txt
+├── frontend
+│   ├── Dockerfile
+│   ├── Dockerfile.prod
+│   ├── .env
+│   ├── index.html
+│   ├── package.json
+│   ├── public
+│   │   ├── assets
+│   │   │   ├── circuitoscdk.png
+│   │   │   ├── email1.png
+│   │   │   ├── email.png
+│   │   │   ├── facebook1.png
+│   │   │   ├── facebook.png
+│   │   │   ├── github1.png
+│   │   │   ├── github.png
+│   │   │   ├── ia2.png
+│   │   │   ├── ia.png
+│   │   │   ├── instagram1.png
+│   │   │   ├── instagram.png
+│   │   │   ├── linkedin1.png
+│   │   │   ├── linkedin.png
+│   │   │   ├── logo2.png
+│   │   │   ├── logo.png
+│   │   │   ├── twitter1.png
+│   │   │   ├── twitter.png
+│   │   │   ├── whatsapp1.png
+│   │   │   └── whatsapp.png
+│   │   └── index.html
+│   ├── README.md
+│   ├── src
+│   │   ├── api.js
+│   │   ├── App.jsx
+│   │   ├── components
+│   │   │   ├── AdicionarOferta copy.jsx
+│   │   │   ├── AdicionarOferta.jsx
+│   │   │   ├── BarraNavegacao.jsx
+│   │   │   ├── Botao.jsx
+│   │   │   ├── Botao.test.jsx
+│   │   │   ├── BuscaProdutos.jsx
+│   │   │   ├── Cabecalho.jsx
+│   │   │   ├── Estrutura.jsx
+│   │   │   ├── Footer.jsx
+│   │   │   ├── FormularioAdmin.jsx
+│   │   │   ├── FormularioCadastro.jsx
+│   │   │   ├── FormularioLogin.jsx
+│   │   │   ├── ListaProdutos.jsx
+│   │   │   ├── ListaProdutosMonitorados.jsx
+│   │   │   ├── Notificacao.jsx
+│   │   │   ├── Rodape.jsx
+│   │   │   ├── RotaProtegida.jsx
+│   │   │   └── ThemeToggle.jsx
+│   │   ├── context
+│   │   │   ├── AuthContext.jsx
+│   │   │   ├── MonitoringContext.jsx
+│   │   │   ├── NotificationContext.jsx
+│   │   │   └── ThemeContext.jsx
+│   │   ├── index.jsx
+│   │   ├── pages
+│   │   │   ├── AnaliseMercadoSaaS.jsx
+│   │   │   ├── Cadastro.jsx
+│   │   │   ├── CadastroProduto.jsx
+│   │   │   ├── CompletarPerfil.jsx
+│   │   │   ├── Contato.jsx
+│   │   │   ├── DashboardAdmin.jsx
+│   │   │   ├── DashboardAnalise.jsx
+│   │   │   ├── DashboardCliente.jsx
+│   │   │   ├── DashboardVendedor.jsx
+│   │   │   ├── DashboardVendedor.test.jsx
+│   │   │   ├── IndicarVendedor.jsx
+│   │   │   ├── Inicio.jsx
+│   │   │   ├── Login.jsx
+│   │   │   ├── MeusProdutos.jsx
+│   │   │   ├── MinhasAvaliacoesDetalhe.jsx
+│   │   │   ├── MonitorarConcorrencia.jsx
+│   │   │   ├── pages_copy
+│   │   │   │   └── Login copy.jsx
+│   │   │   ├── Privacidade.jsx
+│   │   │   ├── Produtos.jsx
+│   │   │   ├── RecuperarSenha.jsx
+│   │   │   ├── RedefinirSenha.jsx
+│   │   │   ├── Termos.jsx
+│   │   │   └── VerificarEmail.jsx
+│   │   ├── setupTests.js
+│   │   └── styles
+│   │       ├── Global.css
+│   │       └── style_global.css
+│   └── vite.config.js
+├── gemini.md
+├── .github
+│   └── workflows
+│       ├── deploy.yml
+│       ├── django-ci.yml
+│       └── release.yml
+├── .gitignore
+├── package.json
+├── package-lock.json
+├── placar_calibracao.json
+├── README.md
+├── .releaserc.json
+├── trello_import.csv
+└── .vscode
+    └── settings.json
+
+40 directories, 215 files

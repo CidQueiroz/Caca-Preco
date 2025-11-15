@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     
     # 3rd Party Apps
     'rest_framework',
-    'rest_framework_simplejwt',
+    # 'rest_framework_simplejwt',
     'rest_framework.authtoken',
     
     # Local Apps
@@ -118,12 +118,12 @@ else:
             'USER': os.environ.get('MYSQL_USER', 'root'),
             'PASSWORD': os.environ.get('MYSQL_ROOT_PASSWORD', 'rootpassword'),
             'HOST': os.environ.get('MYSQL_HOST', 'localhost'),
-            'PORT': os.environ.get('MYSQL_PORT', '3307'), # Default to 3307 for local access to Docker
+            'PORT': os.environ.get('MYSQL_PORT', '3306'), # Default to 3306 for inter-container communication
     }}
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    # 'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     # 'DEFAULT_RENDERER_CLASSES': (
     #     'djangorestframework_camel_case.render.CamelCaseJSONRenderer',
@@ -186,13 +186,13 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/4.2/topics/email/#console-backend
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
-    'UPDATE_LAST_LOGIN': True,
-}
+# SIMPLE_JWT = {
+#     'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
+#     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+#     'ROTATE_REFRESH_TOKENS': True,
+#     'BLACKLIST_AFTER_ROTATION': True,
+#     'UPDATE_LAST_LOGIN': True,
+# }
 
 # Configurações do Celery
 REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')

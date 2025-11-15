@@ -10,7 +10,7 @@ from .models import (
 
 from scraper.models import ProdutosMonitoradosExternos # Importar ProdutosMonitoradosExternos
 
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+# from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from django.conf import settings # Importar settings
 

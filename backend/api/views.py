@@ -22,7 +22,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 import os
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
-from rest_framework_simplejwt.views import TokenObtainPairView
+# from rest_framework_simplejwt.views import TokenObtainPairView
 import json
 from playwright.sync_api import sync_playwright
 import logging
@@ -1150,8 +1150,8 @@ class IniciarMonitoramentoView(APIView):
         )
 
 
-class MyTokenObtainPairView(TokenObtainPairView):
-    serializer_class = MyTokenObtainPairSerializer
+# class MyTokenObtainPairView(TokenObtainPairView):
+#     serializer_class = MyTokenObtainPairSerializer
 
 
 class CategoriaLojaViewSet(viewsets.ModelViewSet):
