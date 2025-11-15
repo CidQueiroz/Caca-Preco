@@ -25,9 +25,9 @@ from .views import (
     AdminTestView,
     ClienteTestView,
     DebugUserView,
-    ScrapeURLView,
-    LongPathScrapeView,
     MonitoramentoViewSet,
+    IniciarScrapingView,
+    TesteFastPathView,
     IniciarMonitoramentoView
     )
 # from rest_framework_simplejwt.views import TokenRefreshView
@@ -62,9 +62,9 @@ urlpatterns = [
     path('debug-user/', DebugUserView.as_view(), name='debug_user'),
     path('admin-test/', AdminTestView.as_view(), name='admin_test'),
     path('cliente-test/', ClienteTestView.as_view(), name='cliente_test'),
-    path('scrape/', ScrapeURLView.as_view(), name='scrape_url'),
-    path('scrape-long/', LongPathScrapeView.as_view(), name='scrape_long_path'),
     path('monitoramento/', MonitoramentoViewSet.as_view({'get': 'list', 'post': 'create'}), name='monitoramento'),
-    path('iniciar-monitoramento/', IniciarMonitoramentoView.as_view(), name='iniciar_monitoramento'),
+    path('iniciar-scraping/', IniciarScrapingView.as_view(), name='iniciar_scraping'),
+    path('teste-fast-path/', TesteFastPathView.as_view(), name='teste_fast_path'),
+    path('monitoramento/', IniciarMonitoramentoView.as_view(), name='iniciar_monitoramento'),
     path('', include(router.urls)),
 ]
