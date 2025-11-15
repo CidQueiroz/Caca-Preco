@@ -103,3 +103,16 @@ gemini.md
 trello_import.csv
 
 backend/cacapreco_scraper/produto_ml_files
+# Arquivos de scraping/debug
+backend/**/*.html
+backend/**/*.png
+backend/**/*.log
+backend/**/output.json
+backend/**/scrapy_output.log
+backend/**/screenshot*.png
+
+# Cache Python
+**/__pycache__/
+**/*.pyc
+**/.pytest_cache/
+**/.coverage

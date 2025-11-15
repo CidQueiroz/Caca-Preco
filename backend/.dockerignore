@@ -1,32 +1,29 @@
-# Ignore Python virtual environments
-.venv/
-.venv_linux/
-
-# Ignore Python cache directories
-__pycache__/
-*.pyc
-*.pyo
-
-# Ignore pytest cache
-.pytest_cache/
-
-# Ignore editor/IDE specific files
-.vscode/
-.idea/
-
-# Ignore logs and temporary files
-*.log
-*.tmp
-tmp/
-
-# Ignore environment variables file
-.env
-
-# Ignore media files (if they are not meant to be part of the image)
-media/
-
-# Ignore Scrapy output log
+# Arquivos de teste
+**/*.html
+**/*.png
+**/*.log
+output.json
 scrapy_output.log
+screenshot_*.png
 
-# Ignore test http file
-teste.http
+# Cache e testes
+**/__pycache__/
+**/*.pyc
+**/.pytest_cache/
+.coverage
+*.db
+
+# Git
+.git/
+.gitignore
+
+# Ambientes
+.env
+.env.*
+venv/
+env/
+
+# Docs
+README.md
+docs/
+*.md

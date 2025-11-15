@@ -13,7 +13,7 @@ from django.db import transaction
 from django.db.models.query import QuerySet
 from django.urls import reverse
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta  
 from django.core.mail import send_mail
 import uuid
 from django.conf import settings
@@ -24,7 +24,8 @@ from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 # from rest_framework_simplejwt.views import TokenObtainPairView
 import json
-from playwright.sync_api import sync_playwright
+from scraper.orchestrator import ScraperOrchestrator
+from scraper.tasks import run_scraping_task
 import logging
 
 logger = logging.getLogger(__name__)
