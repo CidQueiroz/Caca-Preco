@@ -1,0 +1,412 @@
+🎯 Estratégias de Scraping: Decisão vs Tentativa
+🔀 Abordagem 1: DECISÃO (Atual - Orchestrator)
+Como Funciona
+pythondef execute_scraping(url):
+    # 1. Analisa a URL ANTES de tentar
+    domain = extrair_dominio(url)
+    
+    # 2. DECIDE baseado em conhecimento prévio
+    if domain == 'shopee.com.br':
+        return long_path(url)  # Já sabe que precisa de JS
+    elif domain == 'mercadolivre.com.br':
+        return fast_path(url)  # Sabe que funciona sem JS
+    else:
+        return fast_path(url)  # Tenta o mais rápido primeiro
+Raciocínio
+┌─────────────┐
+│ Recebe URL  │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────────────┐
+│ Analisa domínio     │
+│ - É Shopee?         │
+│ - É Mercado Livre?  │
+│ - É desconhecido?   │
+└──────┬──────────────┘
+       │
+       ├──→ Shopee → LONG (JS obrigatório)
+       ├──→ ML → FAST (HTML estático)
+       └──→ Outro → FAST (tenta rápido primeiro)
+✅ Vantagens
+
+Rápido: Não perde tempo tentando estratégias erradas
+Eficiente: Vai direto na estratégia certa
+Previsível: Sabe o que vai acontecer
+Econômico: Menos CPU/tempo gasto
+
+❌ Desvantagens
+
+Precisa manter lista: Tem que conhecer os sites
+Pode errar: Site pode mudar e lista ficar desatualizada
+Menos adaptativo: Não "aprende" sozinho
+
+
+🔁 Abordagem 2: TENTATIVA (Sua Proposta - Try/Except)
+Como Funciona
+pythondef coletar_dados_concorrente(url):
+    try:
+        # Tentativa 1: Fast Path
+        print("Tentando Fast Path...")
+        return raspar_com_beautifulsoup(url)
+    except ElementoNaoEncontradoErro:
+        print("Fast Path falhou. Tentando Medium Path...")
+        try:
+            # Tentativa 2: Medium Path
+            return raspar_com_selenium(url, headless=True)
+        except BloqueioDetectadoErro:
+            print("Bloqueio detectado. Ativando Long Path...")
+            # Tentativa 3: Long Path
+            return raspar_com_selenium_avancado(url)
+Raciocínio
+┌─────────────┐
+│ Recebe URL  │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────────┐
+│ TENTA Fast Path │
+└──────┬──────────┘
+       │
+       ├──→ ✓ Sucesso → Retorna
+       │
+       └──→ ✗ Falha
+            │
+            ▼
+       ┌────────────────┐
+       │ TENTA Medium   │
+       └──────┬─────────┘
+              │
+              ├──→ ✓ Sucesso → Retorna
+              │
+              └──→ ✗ Falha
+                   │
+                   ▼
+              ┌────────────┐
+              │ TENTA Long │
+              └────────────┘
+✅ Vantagens
+
+Adaptativo: "Descobre" sozinho qual funciona
+Não precisa lista: Funciona com qualquer site
+Auto-corrigível: Se site mudar, ainda funciona
+Resiliente: Sempre tem fallback
+
+❌ Desvantagens
+
+Lento: Tenta estratégias que sabidamente não funcionam
+Gastão: Consome CPU/tempo em tentativas desnecessárias
+Imprevisível: Não sabe quanto tempo vai demorar
+
+
+🎯 MELHOR SOLUÇÃO: Híbrida!
+Combine as duas abordagens:
+pythonclass ScraperOrchestrator:
+    
+    KNOWN_SITES = {
+        'shopee.com.br': 'long',      # JÁ SABEMOS que precisa
+        'aliexpress.com': 'long',
+        'mercadolivre.com.br': 'fast',
+        'kabum.com.br': 'medium',
+    }
+    
+    @classmethod
+    def execute_scraping(cls, url, usuario_id=None, strategy=None):
+        """
+        1. Se strategy forçada → usa ela
+        2. Se site conhecido → usa estratégia conhecida
+        3. Se site desconhecido → TENTA (fast → medium → long)
+        """
+        
+        # Opção 1: Estratégia forçada pelo usuário
+        if strategy:
+            return cls._execute_strategy(strategy, url, usuario_id)
+        
+        # Opção 2: Site conhecido (DECISÃO)
+        domain = urlparse(url).netloc
+        if domain in cls.KNOWN_SITES:
+            known_strategy = cls.KNOWN_SITES[domain]
+            logger.info(f"[DECISÃO] {domain} → {known_strategy}")
+            return cls._execute_strategy(known_strategy, url, usuario_id)
+        
+        # Opção 3: Site desconhecido (TENTATIVA)
+        logger.info(f"[TENTATIVA] {domain} desconhecido. Tentando cascata...")
+        
+        # Tenta Fast
+        result = cls._try_fast_path(url, usuario_id)
+        if result:
+            # ✅ Sucesso! Aprende para próxima vez
+            cls._learn_site(domain, 'fast')
+            return result
+        
+        # Tenta Medium
+        result = cls._try_medium_path(url, usuario_id)
+        if result:
+            cls._learn_site(domain, 'medium')
+            return result
+        
+        # Tenta Long
+        result = cls._try_long_path(url, usuario_id)
+        if result:
+            cls._learn_site(domain, 'long')
+            return result
+        
+        return None
+    
+    @classmethod
+    def _learn_site(cls, domain, strategy):
+        """Salva no cache/DB qual estratégia funcionou"""
+        # Próxima vez vai usar DECISÃO ao invés de TENTATIVA
+        cache.set(f'strategy:{domain}', strategy, timeout=86400)  # 24h
+
+📊 Comparação de Performance
+Cenário 1: Site Conhecido (Shopee)
+Abordagem DECISÃO:
+URL: shopee.com.br/produto
+↓
+Analisa: "Shopee → Long Path"
+↓
+Executa Long Path (15s)
+↓
+✓ Sucesso
+─────────────────
+Total: 15s
+Abordagem TENTATIVA:
+URL: shopee.com.br/produto
+↓
+Tenta Fast Path (2s)
+↓
+✗ Falha (JS não rodou)
+↓
+Tenta Medium Path (5s)
+↓
+✗ Falha (ainda precisa de JS)
+↓
+Tenta Long Path (15s)
+↓
+✓ Sucesso
+─────────────────
+Total: 22s (47% mais lento!)
+
+Cenário 2: Site Desconhecido
+Abordagem DECISÃO:
+URL: sitedesconhecido.com.br
+↓
+"Desconhecido → Tenta Fast"
+↓
+Executa Fast Path (2s)
+↓
+? Sucesso ou falha
+─────────────────
+Best case: 2s
+Worst case: 2s + fallback
+Abordagem TENTATIVA:
+URL: sitedesconhecido.com.br
+↓
+Tenta Fast Path (2s)
+↓
+? Sucesso ou falha
+─────────────────
+Best case: 2s
+Worst case: 2s + 5s + 15s = 22s
+📊 Resultado: Empate em sites desconhecidos!
+
+🎓 Implementação da Solução Híbrida
+Vou criar o código completo:
+pythonfrom django.core.cache import cache
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+class ScraperOrchestrator:
+    """
+    Orquestrador HÍBRIDO:
+    - DECIDE quando sabe (rápido)
+    - TENTA quando não sabe (adaptativo)
+    - APRENDE para próxima vez (inteligente)
+    """
+    
+    # Sites que JÁ SABEMOS qual estratégia usar
+    KNOWN_SITES = {
+        'shopee.com.br': 'long',
+        'aliexpress.com': 'long',
+        'shein.com': 'long',
+        'mercadolivre.com.br': 'fast',
+        'amazon.com.br': 'fast',
+        'kabum.com.br': 'medium',
+    }
+    
+    @classmethod
+    def execute_scraping(cls, url, usuario_id=None, strategy=None):
+        """Executa scraping usando abordagem híbrida"""
+        
+        from urllib.parse import urlparse
+        domain = urlparse(url).netloc
+        
+        # 1️⃣ Estratégia FORÇADA (prioridade máxima)
+        if strategy:
+            logger.info(f"[FORÇADO] Usando estratégia: {strategy}")
+            return cls._execute_strategy(strategy, url, usuario_id)
+        
+        # 2️⃣ DECISÃO: Site na lista conhecida
+        if domain in cls.KNOWN_SITES:
+            known_strategy = cls.KNOWN_SITES[domain]
+            logger.info(f"[DECISÃO] {domain} → {known_strategy} (conhecido)")
+            return cls._execute_strategy(known_strategy, url, usuario_id)
+        
+        # 3️⃣ DECISÃO: Site aprendido (cache)
+        cached_strategy = cache.get(f'strategy:{domain}')
+        if cached_strategy:
+            logger.info(f"[DECISÃO] {domain} → {cached_strategy} (aprendido)")
+            return cls._execute_strategy(cached_strategy, url, usuario_id)
+        
+        # 4️⃣ TENTATIVA: Site desconhecido (cascata)
+        logger.info(f"[TENTATIVA] {domain} desconhecido. Iniciando cascata...")
+        
+        # Tenta Fast → Medium → Long
+        for strategy_name in ['fast', 'medium', 'long']:
+            logger.info(f"[TENTATIVA] Tentando {strategy_name.upper()} Path...")
+            
+            result = cls._execute_strategy(strategy_name, url, usuario_id)
+            
+            if result:
+                # ✅ SUCESSO! Aprende para próxima vez
+                logger.info(f"[APRENDIZADO] {domain} funcionou com {strategy_name}")
+                cls._save_learned_strategy(domain, strategy_name)
+                return result
+            else:
+                logger.warning(f"[TENTATIVA] {strategy_name.upper()} falhou. Próxima...")
+        
+        # ❌ Todas falharam
+        logger.error(f"[FALHA TOTAL] Nenhuma estratégia funcionou para {url}")
+        return None
+    
+    @classmethod
+    def _execute_strategy(cls, strategy, url, usuario_id):
+        """Executa uma estratégia específica"""
+        
+        if strategy == 'fast':
+            from .strategies.fast_path import FastPathScraper
+            scraper = FastPathScraper()
+            return scraper.scrape(url, usuario_id)
+        
+        elif strategy == 'medium':
+            # TODO: Implementar
+            logger.warning("[MEDIUM] Ainda não implementado")
+            return None
+        
+        elif strategy == 'long':
+            return cls._execute_long_path(url, usuario_id)
+        
+        else:
+            logger.error(f"Estratégia inválida: {strategy}")
+            return None
+    
+    @classmethod
+    def _save_learned_strategy(cls, domain, strategy):
+        """Salva estratégia que funcionou para uso futuro"""
+        # Cache por 7 dias
+        cache.set(f'strategy:{domain}', strategy, timeout=604800)
+        
+        # Também pode salvar no banco para persistência
+        # DomainStrategy.objects.update_or_create(
+        #     domain=domain,
+        #     defaults={'strategy': strategy, 'last_success': timezone.now()}
+        # )
+    
+    @classmethod
+    def _execute_long_path(cls, url, usuario_id):
+        """Executa Long Path (Playwright)"""
+        try:
+            from scrapy.crawler import CrawlerProcess
+            from scrapy.utils.project import get_project_settings
+            from .spiders.playwright_spider import PlaywrightSpider
+            
+            settings = get_project_settings()
+            process = CrawlerProcess(settings)
+            
+            results = []
+            
+            def collect_items(item, response, spider):
+                results.append(dict(item))
+            
+            from scrapy import signals
+            from scrapy.signalmanager import dispatcher
+            dispatcher.connect(collect_items, signal=signals.item_scraped)
+            
+            process.crawl(PlaywrightSpider, url=url, usuario_id=str(usuario_id))
+            process.start()
+            
+            return results[0] if results else None
+            
+        except Exception as e:
+            logger.error(f"[LONG PATH] Erro: {e}")
+            return None
+
+📈 Resultados Esperados
+Primeira Execução (Site Desconhecido)
+URL: novosite.com.br/produto
+[TENTATIVA] Iniciando cascata...
+[TENTATIVA] Tentando FAST Path...
+[FAST PATH] ✗ Elemento não encontrado
+[TENTATIVA] Tentando MEDIUM Path...
+[MEDIUM PATH] ✗ Ainda não implementado
+[TENTATIVA] Tentando LONG Path...
+[LONG PATH] ✓ Sucesso!
+[APRENDIZADO] novosite.com.br → long
+────────────────
+Total: ~22s (3 tentativas)
+Segunda Execução (Site Aprendido)
+URL: novosite.com.br/produto
+[DECISÃO] novosite.com.br → long (aprendido)
+[LONG PATH] ✓ Sucesso!
+────────────────
+Total: ~15s (direto no alvo!)
+Economia: 32% mais rápido
+Milésima Execução (Site Popular)
+URL: shopee.com.br/produto
+[DECISÃO] shopee.com.br → long (conhecido)
+[LONG PATH] ✓ Sucesso!
+────────────────
+Total: ~15s (sempre rápido)
+
+🎯 Conclusão: Qual Usar?
+SituaçãoMelhor AbordagemSite muito popular (ML, Shopee)DECISÃO (lista fixa)Site desconhecido pela 1ª vezTENTATIVA (cascata)Site desconhecido após aprenderDECISÃO (cache)Debug/DesenvolvimentoFORÇADA pelo dev
+Implementação Recomendada
+python# ✅ HÍBRIDA: O melhor dos dois mundos!
+resultado = ScraperOrchestrator.execute_scraping(
+    url="https://sitequalquer.com",
+    usuario_id=123
+    # strategy=None  ← Deixa ele decidir inteligentemente
+)
+
+💡 Bônus: Salvando Aprendizado no Banco
+Crie um modelo para persistir:
+python# scraper/models.py
+class DomainStrategy(models.Model):
+    domain = models.CharField(max_length=255, unique=True)
+    strategy = models.CharField(max_length=20)  # 'fast', 'medium', 'long'
+    success_count = models.IntegerField(default=0)
+    last_success = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.domain} → {self.strategy}"
+Então no orchestrator:
+python@classmethod
+def _save_learned_strategy(cls, domain, strategy):
+    """Salva no cache E no banco"""
+    # Cache (temporário, rápido)
+    cache.set(f'strategy:{domain}', strategy, timeout=604800)
+    
+    # Banco (persistente)
+    obj, created = DomainStrategy.objects.update_or_create(
+        domain=domain,
+        defaults={'strategy': strategy}
+    )
+    
+    if not created:
+        obj.success_count += 1
+        obj.save()
+
+Ficou claro por que usar decisão + tentativa (híbrido)? 🎯

@@ -28,6 +28,10 @@ def parse_brazilian_price(price_str: str) -> float:
     """
     if not price_str:
         raise ValueError("String de preço vazia")
+
+    # Check for negative sign before cleaning
+    if '-' in str(price_str):
+        raise ValueError(f"Preço não pode ser negativo: '{price_str}'")
     
     clean_str = re.sub(r'[^\d,.]', '', str(price_str).strip())
     
@@ -44,7 +48,7 @@ def parse_brazilian_price(price_str: str) -> float:
         price = float(clean_str)
         
         if price <= 0:
-            raise ValueError(f"Preço inválido (negativo ou zero): {price}")
+            raise ValueError(f"Preço inválido (zero): {price}")
         
         if price > 1000000:
             logger.warning(f"Preço muito alto (suspeito): {price}")

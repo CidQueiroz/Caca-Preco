@@ -13,12 +13,20 @@ RUN dnf --enablerepo=ol9_codeready_builder --enablerepo=ol9_appstream install -y
     wget \
     tar \
     gzip \
-    findutils && \
+    findutils \
+    nmap-ncat && \
     dnf clean all
+
+# Cria link simbólico de ncat para nc para compatibilidade com wait-for-it.sh
+RUN ln -sf /usr/bin/ncat /usr/bin/nc
 
 # Cria link simbólico para python3
 RUN ln -sf /usr/bin/python3.11 /usr/bin/python3 && \
     ln -sf /usr/bin/pip3.11 /usr/bin/pip3
+
+# Create a virtual environment
+RUN python3 -m venv /app/.venv
+ENV PATH="/app/.venv/bin:$PATH"
 
 # Instala TODAS as dependências do Playwright manualmente (Oracle Linux)
 RUN dnf --enablerepo=ol9_codeready_builder --enablerepo=ol9_appstream install -y \
@@ -55,21 +63,25 @@ RUN dnf --enablerepo=ol9_codeready_builder --enablerepo=ol9_appstream install -y
 
 # Copia e instala requirements
 COPY requirements.txt .
-RUN python3.11 -m pip install --upgrade pip && \
-    python3.11 -m pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
 # Instala apenas o Playwright (Python package)
-RUN python3.11 -m pip install playwright
+RUN pip install playwright
 
 # Baixa o navegador Chromium (SEM tentar instalar dependências)
-RUN PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=0 python3.11 -m playwright install chromium
+RUN PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=0 playwright install chromium
 
 # Copia o código
 COPY . .
+
+# Copia o script wait-for-it.sh e o torna executável
+COPY wait-for-it.sh /usr/local/bin/wait-for-it.sh
+RUN chmod +x /usr/local/bin/wait-for-it.sh
 
 # Variáveis de ambiente
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 ENV PYTHONUNBUFFERED=1
 
 # Comando padrão
-CMD ["python3.11", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

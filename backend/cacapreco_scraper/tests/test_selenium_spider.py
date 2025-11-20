@@ -5,7 +5,7 @@ import time
 from unittest.mock import Mock, patch
 from scrapy.http import HtmlResponse
 from bs4 import BeautifulSoup
-from cacapreco_scraper.cacapreco_scraper.spiders.selenium_spider import SeleniumSpider
+from cacapreco_scraper.spiders.selenium_spider import SeleniumSpider
 
 class TestSeleniumSpider(unittest.TestCase):
     def setUp(self):

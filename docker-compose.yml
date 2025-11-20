@@ -37,8 +37,9 @@ services:
       - 8.8.8.8
       - 8.8.4.4
     container_name: cacapreco_backend
+    command: /usr/local/bin/wait-for-it.sh db 3306 -- python3.11 manage.py runserver 0.0.0.0:8000
     volumes:
-      - ./backend:/app
+      # - ./backend:/app
       - playwright_cache:/ms-playwright  # Cache dos navegadores Playwright
     ports:
       - "8000:8000"
@@ -74,7 +75,7 @@ services:
     command: celery -A core worker -l info --concurrency=4
     container_name: cacapreco_celery
     volumes:
-      - ./backend:/app
+      # - ./backend:/app
       - playwright_cache:/ms-playwright
     env_file:
       - ./backend/.env
@@ -84,6 +85,7 @@ services:
       - MYSQL_HOST=db
       - REDIS_HOST=redis
       - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+      - PYTHONPATH=/app
     depends_on:
       db:
         condition: service_healthy
@@ -107,8 +109,8 @@ services:
       dockerfile: Dockerfile
     command: celery -A core beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
     container_name: cacapreco_celery_beat
-    volumes:
-      - ./backend:/app
+    # volumes:
+      # - ./backend:/app
     env_file:
       - ./backend/.env
     environment:
@@ -116,6 +118,7 @@ services:
       - DJANGO_SETTINGS_MODULE=core.settings
       - MYSQL_HOST=db
       - REDIS_HOST=redis
+      - PYTHONPATH=/app
     depends_on:
       db:
         condition: service_healthy

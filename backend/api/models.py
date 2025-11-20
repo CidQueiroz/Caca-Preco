@@ -3,8 +3,6 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 import uuid
 
-# --- GERENCIADOR DE USUÁRIO SIMPLIFICADO ---
-
 class UsuarioManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         """
@@ -219,8 +217,6 @@ class AvaliacaoLoja(models.Model):
 class Administrador(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, primary_key=True)
     nome = models.CharField(max_length=255)
-
-
 
 class Sugestao(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)

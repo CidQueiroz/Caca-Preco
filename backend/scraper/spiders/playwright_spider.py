@@ -5,7 +5,44 @@ import random
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeout
 from bs4 import BeautifulSoup
 from scrapy.http import HtmlResponse
-from ..settings import USER_AGENTS
+from ..scrapy_settings import USER_AGENTS
+import sys
+import os
+
+# Adiciona o diretório correto ao path para imports
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
+
+# Adiciona o diretório correto ao path para imports
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
+
+# Import da função de conversão de preço
+try:
+    from scraper.utils.price_utils import parse_brazilian_price
+except ImportError:
+    # Fallback caso o import falhe
+    import re
+    def parse_brazilian_price(price_str):
+        if not price_str:
+            raise ValueError("String vazia")
+        clean_str = re.sub(r'[^\d,.]', '', str(price_str).strip())
+        if ',' in clean_str:
+            if '.' in clean_str:
+                clean_str = clean_str.replace('.', '').replace(',', '.')
+            else:
+                clean_str = clean_str.replace(',', '.')
+        return float(clean_str)
+
+
+# Definir USER_AGENTS aqui se não existir em settings
+USER_AGENTS = [
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+]
 
 class PlaywrightSpider(scrapy.Spider):
     """
@@ -291,28 +328,23 @@ class PlaywrightSpider(scrapy.Spider):
                     self.logger.info(f"Preço encontrado: '{selector}'")
                     break
         
-        # VALIDAÇÃO E LIMPEZA
+        # ===== VALIDAÇÃO E LIMPEZA (CORRIGIDO) =====
         if nome_produto and preco_produto_str:
-            # Limpa o preço com regex robusto
-            preco_limpo = re.search(r'(\d[\d,.]*\d)', preco_produto_str.replace('.', ''))
-            
-            if preco_limpo:
-                try:
-                    preco_final = float(preco_limpo.group(0).replace(',', '.'))
-                    self.logger.info(f"✓ SUCESSO! Produto: '{nome_produto}' | Preço: R$ {preco_final:.2f}")
-                    
-                    yield {
-                        'usuario_id': self.usuario_id,
-                        'url_produto': self.url,
-                        'nome_produto': nome_produto,
-                        'preco_atual': preco_final
-                    }
-                    return
-                    
-                except ValueError as e:
-                    self.logger.error(f"Erro na conversão do preço: {e}")
-            else:
-                self.logger.error(f"Regex não encontrou preço em: '{preco_produto_str}'")
+            try:
+                # ✅ USA A FUNÇÃO CORRETA DE CONVERSÃO
+                preco_final = parse_brazilian_price(preco_produto_str)
+                self.logger.info(f"✓ SUCESSO! Produto: '{nome_produto}' | Preço: R$ {preco_final:.2f}")
+                
+                yield {
+                    'usuario_id': self.usuario_id,
+                    'url_produto': self.url,
+                    'nome_produto': nome_produto,
+                    'preco_atual': preco_final
+                }
+                return
+                
+            except ValueError as e:
+                self.logger.error(f"Erro ao converter preço '{preco_produto_str}': {e}")
         else:
             self.logger.error(f"✗ FALHA! Nome: {bool(nome_produto)} | Preço: {bool(preco_produto_str)}")
             

@@ -8,38 +8,36 @@ from django.contrib.auth import get_user_model
 logger = logging.getLogger(__name__)
 User = get_user_model()
 
-
 @shared_task(bind=True)
 def run_scraping_task(self, url, user_id, strategy=None):
     """
     Tarefa Celery unificada para scraping.
     Usa o orquestrador para escolher automaticamente a melhor estratégia.
     """
-    try:
-        user = User.objects.get(id=user_id)
-        logger.info(f"[TASK] Iniciando scraping para {url} (usuário: {user_id})")
-        
-    except User.DoesNotExist:
-        error_msg = f"Usuário com ID {user_id} não encontrado."
-        logger.error(f"[TASK] {error_msg}")
-        return {"status": "error", "message": error_msg}
+    user = None
+    if user_id:
+        try:
+            user = User.objects.get(id=user_id)
+            logger.info(f"[TASK] Iniciando scraping para {url} (usuário: {user_id})")
+            
+        except User.DoesNotExist:
+            error_msg = f"Usuário com ID {user_id} não encontrado."
+            logger.error(f"[TASK] {error_msg}")
+            return {"status": "error", "message": error_msg}
+    else:
+        logger.info(f"[TASK] Iniciando scraping para {url} (usuário: None - modo de teste)")
     
     try:
         # Usa o orquestrador
         resultado = ScraperOrchestrator.execute_scraping(
             url=url,
             usuario_id=user_id,
-            strategy=strategy
+            strategy=strategy # type: ignore
         )
         
         if resultado:
-            logger.info(
-                f"[TASK] ✓ Scraping concluído: "
-                f"{resultado.get('nome_produto')} - "
-                f"R$ {resultado.get('preco_atual'):.2f}"
-            )
-            
-            # Salva no banco
+            logger.info(f"[TASK] ✓ Scraping concluído: ")
+                # Salva no banco
             try:
                 vendedor = Vendedor.objects.get(usuario=user)
                 
@@ -53,20 +51,18 @@ def run_scraping_task(self, url, user_id, strategy=None):
                 )
                 
                 action = "criado" if created else "atualizado"
-                logger.info(f"[TASK] Produto monitorado {action}: {produto_monitorado.id}")
+                logger.info(f"[TASK] Produto {action}: {produto_monitorado.id}")
                 
             except Vendedor.DoesNotExist:
                 logger.warning(f"[TASK] Usuário {user_id} não é vendedor")
             
             return {
                 "status": "success",
-                "message": "Scraping concluído e dados salvos.",
+                "message": "Scraping concluído",
                 "data": resultado
             }
         else:
-            error_msg = "Todas as estratégias falharam."
-            logger.error(f"[TASK] {error_msg}")
-            return {"status": "error", "message": error_msg}
+            return {"status": "error", "message": "Todas estratégias falharam"}
             
     except Exception as e:
         error_msg = f"Erro inesperado: {str(e)}"
@@ -88,7 +84,7 @@ def atualizar_precos_monitorados():
         try:
             resultado = ScraperOrchestrator.execute_scraping(
                 url=produto.url_produto,
-                usuario_id=produto.vendedor.usuario.id
+                usuario_id=produto.vendedor.usuario.id # type: ignore
             )
             
             if resultado:
@@ -98,7 +94,7 @@ def atualizar_precos_monitorados():
                         f"[PERIÓDICA] Preço atualizado: {produto.nome_produto} "
                         f"R$ {produto.preco_atual:.2f} → R$ {preco_novo:.2f}"
                     )
-                    produto.preco_atual = preco_novo
+                    produto.preco_atual = preco_novo # type: ignore
                     produto.save()
                 sucesso += 1
             else:

@@ -296,8 +296,10 @@ class PlaywrightSpider(scrapy.Spider):
             # Limpa o preço com regex robusto
             preco_limpo = re.search(r'(\d[\d,.]*\d)', preco_produto_str.replace('.', ''))
             
+            preco_limpo = re.search(r'(\d[\d,.]*\d)', preco_produto_str.replace('.', ''))
             if preco_limpo:
                 try:
+                    preco_limpo = re.search(r'(\d[\d,.]*\d)', preco_produto_str.replace('.', ''))
                     preco_final = float(preco_limpo.group(0).replace(',', '.'))
                     self.logger.info(f"✓ SUCESSO! Produto: '{nome_produto}' | Preço: R$ {preco_final:.2f}")
                     

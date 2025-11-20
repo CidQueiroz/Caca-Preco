@@ -20,8 +20,8 @@ screenshot_*.png
 # Ambientes
 .env
 .env.*
-venv/
 env/
+.venv/
 
 # Docs
 README.md

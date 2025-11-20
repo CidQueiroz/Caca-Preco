@@ -1,0 +1,28 @@
+{
+  "projects": {
+    "default": "cdkteck-hub"
+  },
+  "targets": {
+    "senseidb-rebranding": {
+      "hosting": {
+        "cacapreco": [
+          "cacapreco"
+        ],
+        "papodados": [
+          "papodados"
+        ],
+        "cacapreco-app": [
+          "cacapreco-app"
+        ]
+      }
+    },
+    "cdkteck-hub": {
+      "hosting": {
+        "cacapreco-app": [
+          "cacapreco-app"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'rest_framework',
     # 'rest_framework_simplejwt',
     'rest_framework.authtoken',
+    'django_celery_beat',
     
     # Local Apps
     'api',
@@ -123,7 +124,7 @@ else:
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-    # 'rest_framework_simplejwt.authentication.JWTAuthentication',
+    'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     # 'DEFAULT_RENDERER_CLASSES': (
     #     'djangorestframework_camel_case.render.CamelCaseJSONRenderer',

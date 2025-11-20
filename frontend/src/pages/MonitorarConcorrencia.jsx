@@ -29,7 +29,7 @@ const MonitorarConcorrencia = () => {
     }
 
     try {
-      const response = await apiClient.post('/iniciar-monitoramento/', { url });
+      const response = await apiClient.post('/iniciar-scraping/', { url });
       setLoadingTaskId(response.data.task_id);
       showNotification('Monitoramento iniciado... Por favor, aguarde.', 'info');
     } catch (error) {
