@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import Botao from './Botao';
 
 const FormularioLogin = () => {
@@ -10,7 +10,7 @@ const FormularioLogin = () => {
     const [erro, setErro] = useState('');
     const [mensagemSucesso, setMensagemSucesso] = useState('');
 
-    const { login } = useContext(AuthContext);
+    const { login } = useAuth();
     const navegar = useNavigate();
 
     const handleSubmit = async (e) => {

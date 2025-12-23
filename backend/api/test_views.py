@@ -7,8 +7,9 @@ from unittest.mock import patch, MagicMock
 from api.models import (
     Usuario, Cliente, Vendedor, CategoriaLoja, SubcategoriaProduto, Produto, SKU, 
     OfertaProduto, ImagemSKU, Atributo, ValorAtributo, Endereco, AvaliacaoLoja,
-    ProdutosMonitoradosExternos, HistoricoPrecos, Sugestao
+    HistoricoPrecos, Sugestao
 )
+from scraper.models import ProdutosMonitoradosExternos
 import uuid
 import json
 from django.utils import timezone
@@ -16,8 +17,8 @@ import datetime
 from rest_framework.test import APIClient
 from django.core.files.uploadedfile import SimpleUploadedFile
 from decimal import Decimal
-from api.serializers import OfertaProdutoSerializer, ProdutosMonitoradosExternosSerializer
-from api.views import OfertaProdutoViewSet, ProdutosMonitoradosExternosViewSet
+from api.serializers import OfertaProdutoSerializer
+from api.views import OfertaProdutoViewSet
 
 User = get_user_model()
 

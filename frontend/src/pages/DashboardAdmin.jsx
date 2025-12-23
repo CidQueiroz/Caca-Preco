@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
 import axios from 'axios';
-import { AuthContext } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import Botao from '../components/Botao';
 
 const DashboardAdmin = () => {
     const [vendedoresPendentes, setVendedoresPendentes] = useState([]);
-    const { token, usuario } = useContext(AuthContext);
+    const { token, usuario } = useAuth();
     const { showNotification } = useNotification();
     const nomeAdmin = usuario?.nome || 'Admin';
 

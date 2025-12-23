@@ -1,14 +1,14 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../api';
-import { AuthContext } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import { useMonitoring } from '../context/MonitoringContext';
 import Botao from '../components/Botao';
 import { useNotification } from '../context/NotificationContext';
 
 const DashboardVendedor = () => {
   const navigate = useNavigate();
-  const { token, user } = useContext(AuthContext);
+  const { token, user } = useAuth();
   const { showNotification } = useNotification();
   const { lastResult, setLastResult } = useMonitoring();
 

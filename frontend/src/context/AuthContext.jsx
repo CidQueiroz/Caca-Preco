@@ -1,75 +1,93 @@
-import React, { createContext, useState, useEffect } from 'react';
-import { jwtDecode } from 'jwt-decode';
+// cacapreco-app/frontend/src/context/AuthContext.jsx
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { auth } from '../firebase'; // Import the Firebase auth instance
 
-export const AuthContext = createContext();
+const AuthContext = createContext();
+
+export const useAuth = () => {
+  return useContext(AuthContext);
+};
 
 export const AuthProvider = ({ children }) => {
-    const [token, setToken] = useState(localStorage.getItem('token'));
-    // Inicializa o usuario no estado de forma síncrona
-    const [usuario, setUsuario] = useState(() => {
-        const userSalvo = localStorage.getItem('usuario');
-        try {
-            return userSalvo ? JSON.parse(userSalvo) : null;
-        } catch (e) {
-            console.error("Erro ao parsear usuário do localStorage", e);
-            return null;
-        }
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser);
+      setIsLoading(false);
     });
-    const [carregando, setCarregando] = useState(true);
+    return unsubscribe;
+  }, []);
 
-    useEffect(() => {
-        const checkToken = () => {
-            if (token) {
-                try {
-                    const tokenDecodificado = jwtDecode(token);
-                    if (tokenDecodificado.exp * 1000 < Date.now()) {
-                        console.log('AuthContext - Token expirado. Realizando logout.');
-                        logout();
-                    }
-                } catch (error) {
-                    console.error("AuthContext - Token inválido", error);
-                    logout();
-                }
-            }
-            setCarregando(false); // Termina o carregamento aqui, após a verificação
-        };
+  const login = async (email, password) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-        checkToken();
-    }, [token]);
+  const register = async (email, password) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    const login = (novoToken, dadosUsuario) => {
-        console.log('AuthContext - Dados do usuário recebidos na função login:', dadosUsuario);
-        localStorage.setItem('token', novoToken);
-        localStorage.setItem('usuario', JSON.stringify(dadosUsuario));
-        setToken(novoToken);
-        setUsuario(dadosUsuario);
-        setCarregando(false); // Garante que o estado de carregamento é false após o login
-        console.log('AuthContext - Estado do usuário após setUsuario:', dadosUsuario);
-    };
+  const logout = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await signOut(auth);
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    const logout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('usuario');
-        setToken(null);
-        setUsuario(null);
-        setCarregando(false);
-    };
-    
-    // A propriedade `perfil_completo` e `email_verificado` do objeto 'usuario'
-    // devem ser usadas diretamente, pois são a fonte da verdade.
-    const perfil_completo = usuario?.perfil_completo;
-    const email_Verificado = usuario?.email_verificado;
+  const loginWithGoogle = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    const valorDoContexto = {
-        token,
-        usuario,
-        email: usuario?.email,
-        perfil_completo,
-        email_Verificado,
-        login,
-        logout,
-        carregando, // Adiciona o estado de carregamento ao contexto
-    };
+  const value = {
+    user,
+    isLoading,
+    error,
+    login,
+    register,
+    logout,
+    loginWithGoogle,
+  };
 
-    return <AuthContext.Provider value={valorDoContexto}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {!isLoading && children}
+    </AuthContext.Provider>
+  );
 };

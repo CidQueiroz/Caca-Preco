@@ -1,117 +1,83 @@
-"""
-Pipeline do Scrapy para salvar itens no Django
-"""
 import os
 import sys
 import django
 from twisted.internet import defer
 from twisted.internet.threads import deferToThread
+from asgiref.sync import sync_to_async
+from django.utils import timezone
+from itemadapter import ItemAdapter
+
 
 # Configuração do Django
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 django.setup()
 
+from scraper.models import ProdutosMonitoradosExternos, ScrapedData
+from api.models import Vendedor
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+logger = logging.getLogger(__name__)
 
 class DjangoPipeline:
-    """
-    Pipeline que salva os itens scraped no banco Django.
-    Usa deferToThread para evitar conflitos de async/sync.
-    """
-    
     def __init__(self):
         self.items_saved = 0
         self.items_failed = 0
     
     @defer.inlineCallbacks
     def process_item(self, item, spider):
-        """
-        Processa cada item scraped.
-        Usa defer.inlineCallbacks para compatibilidade com Twisted.
-        """
-        try:
-            # Executa save em thread separada (evita blocking)
-            result = yield deferToThread(self._save_item_to_db, item, spider)
-            
-            if result:
-                self.items_saved += 1
-                spider.logger.info(f"✓ Item salvo no banco: {item.get('nome_produto', 'N/A')}")
-            else:
-                self.items_failed += 1
-                spider.logger.warning(f"✗ Falha ao salvar item: {item.get('nome_produto', 'N/A')}")
-            
-            return item
-            
-        except Exception as e:
-            self.items_failed += 1
-            spider.logger.error(f"Erro ao processar item na pipeline: {e}")
-            # Não levanta exceção para não parar o spider
-            return item
+        # Transforma Item Scrapy em dict
+        adapter = ItemAdapter(item)
+        data = adapter.asdict()
+        
+        # Chama o salvamento síncrono (Django ORM não é async safe por padrão no Scrapy antigo)
+        self._save_to_db(data, spider)
+        return item
     
-    def _save_item_to_db(self, item, spider):
-        """
-        Função síncrona que salva o item no Django.
-        Executada em thread separada via deferToThread.
-        """
+    def _save_to_db(self, data, spider):
         try:
-            from produtos.models import Produto, Usuario, HistoricoPreco
-            from django.utils import timezone
-            
-            # Validação dos dados
-            usuario_id = item.get('usuario_id')
-            url_produto = item.get('url_produto')
-            nome_produto = item.get('nome_produto')
-            preco_atual = item.get('preco_atual')
-            
-            if not all([usuario_id, url_produto, nome_produto, preco_atual]):
-                spider.logger.error(f"Item com dados incompletos: {item}")
-                return False
-            
-            # Busca ou cria o usuário
+            usuario_id = data.get('usuario_id')
+            url = data.get('url_produto')
+            nome = data.get('nome_produto')
+            preco = data.get('preco_atual')
+
+            if not all([usuario_id, url, nome, preco]):
+                return
+
+            # 1. Salva log bruto (ScrapedData)
+            user = User.objects.get(pk=usuario_id)
+            ScrapedData.objects.create(
+                user=user,
+                url=url,
+                product_name=nome,
+                product_price=preco
+            )
+
+            # 2. Atualiza monitoramento se for Vendedor
+            # Tenta achar o vendedor associado a este usuário
             try:
-                usuario = Usuario.objects.get(id=usuario_id)
-            except Usuario.DoesNotExist:
-                spider.logger.error(f"Usuário {usuario_id} não encontrado")
-                return False
-            
-            # Busca ou cria o produto
-            produto, created = Produto.objects.get_or_create(
-                url=url_produto,
-                usuario=usuario,
-                defaults={
-                    'nome': nome_produto,
-                    'preco_atual': preco_atual,
-                    'preco_inicial': preco_atual,
-                    'ultima_atualizacao': timezone.now(),
-                }
-            )
-            
-            # Se produto já existe, atualiza o preço
-            if not created:
-                # Só atualiza se o preço mudou
-                if produto.preco_atual != preco_atual:
-                    produto.preco_atual = preco_atual
-                    produto.ultima_atualizacao = timezone.now()
-                    produto.save()
-                    
-                    spider.logger.info(
-                        f"Preço atualizado: {produto.nome} | "
-                        f"R$ {produto.preco_atual:.2f}"
-                    )
-            
-            # Cria registro no histórico
-            HistoricoPreco.objects.create(
-                produto=produto,
-                preco=preco_atual,
-                data_coleta=timezone.now()
-            )
-            
-            return True
-            
+                vendedor = Vendedor.objects.get(usuario=user)
+                # Tenta atualizar o produto monitorado
+                # Nota: A lógica aqui depende de como você identifica univocamente o produto
+                # Estou usando a URL como chave
+                obj, created = ProdutosMonitoradosExternos.objects.update_or_create(
+                    vendedor=vendedor,
+                    url_produto=url,
+                    defaults={
+                        'nome_produto': nome,
+                        'preco_atual': preco,
+                        'ultima_coleta': timezone.now()
+                    }
+                )
+                logger.info(f"Produto monitorado atualizado: {obj.nome_produto}")
+            except Vendedor.DoesNotExist:
+                pass # É apenas um usuário comum, não vendedor
+
         except Exception as e:
-            spider.logger.error(f"Erro ao salvar item no banco de dados: {e}")
-            return False
-    
+            logger.error(f"Erro ao salvar no banco: {e}")
+
+
     def close_spider(self, spider):
         """Chamado quando o spider é fechado"""
         spider.logger.info(

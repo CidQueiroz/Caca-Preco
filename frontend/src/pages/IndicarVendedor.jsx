@@ -1,11 +1,11 @@
 import React, { useState, useContext } from 'react';
 import axios from 'axios';
-import { AuthContext } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import Botao from '../components/Botao';
 
 const IndicarVendedor = () => {
-    const { token } = useContext(AuthContext);
+    const { token } = useAuth();
     const { showNotification } = useNotification();
     const [indicacao, setIndicacao] = useState({
         nome_indicado: '',

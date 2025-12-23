@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import { AuthContext } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 
 
 const MinhasAvaliacoesDetalhe = () => {
     const [avaliacoes, setAvaliacoes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const { token } = useContext(AuthContext);
+    const { token } = useAuth();
 
     useEffect(() => {
         const fetchAvaliacoes = async () => {

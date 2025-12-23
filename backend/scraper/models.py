@@ -71,6 +71,7 @@ class ProdutosMonitoradosExternos(models.Model):
     nome_produto = models.CharField(max_length=512)
     preco_atual = models.DecimalField(max_digits=10, decimal_places=2)
     ultima_coleta = models.DateTimeField(auto_now=True)
+    ativo = models.BooleanField(default=True)
     data_cadastro = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

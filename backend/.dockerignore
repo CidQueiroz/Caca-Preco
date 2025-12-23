@@ -1,29 +1,12 @@
-# Arquivos de teste
-**/*.html
-**/*.png
-**/*.log
-output.json
-scrapy_output.log
-screenshot_*.png
+# Ignorar o ambiente virtual local
+.venv
 
-# Cache e testes
-**/__pycache__/
-**/*.pyc
-**/.pytest_cache/
+# Ignorar caches do Python e Pytest
+__pycache__/
+.pytest_cache/
 .coverage
-*.db
 
-# Git
-.git/
-.gitignore
-
-# Ambientes
+# Ignorar arquivos de ambiente específicos do desenvolvimento local
 .env
-.env.*
-env/
-.venv/
-
-# Docs
-README.md
-docs/
-*.md
+.env.bak
+.env.prod

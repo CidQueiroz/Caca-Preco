@@ -10,6 +10,12 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+# Adicionado para instruir o Django a usar o driver moderno 'oracledb'
+import oracledb
+import sys
+oracledb.version = "8.3"
+sys.modules["cx_Oracle"] = oracledb
+
 from pathlib import Path
 import os
 from datetime import timedelta # Import timedelta
@@ -48,6 +54,7 @@ INSTALLED_APPS = [
     # 'rest_framework_simplejwt',
     'rest_framework.authtoken',
     'django_celery_beat',
+    # 'scrapy_playwright',
     
     # Local Apps
     'api',
@@ -99,15 +106,19 @@ FRONTEND_BASE_URL = "http://localhost:3001"
 DB_ENGINE = os.environ.get('DB_ENGINE')
 
 if DB_ENGINE == 'django_oracle_backend':
-    # Configuração para Oracle (Produção)
+    # Configuração para Oracle (Produção ou Dev com Oracle)
+    # Constrói a string de conexão (DSN) para usar Service Name em vez de SID
+    db_host = os.environ.get('DB_HOST')
+    db_port = os.environ.get('DB_PORT')
+    db_name = os.environ.get('DB_NAME') # Usado como SERVICE_NAME
+    dsn = f"{db_host}:{db_port}/{db_name}"
+
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.oracle',
-            'NAME': os.environ.get('DB_NAME'),
             'USER': os.environ.get('DB_USER'),
             'PASSWORD': os.environ.get('DB_PASSWORD'),
-            'HOST': os.environ.get('DB_HOST'),
-            'PORT': os.environ.get('DB_PORT'),
+            'NAME': dsn, # Usamos o DSN aqui, que força o uso de Service Name
         }
     }
 else:
@@ -115,11 +126,11 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': os.environ.get('MYSQL_DATABASE', 'cacapreco_django'),
+            'NAME': os.environ.get('MYSQL_DATABASE', 'testecacapreco_django'),
             'USER': os.environ.get('MYSQL_USER', 'root'),
             'PASSWORD': os.environ.get('MYSQL_ROOT_PASSWORD', 'rootpassword'),
-            'HOST': os.environ.get('MYSQL_HOST', 'localhost'),
-            'PORT': os.environ.get('MYSQL_PORT', '3306'), # Default to 3306 for inter-container communication
+            'HOST': os.environ.get('MYSQL_HOST', 'db'),
+            'PORT': os.environ.get('MYSQL_PORT', '3307'),
     }}
 
 REST_FRAMEWORK = {
@@ -234,3 +245,11 @@ LOGGING = {
 
 # Chave da API para o serviço de scraping externo
 SCRAPER_API_KEY = os.environ.get('SCRAPER_API_KEY')
+
+# Scrapy-Playwright settings
+DOWNLOAD_HANDLERS = {
+    "http": "scrapy_playwright.handler.ScrapyPlaywrightDownloadHandler",
+    "https": "scrapy_playwright.handler.ScrapyPlaywrightDownloadHandler",
+}
+TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
+PLAYWRIGHT_BROWSER_TYPE = "chromium"

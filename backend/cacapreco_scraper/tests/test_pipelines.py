@@ -2,7 +2,8 @@ import pytest
 from unittest.mock import patch, MagicMock, AsyncMock, call
 from decimal import Decimal
 import hashlib
-from api.models import Vendedor, ProdutosMonitoradosExternos, Usuario, CategoriaLoja, HistoricoPrecos
+from api.models import Vendedor, Usuario, CategoriaLoja, HistoricoPrecos
+from scraper.models import ProdutosMonitoradosExternos
 from cacapreco_scraper.cacapreco_scraper.pipelines import DjangoPipeline
 
 # Fixtures síncronas para uma configuração de banco de dados limpa e segura por teste

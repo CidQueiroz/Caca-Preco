@@ -21,7 +21,10 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # Qualquer URL que comece com 'api/' será redirecionada para o arquivo urls.py do nosso app api
-    path('api/', include('api.urls')),
+    # Production API for Caça-Preço
+    path('cacapreco/api/', include('api.urls')),
+    # Staging API for Caça-Preço
+    path('staging/cacapreco/api/', include('api.urls')),
+    path('api/scraper/', include('scraper.urls')), 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

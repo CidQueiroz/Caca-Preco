@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import { AuthContext } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import Botao from '../components/Botao';
 import { useNotification } from '../context/NotificationContext';
 import FormularioAdmin from '../components/FormularioAdmin';
@@ -399,7 +399,7 @@ const FormularioVendedor = ({ aoEnviar, initialData }) => {
 
 const CompletarPerfil = () => {
     const navigate = useNavigate();
-    const { usuario, login, token } = useContext(AuthContext);
+    const { usuario, login, token } = useAuth();
     const { showNotification } = useNotification();
     const [isEditMode, setIsEditMode] = useState(false);
     const [initialData, setInitialData] = useState(null);

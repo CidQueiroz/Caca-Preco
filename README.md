@@ -1,129 +1,145 @@
 <div align="center">
 
-# 🛒 Caça-Preço
-### Seu Marketplace Inteligente com Monitoramento de Concorrência
+# 🛒 Caça-Preço (PriceHunter) - Marketplace & Competitor Intelligence Suite
+### A full-stack solution empowering sellers with data-driven insights.
 
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
-![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![Django](https://img.shields.io/badge/Django-5.0-092E20?style=for-the-badge&logo=django&logoColor=white)
+![Django](https://img.shields.io/badge/Django-4.2-092E20?style=for-the-badge&logo=django&logoColor=white)
 ![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black)
-![React Native](https://img.shields.io/badge/React_Native-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![Celery](https://img.shields.io/badge/Celery-5.2-3776AB?style=for-the-badge&logo=celery&logoColor=white)
+![OCI](https://img.shields.io/badge/Oracle_Cloud-OCI-F80000?style=for-the-badge&logo=oracle&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
-[**Portfólio CDKTeck**](https://www.cdkteck.com.br) | [**LinkedIn do Autor**](https://www.linkedin.com/in/ciddy-queiroz/)
-
-<br />
 </div>
 
 ---
 
-## 🚀 Visão Geral
+## 🚀 Business Overview
 
-O **Caça-Preço** é uma plataforma completa que une um marketplace dinâmico a uma poderosa ferramenta de monitoramento de concorrência para vendedores. Construído com uma arquitetura robusta, o projeto visa otimizar a experiência de compra para clientes e potencializar as vendas para os lojistas.
+**Caça-Preço** (PriceHunter) is a comprehensive marketplace platform designed with a unique SaaS module for sellers: **automated competitor price monitoring**. The platform connects customers with vendors while providing sellers with a powerful competitive intelligence tool to optimize their pricing strategies and maximize sales.
 
-- **Para Clientes:** Uma plataforma intuitiva para criar listas de compras, comparar preços entre diferentes lojas e receber sugestões otimizadas para economizar ao máximo.
-- **Para Vendedores:** Um portal para gerenciar produtos, lojas e ofertas, com acesso a um dashboard de análise de vendas e a um módulo SaaS exclusivo para monitorar preços de concorrentes de forma automatizada.
+The core value proposition is to transform a standard e-commerce experience into a data-driven ecosystem where vendors can react to market changes in real-time.
 
 ---
 
-## 🧠 Arquitetura & Tecnologias
+## 🏛️ System Architecture
 
-O ecossistema do Caça-Preço é composto por três componentes principais que trabalham de forma integrada para entregar uma solução coesa e performática.
+The application is built on a decoupled, service-oriented architecture, ensuring scalability and maintainability. The frontend is separated from the backend, and asynchronous tasks like web scraping are handled by dedicated workers.
 
-| Componente | Tecnologia | Propósito |
+```mermaid
+graph TD
+    subgraph "User"
+        direction LR
+        Customer(Customer Browser)
+        Seller(Seller Browser)
+    end
+
+    subgraph "OCI Cloud Infrastructure"
+        LB(Load Balancer)
+
+        subgraph "Services"
+            Frontend(Frontend: React)
+            Backend(Backend: Django API)
+            Worker(Worker: Celery)
+        end
+
+        subgraph "Data Stores"
+            DB[(Autonomous DB)]
+            Cache[(Redis)]
+        end
+    end
+
+    Customer --> LB
+    Seller --> LB
+    LB --> Frontend
+    LB -- "/api" --> Backend
+
+    Frontend -- API Calls --> Backend
+    Backend -- Tasks --> Cache
+    Backend -- Reads/Writes --> DB
+    Worker -- Consumes Tasks --> Cache
+    Worker -- Scrapes --> External_Sites(External E-commerce Sites)
+    Worker -- Writes Results --> DB
+
+    style DB fill:#007BFF,stroke:#fff,stroke-width:2px,color:#fff
+    style Cache fill:#D82C20,stroke:#fff,stroke-width:2px,color:#fff
+```
+
+---
+
+## ✨ Key Features
+
+-   **For Customers:**
+    -   🔍 **Product Search & Comparison:** Create shopping lists and find the best prices across multiple stores.
+    -   🛒 **Optimized Cart Suggestions:** The system can suggest the best combination of stores for the lowest total cost.
+-   **For Sellers:**
+    -   🏪 **Store & Product Management:** Full CRUD operations for products, stores, and promotional offers.
+    -   📈 **Sales Dashboard:** Track performance, sales metrics, and customer reviews.
+    -   🕵️ **Competitor Monitoring (SaaS):** An automated web scraping module to monitor competitor prices, providing a strategic advantage.
+
+---
+
+## ⚙️ Tech Stack
+
+| Layer | Technology | Purpose |
 | :--- | :--- | :--- |
-| **Backend** | **Python, Django, Django Rest Framework** | API RESTful central que gerencia toda a lógica de negócio, incluindo usuários, produtos, ofertas, autenticação (JWT) e o módulo SaaS. |
-| **Frontend Web** | **React, React Router, Axios** | Aplicação web (SPA) para clientes, vendedores e administradores interagirem com a plataforma. |
-| **Frontend Mobile** | **React Native, Expo, React Navigation** | Aplicativo móvel para Android e iOS, oferecendo uma experiência nativa para os clientes em trânsito. |
+| **Frontend** | React, React Router, `@cidqueiroz/cdkteck-ui` | A responsive and interactive Single Page Application (SPA). |
+| **Backend** | Django, Django Rest Framework | The central RESTful API handling all business logic. |
+| **Asynchronous Tasks** | Celery, Redis | Manages long-running, scheduled tasks like web scraping without blocking the API. |
+| **Web Scraping** | Scrapy, Selenium, Playwright | A multi-tool approach to reliably extract data from various e-commerce sites. |
+| **Database** | Oracle Autonomous Database (on OCI) | Scalable and secure storage for all platform data. |
+| **DevOps** | Docker, Docker Compose, GitHub Actions | Containerized local development and automated CI/CD to OCI. |
 
 ---
 
-## ✨ Funcionalidades Chave
+## 🛠️ Getting Started: Local Development
 
-- 🛒 **Marketplace Completo:** Crie listas de compras, compare preços e economize.
-- 📈 **Dashboard de Vendas:** Vendedores podem gerenciar produtos e analisar performance.
-- 🕵️ **Monitoramento de Concorrência:** Módulo SaaS para monitorar preços de concorrentes.
-- 🧠 **RAG Inteligente:** Sistema de busca semântica com embeddings.
-- 🚀 **Groq AI:** Respostas ultra-rápidas com Llama 3.
-- 🌐 **Google AI:** Fallback automático com Gemini 1.5.
-- 🔐 **Segurança:** Autenticação Firebase + dados protegidos.
-- 🐳 **Containerizado:** Ambiente de desenvolvimento e produção 100% em Docker.
-- 🤖 **Versionamento Automático:** Releases e changelogs automáticos com semantic-release.
+The entire application stack is containerized with Docker for a simple and consistent local development setup.
 
----
+### Prerequisites
+* Docker & Docker Compose
+* Git
 
-## 🛠️ Como Executar Localmente
-
-### Pré-requisitos
-* Python 3.10+
-* Node.js 18+
-* Docker
-
-### 1. Clone o repositório
-
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/CidQueiroz/Caca-Preco.git
 cd Caca-Preco
 ```
 
-### 2. Configuração do Backend
+### 2. Configure Environment Variables
+
+Create an `.env` file in the root directory for the backend and frontend. You can copy the `.env.example` file if it exists.
+
+**Key variables to set:**
+-   `DATABASE_URL`: Your local or cloud database connection string.
+-   `SECRET_KEY`: A Django secret key.
+-   `NODE_AUTH_TOKEN`: Your GitHub PAT to install `@cidqueiroz/cdkteck-ui`.
+
+### 3. Build and Run the Application
+
+This single command will build all the images (backend, frontend, celery worker) and start the services.
+
 ```bash
-cd backend
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# .\venv\Scripts\activate # Windows
+# Ensure NODE_AUTH_TOKEN is exported in your shell
+export NODE_AUTH_TOKEN="YOUR_GITHUB_PAT_HERE"
 
-pip install -r requirements.txt
-
-# Configure as variáveis de ambiente (.env)
-# DATABASE_URL=... (Se estiver usando um banco de dados externo)
-
-python manage.py migrate
-python manage.py runserver
+# Build and start the containers
+docker-compose up --build
 ```
-
-### 3. Configuração do Frontend
-```bash
-cd ../frontend
-npm install
-npm start
-```
-A aplicação web estará disponível em `http://localhost:3001`.
-
-### 4. Configuração do Mobile
-```bash
-cd ../mobile
-npm install
-npm start
-```
-Use o Expo Go app em seu dispositivo para escanear o QR code gerado.
+-   **Backend API** will be available at `http://localhost:8000`.
+-   **Frontend App** will be available at `http://localhost:3001`.
 
 ---
 
-## 🛣️ Roadmap
+## 🚀 CI/CD Pipeline
 
-- [ ] **Implementação do Scraper:** Finalizar o scraper de preços de concorrentes.
-- [ ] **Deploy Automatizado (CI/CD):** Configurar GitHub Actions para deploy contínuo na OCI.
-- [ ] **Testes de Validação:** Aumentar a cobertura de testes unitários e funcionais.
-- [ ] **Plano de Monetização:** Definir a estratégia de precificação e o plano de aquisição de clientes.
+The project is configured with GitHub Actions for a complete CI/CD workflow:
 
----
-
-## 📄 Licença
-
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
-
----
-
-## 👨‍💻 Autor
-
-<img src="https://github.com/CidQueiroz.png" width="100px;" alt="Foto de Cidirclay"/>
-**Cidirclay Queiroz** <br>
-Solutions Architect AI | MLOps Engineer | OCI Specialist
-
-[LinkedIn](https://www.linkedin.com/in/ciddy-queiroz/) | [Website](https://cdkteck.com.br/) | [Email](mailto:cydy.queiroz@cdkteck.com.br) | [Instagram](https://www.instagram.com/ciddyqueiroz/)
-
-Especialista em transformar problemas de negócio complexos em soluções escaláveis na nuvem. Focado em Arquitetura Multi-Cloud e Engenharia de IA Generativa.
-
----
-
-<div align="center"> <sub>Built with 💖 and Python</sub> </div>
+1.  **On Push to `main`:**
+    - A `release` workflow is triggered.
+    - `semantic-release` analyzes commits and creates a new version tag if applicable.
+2.  **On New Release:**
+    - A `deploy` workflow is triggered.
+    - It connects to the OCI VM via SSH.
+    - It pulls the latest code, and runs `docker-compose -f docker-compose.prod.yml up --build -d` to rebuild and restart the production services.
+    - The `NODE_AUTH_TOKEN` is passed securely as a build argument to Docker, allowing the private `cdkteck-ui` package to be installed during the production build.

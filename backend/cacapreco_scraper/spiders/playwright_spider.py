@@ -2,7 +2,7 @@ import scrapy
 import json
 import re
 import random
-from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeout
+from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeout
 from bs4 import BeautifulSoup
 from scrapy.http import HtmlResponse
 from ..settings import USER_AGENTS
@@ -25,17 +25,18 @@ class PlaywrightSpider(scrapy.Spider):
             self.logger.error("URL e usuario_id são obrigatórios")
             return
         
-        yield scrapy.Request(url='http://example.com', callback=self.parse, dont_filter=True)
+        yield scrapy.Request(url=self.url, callback=self.parse, dont_filter=True)
 
-    def parse(self, response):
-        """Executa o scraping usando Playwright"""
-        with sync_playwright() as p:
+    async def parse(self, response):
+        """Executa o scraping usando Playwright de forma assíncrona"""
+        self.logger.info("Async parse method called")
+        async with async_playwright() as p:
+            browser = None
             try:
                 self.logger.info(f"[LONG PATH - Playwright] Iniciando scraping: {self.url}")
                 
-                # Lança o navegador
-                browser = p.chromium.launch(
-                    headless=True,  # Modo headless para produção
+                browser = await p.chromium.launch(
+                    headless=True,
                     args=[
                         '--no-sandbox',
                         '--disable-setuid-sandbox',
@@ -44,81 +45,72 @@ class PlaywrightSpider(scrapy.Spider):
                     ]
                 )
                 
-                # Cria contexto com user agent aleatório
-                context = browser.new_context(
+                context = await browser.new_context(
                     user_agent=random.choice(USER_AGENTS),
                     viewport={'width': 1920, 'height': 1080},
                     locale='pt-BR',
                 )
                 
-                # Abre nova página
-                page = context.new_page()
+                page = await context.new_page()
                 
-                # Intercepta detecção de automação
-                page.add_init_script("""
+                await page.add_init_script("""
                     Object.defineProperty(navigator, 'webdriver', {
                         get: () => undefined
                     });
                 """)
                 
-                # Navega para a URL
-                page.goto(self.url, wait_until='networkidle', timeout=40000)
+                await page.goto(self.url, wait_until='networkidle', timeout=40000)
                 
-                # Aguarda elementos críticos carregarem
-                self._wait_for_product_elements(page)
+                await self._wait_for_product_elements(page)
                 
-                # Pequeno delay aleatório (anti-bot)
-                page.wait_for_timeout(random.randint(1500, 3000))
+                await page.wait_for_timeout(random.randint(1500, 3000))
                 
-                # Pega o HTML renderizado
-                html_content = page.content()
+                html_content = await page.content()
                 
-                # Cria response do Scrapy
                 playwright_response = HtmlResponse(
                     url=self.url, 
                     body=html_content, 
-                    encoding='utf-8'
+                    encoding='utf-8',
+                    request=response.request
                 )
                 
-                # Processa a página
-                yield from self.parse_product_page(playwright_response, page)
+                async for item in self.parse_product_page(playwright_response, page):
+                    yield item
                 
             except PlaywrightTimeout as e:
                 self.logger.error(f"[LONG PATH] Timeout ao carregar: {e}")
                 if 'page' in locals():
-                    page.screenshot(path='screenshot_timeout.png')
+                    await page.screenshot(path='screenshot_timeout.png')
                     
             except Exception as e:
-                self.logger.error(f"[LONG PATH] Erro durante scraping: {e}")
+                self.logger.error(f"[LONG PATH] Erro durante scraping: {e}", exc_info=True)
                 if 'page' in locals():
-                    page.screenshot(path='screenshot_erro.png')
+                    await page.screenshot(path='screenshot_erro.png')
                     
             finally:
-                if 'browser' in locals():
-                    browser.close()
+                if browser:
+                    await browser.close()
                     self.logger.info("[LONG PATH] Navegador fechado")
 
-    def _wait_for_product_elements(self, page):
-        """Aguarda elementos essenciais do produto"""
+    async def _wait_for_product_elements(self, page):
+        """Aguarda elementos essenciais do produto de forma assíncrona"""
         try:
-            # Tenta aguardar JSON-LD (mais confiável)
-            page.wait_for_selector('script[type="application/ld+json"]', timeout=10000)
+            await page.wait_for_selector('script[type="application/ld+json"]', timeout=10000)
             self.logger.info("JSON-LD encontrado")
         except:
             self.logger.warning("JSON-LD não encontrado, usando seletores HTML")
             
-        # Aguarda pelo menos um seletor de preço comum
         selectors_preco = [
-            'span.andes-money-amount__fraction',  # Mercado Livre
-            'p[data-testid="price-value"]',       # Magazine Luiza
-            'span.a-price-whole',                  # Amazon
-            'div[class*="price"]',                 # Genérico
-            'span[class*="price"]',                # Genérico
+            'span.andes-money-amount__fraction',
+            'p[data-testid="price-value"]',
+            'span.a-price-whole',
+            'div[class*="price"]',
+            'span[class*="price"]',
         ]
         
         for selector in selectors_preco:
             try:
-                page.wait_for_selector(selector, timeout=5000)
+                await page.wait_for_selector(selector, timeout=5000)
                 self.logger.info(f"Elemento de preço encontrado: {selector}")
                 break
             except:

@@ -1,20 +1,23 @@
+version: '3.8'
+
 services:
   db:
     image: mysql:8.0
     container_name: cacapreco_db
     environment:
-      MYSQL_ROOT_PASSWORD: 'rootpassword'
-      MYSQL_DATABASE: 'testecacapreco_django'
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: testecacapreco_django
+      MYSQL_USER: cacapreco_user
+      MYSQL_PASSWORD: cacapreco_password
     volumes:
       - mysql_data:/var/lib/mysql
     ports:
       - "3307:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
       timeout: 20s
       retries: 10
-    networks:
-      - cacapreco_network
+      start_period: 40s
 
   redis:
     image: redis:6.2-alpine
@@ -23,132 +26,43 @@ services:
       - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 1s
+      interval: 5s
       timeout: 3s
-      retries: 30
-    networks:
-      - cacapreco_network
+      retries: 5
 
   backend:
     build: 
       context: ./backend
       dockerfile: Dockerfile
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
     container_name: cacapreco_backend
-    command: /usr/local/bin/wait-for-it.sh db 3306 -- python3.11 manage.py runserver 0.0.0.0:8000
     volumes:
-      # - ./backend:/app
-      - playwright_cache:/ms-playwright  # Cache dos navegadores Playwright
+      - ./backend:/app
     ports:
       - "8000:8000"
-    env_file:
-      - ./backend/.env
     environment:
-      - PYTHONUNBUFFERED=1
-      - DJANGO_SETTINGS_MODULE=core.settings
       - MYSQL_HOST=db
+      - MYSQL_PORT=3306
       - REDIS_HOST=redis
-      - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+      - REDIS_PORT=6379
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
-    networks:
-      - cacapreco_network
-    # Aumenta recursos para scraping pesado
-    shm_size: 2gb
-    deploy:
-      resources:
-        limits:
-          cpus: '2'
-          memory: 4G
-        reservations:
-          memory: 2G
-
-  celery:
-    build: 
-      context: ./backend
-      dockerfile: Dockerfile
-    command: celery -A core worker -l info --concurrency=4
-    container_name: cacapreco_celery
-    volumes:
-      # - ./backend:/app
-      - playwright_cache:/ms-playwright
-    env_file:
-      - ./backend/.env
-    environment:
-      - PYTHONUNBUFFERED=1
-      - DJANGO_SETTINGS_MODULE=core.settings
-      - MYSQL_HOST=db
-      - REDIS_HOST=redis
-      - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
-      - PYTHONPATH=/app
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - cacapreco_network
-    # Recursos para múltiplos workers
-    shm_size: 2gb
-    deploy:
-      resources:
-        limits:
-          cpus: '4'
-          memory: 8G
-        reservations:
-          memory: 4G
-
-  celery-beat:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    command: celery -A core beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
-    container_name: cacapreco_celery_beat
-    # volumes:
-      # - ./backend:/app
-    env_file:
-      - ./backend/.env
-    environment:
-      - PYTHONUNBUFFERED=1
-      - DJANGO_SETTINGS_MODULE=core.settings
-      - MYSQL_HOST=db
-      - REDIS_HOST=redis
-      - PYTHONPATH=/app
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - cacapreco_network
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: cacapreco_frontend
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
     ports:
-      - "3001:3001"
-    environment:
-      - CHOKIDAR_USEPOLLING=true
-      - REACT_APP_API_URL=http://localhost:8000
+      - "3000:3000"
     depends_on:
       - backend
-    networks:
-      - cacapreco_network
 
 volumes:
   mysql_data:
-  playwright_cache:  # Persist navegadores Playwright entre rebuilds
 
 networks:
-  cacapreco_network:
-    driver: bridge
+  default:
+    name: cacapreco_network

@@ -1,42 +1,33 @@
-import React, { useEffect, useContext } from 'react';
-import { useLocation } from 'react-router-dom';
-import '../styles/style_global.css';
-import Cabecalho from './Cabecalho';
-import Rodape from './Rodape';
-import { AuthContext } from '../context/AuthContext';
-import Notificacao from './Notificacao'; // Importa o componente de Notificação
+import React, { useState } from 'react';
+import { useLocation, Link } from 'react-router-dom';
+import { Header, Footer, ContactModal } from '@cidqueiroz/cdkteck-ui';
+import Notificacao from './Notificacao'; // Keep notification component
 
 const Estrutura = ({ children }) => {
     const location = useLocation();
-    // Usar o TOKEN como a fonte da verdade para o status de login.
-    const { token } = useContext(AuthContext);
+    const [isContactModalOpen, setContactModalOpen] = useState(false);
 
-    useEffect(() => {
-        window.scrollTo(0, 0);
-    }, [location.pathname]);
-
-        // A verificação agora é baseada na existência do token.
-    const isUserLoggedIn = !!token;
+    // Helper component to pass to cdkteck-ui Header/Footer
+    const ReactRouterLink = (props) => (
+        <Link {...props} />
+    );
 
     return (
-        <>
-            <Cabecalho />
-            {isUserLoggedIn ? (
-                // Layout para usuários LOGADOS
-                <main className="layout-logado-background">
-                    <div className="layout-logado-content">
-                        {children}
-                    </div>
-                </main>
-            ) : (
-                // Layout para usuários PÚBLICOS/OFFLINE
-                <main className="apresentacao">
-                    {children}
-                </main>
-            )}
-            <Rodape />
-            <Notificacao /> {/* Componente de notificação adicionado aqui */}
-        </>
+        <div className="flex flex-col min-h-screen">
+            <Header 
+                LinkComponent={ReactRouterLink}
+                usePathname={() => location.pathname}
+            />
+            <main className="flex-grow">
+                {children}
+            </main>
+            <Footer 
+                openContactModal={() => setContactModalOpen(true)}
+                LinkComponent={ReactRouterLink}
+            />
+            <ContactModal isOpen={isContactModalOpen} onClose={() => setContactModalOpen(false)} />
+            <Notificacao />
+        </div>
     );
 };
 

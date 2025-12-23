@@ -48,5 +48,8 @@ jobs:
           script: |
             cd ~/Caca-Preco # ou o caminho para o seu projeto na VM
             git pull
+            echo "Coping .npmrc to frontend build context"
+            cp .npmrc frontend/
+            export NODE_AUTH_TOKEN=${{ secrets.VM_NODE_AUTH_TOKEN }}
             docker compose -f docker-compose.prod.yml build --no-cache
             docker compose -f docker-compose.prod.yml up -d

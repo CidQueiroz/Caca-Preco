@@ -1,9 +1,9 @@
 import React, { useContext } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 
 const RotaProtegida = ({ children, papeisPermitidos }) => {
-    const { token, carregando, usuario } = useContext(AuthContext);
+    const { token, carregando, usuario } = useAuth();
     const location = useLocation();
 
     // Novo log para depuração do estado de carregamento

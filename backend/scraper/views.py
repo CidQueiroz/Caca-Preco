@@ -12,7 +12,9 @@ from api.models import Vendedor
 # Imports from the local 'scraper' app
 from .models import ProdutosMonitoradosExternos, get_canonical_url
 from .serializers import ProdutosMonitoradosExternosSerializer, ProdutosMonitoradosExternosComHistoricoSerializer
-# from .tasks import run_scraping_pipeline # This will be moved later
+
+# --- CORREÇÃO AQUI: Importando a task correta ---
+from .tasks import run_scraping_task 
 
 
 class ProdutosMonitoradosExternosViewSet(mixins.ListModelMixin,
@@ -22,9 +24,8 @@ class ProdutosMonitoradosExternosViewSet(mixins.ListModelMixin,
     serializer_class = ProdutosMonitoradosExternosSerializer
     permission_classes = [IsAuthenticated, IsVendedor]
 
-    def get_queryset(self) -> QuerySet[ProdutosMonitoradosExternos]: # type: ignore
-        # Assuming the user model has a 'vendedor' related object
-        return ProdutosMonitoradosExternos.objects.filter(vendedor=self.request.user.vendedor) # type: ignore
+    def get_queryset(self) -> QuerySet[ProdutosMonitoradosExternos]:
+        return ProdutosMonitoradosExternos.objects.filter(vendedor__usuario=self.request.user)
 
 
 class MonitorarProdutoView(APIView):
@@ -34,46 +35,56 @@ class MonitorarProdutoView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        from .tasks import run_scraping_pipeline # Local import to avoid circular dependency issues at startup
         url_concorrente = request.data.get('url')
         usuario_id = request.user.id
 
         if not url_concorrente:
             return Response({'error': 'URL não fornecida.'}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Verifica permissão de vendedor
         try:
-            # Check if the user has a Vendedor profile
             Vendedor.objects.get(usuario=request.user)
         except Vendedor.DoesNotExist:
             return Response({'error': 'Apenas vendedores podem monitorar produtos.'}, status=status.HTTP_403_FORBIDDEN)
 
-        # Limpa a URL para remover parâmetros de marketing e tracking
-        url_limpa = get_canonical_url(url_concorrente)
+        # Limpa a URL
+        try:
+            url_limpa = get_canonical_url(url_concorrente)
+        except Exception:
+            url_limpa = url_concorrente
 
-        # Dispara a tarefa principal do Celery com a URL limpa
-        task = run_scraping_pipeline.delay(url_limpa, usuario_id)
+        task = run_scraping_task.delay(url_limpa, usuario_id)
 
-        # Retorna uma resposta imediata para o frontend com o ID da tarefa
         return Response({
-            'message': 'O monitoramento foi iniciado. Você será notificado quando for concluído.',
-            'task_id': task.id
+            'message': 'Monitoramento iniciado.',
+            'task_id': task.id,
+            'url_processada': url_limpa
         }, status=status.HTTP_202_ACCEPTED)
 
 
 class TaskStatusView(APIView):
     """
-    Verifica o status de uma tarefa do Celery para o frontend poder pollar.
+    Verifica o status de uma tarefa do Celery.
     """
     permission_classes = [IsAuthenticated]
 
     def get(self, request, task_id, *args, **kwargs):
         task_result = AsyncResult(task_id)
-        result = {
+        
+        response = {
             'task_id': task_id,
             'status': task_result.status,
-            'result': task_result.result if task_result.ready() else None
         }
-        return Response(result, status=status.HTTP_200_OK)
+
+        # Se terminou (Sucesso ou Falha), anexa o resultado
+        if task_result.ready():
+            if task_result.successful():
+                response['result'] = task_result.result
+            else:
+                # Converte a exceção para string para não quebrar o JSON
+                response['error'] = str(task_result.result)
+        
+        return Response(response, status=status.HTTP_200_OK)
 
 
 class HistoricoPrecosView(generics.RetrieveAPIView):

@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
 import apiClient from '../api';
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import Botao from '../components/Botao';
 import { useNotification } from '../context/NotificationContext';
 
 const CadastroProduto = () => {
-  const { token } = useContext(AuthContext);
+  const { token } = useAuth();
   const { showNotification } = useNotification();
   const navigate = useNavigate();
 

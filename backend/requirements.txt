@@ -8,6 +8,7 @@ djangorestframework-simplejwt==5.3.0
 
 # Banco de dados
 mysqlclient==2.2.0
+oracledb # Alterado de python-oracledb
 redis==5.0.1
 
 # Celery
@@ -26,6 +27,8 @@ scrapy-user-agents==0.1.1
 
 # Scraping - Long Path (Playwright)
 playwright==1.40.0
+scrapy-playwright==0.0.34
+undetected_chromedriver==3.5.5 # Adicionado para testes de Selenium
 # Nota: Após pip install, executar: python -m playwright install chromium
 
 # Utilidades

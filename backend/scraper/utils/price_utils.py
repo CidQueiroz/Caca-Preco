@@ -8,56 +8,39 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def parse_brazilian_price(price_str: str) -> float:
+def parse_brazilian_price(price_str):
     """
-    Converte string de preço brasileiro para float.
-    
-    Exemplos:
-        "R$ 20,66" → 20.66
-        "R$ 1.234,56" → 1234.56
-        "20.66" → 20.66
-        
-    Args:
-        price_str: String contendo o preço
-        
-    Returns:
-        float: Preço em formato numérico
-        
-    Raises:
-        ValueError: Se não conseguir extrair um preço válido
+    Converte string de preço BR (R$ 1.234,56) para float (1234.56).
+    Ignora valores riscados/antigos se vierem misturados, focando na formatação.
     """
     if not price_str:
-        raise ValueError("String de preço vazia")
-
-    # Check for negative sign before cleaning
-    if '-' in str(price_str):
-        raise ValueError(f"Preço não pode ser negativo: '{price_str}'")
-    
-    clean_str = re.sub(r'[^\d,.]', '', str(price_str).strip())
+        return None
+        
+    # Remove R$, espaços e caracteres invisíveis
+    clean_str = re.sub(r'[^\d.,]', '', str(price_str)).strip()
     
     if not clean_str:
-        raise ValueError(f"Não foi possível extrair número de: '{price_str}'")
-    
-    if ',' in clean_str:
-        if '.' in clean_str:
-            clean_str = clean_str.replace('.', '').replace(',', '.')
-        else:
-            clean_str = clean_str.replace(',', '.')
-    
-    try:
-        price = float(clean_str)
-        
-        if price <= 0:
-            raise ValueError(f"Preço inválido (zero): {price}")
-        
-        if price > 1000000:
-            logger.warning(f"Preço muito alto (suspeito): {price}")
-        
-        return price
-        
-    except (ValueError, InvalidOperation) as e:
-        raise ValueError(f"Erro ao converter '{price_str}' → '{clean_str}': {e}")
+        return None
 
+    # Lógica para distinguir milhar de decimal
+    # Caso 1: 1.234,56 (Padrão BR correto)
+    if ',' in clean_str and '.' in clean_str:
+        clean_str = clean_str.replace('.', '').replace(',', '.')
+    
+    # Caso 2: 1.234 (Apenas milhar, sem centavos - comum em promoções redondas)
+    elif clean_str.count('.') >= 1 and ',' not in clean_str:
+        # Se tem ponto, assumimos que é milhar se for iPhone/eletrônico
+        # (Ninguém vende algo por 8.599 reais com 3 casas decimais)
+        clean_str = clean_str.replace('.', '')
+        
+    # Caso 3: 1234,56 (Sem ponto de milhar)
+    elif ',' in clean_str:
+        clean_str = clean_str.replace(',', '.')
+
+    try:
+        return float(clean_str)
+    except ValueError:
+        return None
 
 def format_price_brl(price: float) -> str:
     """Formata float para string de preço brasileiro."""

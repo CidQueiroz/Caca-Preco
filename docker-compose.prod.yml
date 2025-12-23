@@ -42,6 +42,8 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        - NODE_AUTH_TOKEN=${NODE_AUTH_TOKEN}
     container_name: cacapreco_frontend
     volumes:
       - ./frontend:/app

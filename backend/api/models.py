@@ -87,11 +87,11 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
         return False
 
 class Endereco(models.Model):
-    logradouro = models.CharField(max_length=255)
+    logradouro = models.CharField(max_length=254)
     numero = models.CharField(max_length=50, blank=True, null=True)
-    complemento = models.CharField(max_length=255, blank=True, null=True)
-    bairro = models.CharField(max_length=255, blank=True, null=True)
-    cidade = models.CharField(max_length=255)
+    complemento = models.CharField(max_length=254, blank=True, null=True)
+    bairro = models.CharField(max_length=254, blank=True, null=True)
+    cidade = models.CharField(max_length=254)
     estado = models.CharField(max_length=2)
     cep = models.CharField(max_length=9)
     pais = models.CharField(max_length=100, default='Brasil')
@@ -103,7 +103,7 @@ class Endereco(models.Model):
         return f'{self.logradouro}, {self.numero} - {self.cidade}/{self.estado}'
 
 class CategoriaLoja(models.Model):
-    nome = models.CharField(max_length=255, unique=True)
+    nome = models.CharField(max_length=254, unique=True)
     descricao = models.TextField(blank=True, null=True)
 
     def __str__(self):
@@ -111,7 +111,7 @@ class CategoriaLoja(models.Model):
 
 class Cliente(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, primary_key=True)
-    nome = models.CharField(max_length=255)
+    nome = models.CharField(max_length=254)
     telefone = models.CharField(max_length=20, blank=True, null=True)
     endereco = models.ForeignKey(Endereco, on_delete=models.SET_NULL, null=True, blank=True)
     cpf = models.CharField(max_length=14, unique=True)
@@ -123,7 +123,7 @@ class Cliente(models.Model):
 class Vendedor(models.Model):
     STATUS_APROVACAO_CHOICES = (('Pendente', 'Pendente'), ('Aprovado', 'Aprovado'), ('Rejeitado', 'Rejeitado'))
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, primary_key=True)
-    nome_loja = models.CharField(max_length=255)
+    nome_loja = models.CharField(max_length=254)
     cnpj = models.CharField(max_length=18, unique=True, null=True, blank=True)
     endereco = models.ForeignKey(Endereco, on_delete=models.SET_NULL, null=True, blank=True)
     telefone = models.CharField(max_length=20, null=True, blank=True)
@@ -132,8 +132,8 @@ class Vendedor(models.Model):
     
     # Novos campos para o perfil do vendedor
     data_fundacao = models.DateField(null=True, blank=True)
-    horario_funcionamento = models.CharField(max_length=255, blank=True, null=True)
-    nome_responsavel = models.CharField(max_length=255, blank=True, null=True)
+    horario_funcionamento = models.CharField(max_length=254, blank=True, null=True)
+    nome_responsavel = models.CharField(max_length=254, blank=True, null=True)
     cpf_responsavel = models.CharField(max_length=14, blank=True, null=True)
     breve_descricao_loja = models.TextField(blank=True, null=True)
     logotipo_loja = models.URLField(max_length=200, blank=True, null=True)
@@ -143,7 +143,7 @@ class Vendedor(models.Model):
         return self.nome_loja
 
 class SubcategoriaProduto(models.Model):
-    nome = models.CharField(max_length=255)
+    nome = models.CharField(max_length=254)
     categoria_loja = models.ForeignKey(CategoriaLoja, on_delete=models.CASCADE)
     class Meta:
         unique_together = ('nome', 'categoria_loja')
@@ -151,7 +151,7 @@ class SubcategoriaProduto(models.Model):
         return f'{self.categoria_loja.nome} > {self.nome}'
 
 class Produto(models.Model):
-    nome = models.CharField(max_length=255)
+    nome = models.CharField(max_length=254)
     descricao = models.TextField(blank=True, null=True)
     subcategoria = models.ForeignKey(SubcategoriaProduto, on_delete=models.PROTECT)
     data_cadastro = models.DateTimeField(auto_now_add=True)
@@ -216,7 +216,7 @@ class AvaliacaoLoja(models.Model):
 
 class Administrador(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, primary_key=True)
-    nome = models.CharField(max_length=255)
+    nome = models.CharField(max_length=254)
 
 class Sugestao(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)

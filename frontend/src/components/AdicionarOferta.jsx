@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { AuthContext } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import Botao from './Botao';
 import { useNotification } from '../context/NotificationContext';
 
 const AdicionarOferta = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { token } = useContext(AuthContext);
+    const { token } = useAuth();
     const { showNotification } = useNotification();
 
     // Estados para o fluxo

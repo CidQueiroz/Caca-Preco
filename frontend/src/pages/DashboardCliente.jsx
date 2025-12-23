@@ -1,9 +1,9 @@
 import React, { useContext } from 'react';
 import Botao from '../components/Botao';
-import { AuthContext } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 
 const DashboardCliente = () => {
-    const { usuario } = useContext(AuthContext);
+    const { usuario } = useAuth();
     const nomeUsuario = usuario?.nome || 'Cliente';
 
     return (

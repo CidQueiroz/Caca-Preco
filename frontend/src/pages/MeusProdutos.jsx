@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
 //import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { AuthContext } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import Botao from '../components/Botao'; // Importando o componente Botao
 
 const ArrowIcon = ({ expanded }) => (
@@ -14,7 +14,7 @@ const MeusProdutos = () => {
     //const navigate = useNavigate();
     const [produtos, setProdutos] = useState([]);
     const [loading, setLoading] = useState(true);
-    const { token } = useContext(AuthContext);
+    const { token } = useAuth();
     const [categorias, setCategorias] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState('');
     const [notification, setNotification] = useState({ message: '', type: '' });

@@ -1,224 +1,145 @@
 import logging
-from urllib.parse import urlparse
-from django.core.cache import cache
-import os
+import subprocess
 import sys
+import os
+import json
+from urllib.parse import urlparse
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
-
 class ScraperOrchestrator:
     """
-    Orquestrador HÍBRIDO:
-    - DECIDE quando sabe (rápido)
-    - TENTA quando não sabe (adaptativo)
-    - APRENDE para próxima vez (inteligente)
+    Orquestrador SEGURO usando Subprocessos.
+    Evita o erro 'ReactorNotRestartable' rodando o Scrapy isolado do Django.
     """
     
-    # Sites que JÁ SABEMOS qual estratégia usar
+    # Caminho para o executável Python do ambiente virtual atual
+    PYTHON_EXEC = sys.executable 
+    
+    # Caminho raiz do projeto Scrapy (onde está o scrapy.cfg)
+    # Ajuste se a pasta se chamar diferente, ex: 'backend/scraper'
+    SCRAPY_ROOT = os.path.join(settings.BASE_DIR, 'cacapreco_scraper')
+
+    # Mapa de domínios para spiders específicos
     KNOWN_SITES = {
-        'shopee.com.br': 'long',
-        'aliexpress.com': 'long',
-        'shein.com': 'long',
-        'mercadolivre.com.br': 'fast',
-        'amazon.com.br': 'fast',
-        'kabum.com.br': 'medium',
+        'shopee.com.br': 'playwright_spider',      # Precisa de JS pesado
+        'aliexpress.com': 'playwright_spider',     # Precisa de JS pesado
+        'shein.com': 'playwright_spider',
+        'mercadolivre.com.br': 'generic_scrapy_spider',
+        'amazon.com.br': 'generic_scrapy_spider',
+        'kabum.com.br': 'generic_scrapy_spider',
+        'magazineluiza.com.br': 'generic_scrapy_spider',
     }
     
     @classmethod
     def execute_scraping(cls, url, usuario_id=None, strategy=None):
-        """Executa scraping usando abordagem híbrida"""
+        """
+        Fluxo principal:
+        1. Tenta Fast Path (Requests puro - muito rápido).
+        2. Se falhar, invoca um Subprocesso do Scrapy (Medium ou Long path).
+        """
+        domain = urlparse(url).netloc.replace('www.', '')
         
-        domain = urlparse(url).netloc
-        
-        # 1️⃣ Estratégia FORÇADA (prioridade máxima)
-        if strategy:
-            logger.info(f"[FORÇADO] Usando estratégia: {strategy}")
-            return cls._execute_strategy(strategy, url, usuario_id)
-        
-        # 2️⃣ DECISÃO: Site na lista conhecida
-        if domain in cls.KNOWN_SITES:
-            known_strategy = cls.KNOWN_SITES[domain]
-            logger.info(f"[DECISÃO] {domain} → {known_strategy} (conhecido)")
-            return cls._execute_strategy(known_strategy, url, usuario_id)
-        
-        # 3️⃣ DECISÃO: Site aprendido (cache)
-        cached_strategy = cache.get(f'strategy:{domain}')
-        if cached_strategy:
-            logger.info(f"[DECISÃO] {domain} → {cached_strategy} (aprendido)")
-            return cls._execute_strategy(cached_strategy, url, usuario_id)
-        
-        # 4️⃣ TENTATIVA: Site desconhecido (cascata)
-        logger.info(f"[TENTATIVA] {domain} desconhecido. Iniciando cascata...")
-        
-        # Tenta Fast → Medium → Long
-        for strategy_name in ['fast', 'medium', 'long']:
-            logger.info(f"[TENTATIVA] Tentando {strategy_name.upper()} Path...")
-            
-            result = cls._execute_strategy(strategy_name, url, usuario_id)
-            
-            if result:
-                # ✅ SUCESSO! Aprende para próxima vez
-                logger.info(f"[APRENDIZADO] {domain} funcionou com {strategy_name}")
-                cls._save_learned_strategy(domain, strategy_name)
-                return result
-            else:
-                logger.warning(f"[TENTATIVA] {strategy_name.upper()} falhou. Próxima...")
-        
-        # ❌ Todas falharam
-        logger.error(f"[FALHA TOTAL] Nenhuma estratégia funcionou para {url}")
-        return None
-    
-    @classmethod
-    def _execute_strategy(cls, strategy, url, usuario_id):
-        """Executa uma estratégia específica"""
-        
-        if strategy == 'fast':
-            from .strategies.fast_path import FastPathScraper
-            scraper = FastPathScraper()
-            return scraper.scrape(url, usuario_id)
-        
-        elif strategy == 'medium':
-            return cls._execute_medium_path(url, usuario_id)
-        
-        elif strategy == 'long':
-            return cls._execute_long_path(url, usuario_id)
-        
-        else:
-            logger.error(f"Estratégia inválida: {strategy}")
-            return None
-    
-    @classmethod
-    def _save_learned_strategy(cls, domain, strategy):
-        """Salva estratégia que funcionou para uso futuro"""
-        # Cache por 7 dias
-        cache.set(f'strategy:{domain}', strategy, timeout=604800)
-    
-    @classmethod
-    def _execute_medium_path(cls, url, usuario_id):
-        """Executa Medium Path (Scrapy Generic)"""
-        try:
-            from scrapy.crawler import CrawlerProcess
-            from scrapy.utils.project import get_project_settings
-            from scrapy import signals
-            from scrapy.signalmanager import dispatcher
-            
-            # Configura path do Scrapy
-            scrapy_dir = os.path.join(
-                os.path.dirname(os.path.dirname(__file__)), 
-                'cacapreco_scraper'
-            )
-            
-            if scrapy_dir not in sys.path:
-                sys.path.insert(0, scrapy_dir)
-            
-            # Import do spider - tenta várias localizações possíveis
+        # ---------------------------------------------------------
+        # 1. TENTATIVA FAST PATH (Sem abrir navegador/subprocesso)
+        # ---------------------------------------------------------
+        # Só tentamos se não for forçada uma estratégia pesada
+        if strategy != 'long':
             try:
-                # Tenta import direto
-                from cacapreco_scraper.spiders.generic_scrapy_spider import GenericScrapySpider
-            except ImportError:
-                try:
-                    # Tenta import do subdiretório
-                    sys.path.insert(0, os.path.join(scrapy_dir, 'cacapreco_scraper'))
-                    from spiders.generic_scrapy_spider import GenericScrapySpider
-                except ImportError as e:
-            os.environ.setdefault('SCRAPY_SETTINGS_MODULE', 'cacapreco_scraper.settings')
-            settings = get_project_settings()
-            
-            # Desabilita logs do Scrapy
-            settings.set('LOG_ENABLED', False)
-            
-            process = CrawlerProcess(settings)
-            
-            results = []
-            
-            def collect_items(item, response, spider):
-                results.append(dict(item))
-            
-            dispatcher.connect(collect_items, signal=signals.item_scraped)
-            
-            # Seletores genéricos (pode ser melhorado depois)
-            process.crawl(
-                GenericScrapySpider,
-                start_urls=url,
-                name_selector='h1.ui-pdp-title',  # Mercado Livre como padrão
-                price_selector='span.andes-money-amount__fraction',
-                usuario_id=str(usuario_id) if usuario_id else None
-            )
-            
-            process.start()
-            
-            if results:
-                logger.info(f"[MEDIUM] ✓ Sucesso: {results[0].get('nome_produto')}")
-                return results[0]
-            else:
-                logger.warning("[MEDIUM] ✗ Nenhum resultado")
-                return None
-            
-        except Exception as e:
-            logger.error(f"[MEDIUM PATH] Erro: {e}", exc_info=True)
-            return None
-    
+                from .strategies.fast_path import FastPathScraper
+                logger.info(f"[ORCHESTRATOR] Tentando Fast Path para {domain}")
+                result = FastPathScraper().scrape(url, usuario_id)
+                if result:
+                    return result
+            except Exception as e:
+                logger.warning(f"[ORCHESTRATOR] Fast Path falhou, indo para Scrapy: {e}")
+
+        # ---------------------------------------------------------
+        # 2. DECISÃO DO SPIDER (Medium vs Long)
+        # ---------------------------------------------------------
+        spider_name = 'generic_scrapy_spider' # Padrão (Medium Path)
+        
+        if strategy == 'long':
+            spider_name = 'playwright_spider'
+        elif domain in cls.KNOWN_SITES:
+            spider_name = cls.KNOWN_SITES[domain]
+        
+        logger.info(f"[ORCHESTRATOR] Iniciando Subprocesso Scrapy: {spider_name}")
+
+        # ---------------------------------------------------------
+        # 3. EXECUÇÃO VIA SUBPROCESSO (Seguro)
+        # ---------------------------------------------------------
+        return cls._run_spider_subprocess(spider_name, url, usuario_id)
+
     @classmethod
-    def _execute_long_path(cls, url, usuario_id):
-        """Executa Long Path (Playwright via Scrapy)"""
+    def _run_spider_subprocess(cls, spider_name, url, usuario_id):
+        """
+        Executa o Scrapy em um processo separado do SO.
+        Isso garante que o Twisted Reactor seja criado e destruído limpamente.
+        """
+        # Arquivo temporário para receber o JSON do Scrapy
+        import uuid
+        output_file = f"/tmp/scraping_{uuid.uuid4()}.json"
+        
+        # Argumentos passados para o Spider
+        spider_args = [
+            cls.PYTHON_EXEC, '-m', 'scrapy', 'crawl', spider_name,
+            '-a', f'start_urls={url}',  # Para generic_spider
+            '-a', f'url={url}',         # Para playwright_spider
+            '-a', f'usuario_id={usuario_id}',
+            '-O', output_file,          # -O sobrescreve o arquivo de saída
+            '-s', 'LOG_LEVEL=INFO'      # Reduz ruído no terminal
+        ]
+
         try:
-            from scrapy.crawler import CrawlerProcess
-            from scrapy.utils.project import get_project_settings
-            from scrapy import signals
-            from scrapy.signalmanager import dispatcher
-            
-            # Configura path do Scrapy
-            scrapy_dir = os.path.join(
-                os.path.dirname(os.path.dirname(__file__)), 
-                'cacapreco_scraper'
-            )
-            
-            if scrapy_dir not in sys.path:
-                sys.path.insert(0, scrapy_dir)
-            
-            # Import do spider - tenta várias localizações
-            try:
-                from cacapreco_scraper.spiders.playwright_spider import PlaywrightSpider
-            except ImportError:
-                try:
-                    sys.path.insert(0, os.path.join(scrapy_dir, 'cacapreco_scraper'))
-                    from spiders.playwright_spider import PlaywrightSpider
-                except ImportError as e:
-                    logger.error(f"[LONG] Não foi possível importar PlaywrightSpider: {e}")
-                    return None
-            
-            # Configura settings
-            os.environ.setdefault('SCRAPY_SETTINGS_MODULE', 'cacapreco_scraper.settings')
-            settings = get_project_settings()
-            
-            # Desabilita logs do Scrapy
-            settings.set('LOG_ENABLED', False)
-            
-            process = CrawlerProcess(settings)
-            
-            results = []
-            
-            def collect_items(item, response, spider):
-                results.append(dict(item))
-            
-            dispatcher.connect(collect_items, signal=signals.item_scraped)
-            
-            process.crawl(
-                PlaywrightSpider, 
-                url=url, 
-                usuario_id=str(usuario_id) if usuario_id else None
-            )
-            
-            process.start()
-            
-            if results:
-                logger.info(f"[LONG] ✓ Sucesso: {results[0].get('nome_produto')}")
-                return results[0]
-            else:
-                logger.warning("[LONG] ✗ Nenhum resultado")
+            # Verifica se a pasta do projeto Scrapy existe
+            if not os.path.exists(cls.SCRAPY_ROOT):
+                logger.error(f"Pasta do Scrapy não encontrada em: {cls.SCRAPY_ROOT}")
                 return None
+
+            # Executa o comando no terminal do sistema
+            logger.debug(f"Executando comando: {' '.join(spider_args)}")
             
+            result = subprocess.run(
+                spider_args, 
+                cwd=cls.SCRAPY_ROOT, # Executa DENTRO da pasta do projeto Scrapy
+                capture_output=True, 
+                text=True, 
+                timeout=120 # Timeout de 2 minutos para evitar zumbis
+            )
+            
+            # Log de erro do stderr do Scrapy (se houver falha grave)
+            if result.returncode != 0:
+                logger.error(f"Scrapy falhou (Exit Code {result.returncode}). Stderr: {result.stderr}")
+                return None
+
+            # Lê o resultado do arquivo JSON gerado
+            if os.path.exists(output_file):
+                try:
+                    with open(output_file, 'r', encoding='utf-8') as f:
+                        content = f.read().strip()
+                        if content:
+                            data = json.loads(content)
+                            if isinstance(data, list) and len(data) > 0:
+                                item = data[0]
+                                logger.info(f"[ORCHESTRATOR] Sucesso no subprocesso: {item.get('nome_produto')}")
+                                return item
+                except json.JSONDecodeError:
+                    logger.error(f"Erro ao decodificar JSON de saída: {content}")
+                finally:
+                    # Limpeza: remove o arquivo temporário
+                    try:
+                        os.remove(output_file)
+                    except OSError:
+                        pass
+            
+            logger.warning("[ORCHESTRATOR] Scrapy rodou mas não retornou dados válidos.")
+            return None
+
+        except subprocess.TimeoutExpired:
+            logger.error("[ORCHESTRATOR] Timeout: O spider demorou muito para responder.")
+            return None
         except Exception as e:
-            logger.error(f"[LONG PATH] Erro: {e}", exc_info=True)
+            logger.error(f"[ORCHESTRATOR] Erro crítico ao invocar subprocesso: {e}")
             return None

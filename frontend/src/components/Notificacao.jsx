@@ -1,6 +1,6 @@
 import React, { useEffect, useContext } from 'react';
 import { NotificationContext } from '../context/NotificationContext';
-import '../styles/Global.css';
+import '@cidqueiroz/cdkteck-ui/global.css';
 
 const Notificacao = () => {
     const { notification, hideNotification } = useContext(NotificationContext);

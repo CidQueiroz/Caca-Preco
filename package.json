@@ -6,6 +6,9 @@
     "frontend",
     "mobile"
   ],
+  "dependencies": {
+    "@cidqueiroz/cdkteck-ui": "^1.0.1"
+  },
   "description": "O **Caça-Preço** é uma plataforma completa que une um marketplace dinâmico a uma poderosa ferramenta de monitoramento de concorrência para vendedores. Construído com uma arquitetura robusta, o projeto visa otimizar a experiência de compra para clientes e potencializar as vendas para os lojistas.",
   "main": "index.js",
   "directories": {
@@ -31,7 +34,7 @@
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
     "commitizen": "^4.3.1",
-    "cz-conventional-changelog": "^3.3.0",
+    "cz-conventional-changelog": "^3.0.1",
     "semantic-release": "^24.2.9"
   },
   "config": {

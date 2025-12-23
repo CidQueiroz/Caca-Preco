@@ -24,14 +24,46 @@ class GenericScrapySpider(scrapy.Spider):
         if not all([self.start_urls, self.price_selector, self.name_selector, self.usuario_id]):
             raise ValueError("Os argumentos 'start_urls', 'price_selector', 'name_selector' e 'usuario_id' são obrigatórios.")
 
-    def parse(self, response):
-        """
-        Método de parse padrão do Scrapy.
-        """
-        self.logger.info(f"--- Estratégia: Scrapy Puro na URL: {response.url} ---")
+    def get_dynamic_selectors(self, url):
+        """Retorna seletores baseados no domínio - FALLBACK INTELIGENTE"""
+        domain_selectors = {
+            'mercadolivre.com': {
+                'name': 'h1.ui-pdp-title',
+                'price': 'span.andes-money-amount__fraction'
+            },
+            'amazon.com': {
+                'name': 'span#productTitle', 
+                'price': 'span.a-price-whole'
+            },
+            'magazineluiza.com': {
+                'name': 'h1[data-testid="heading-product-title"]',
+                'price': 'p[data-testid="price-value"]'
+            },
+            'kabum.com.br': {
+                'name': 'h1[class*="nameProduct"]',
+                'price': 'h4[class*="finalPrice"]'
+            }
+        }
         
-        name = response.css(self.name_selector).get()
-        price = response.css(self.price_selector).get()
+        for domain, selectors in domain_selectors.items():
+            if domain in url:
+                return selectors
+        
+        return None
+
+    def parse(self, response):
+        # Tenta seletores dinâmicos primeiro
+        dynamic_selectors = self.get_dynamic_selectors(response.url)
+        if dynamic_selectors:
+            name_selector = dynamic_selectors['name']
+            price_selector = dynamic_selectors['price']
+        else:
+            # Usa os seletores padrão passados como argumento
+            name_selector = self.name_selector
+            price_selector = self.price_selector
+        
+        name = response.css(name_selector).get()
+        price = response.css(price_selector).get()
 
         if name and price:
             self.logger.info(f"--- Sucesso: Dados encontrados com Scrapy: {name.strip()} - {price.strip()} ---")
