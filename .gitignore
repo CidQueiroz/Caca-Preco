@@ -134,3 +134,9 @@ backend/.coverage
 backend/teste.http
 backend/api/views.py.backup
 .firebase/hosting.*.cache
+REMOCOES_PENDENTES.txt
+firebase.json
+backend/.env.prod
+backend/api/fast_path_failure.html
+backend/api/tests.py
+*~
