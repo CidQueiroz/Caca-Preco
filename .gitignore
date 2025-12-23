@@ -1,5 +1,41 @@
-# Python/Django
-###################
+# General / OS / Editor
+#######################
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.suo
+*.user
+*.sln.docstates
+*.swp
+*:Zone.Identifier
+
+# Logs & Dumps
+##############
+*.log
+logs/
+*.sql
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+
+# Environments & Secrets
+######################
+.env
+.env.*
+.env.*.local
+!.env.example
+*.bak
+*.backup
+firebase_credencials.json
+.npmrc
+
+# Python / Django Backend
+##########################
 __pycache__/
 *.pyc
 *.pyo
@@ -23,35 +59,23 @@ MANIFEST
 *.spec
 pip-log.txt
 pip-delete-this-directory.txt
+backend/db.sqlite3
+backend/media/
+backend/staticfiles/
+backend/venv/
+backend/.venv/
 
-# Django
-local_settings.py
-media/
-
-# Virtual Environments
-######################
-.env
-/.env
-.venv
-.venv_linux
-**/venv/
-**/ENV/
-**/env/
-env.bak
-venv.bak
-.env
-.env.local
-.env.development
-.env.production
-.env.development.local
-.env.test.local
-.env.production.local
-backend/.env.prod
-
-# Scrapy
-##########
+# Scrapy / Scraping
+###################
 .scrapy
 scrapy_output.log
+backend/cacapreco_scraper/produto_ml_files
+backend/**/*.html
+backend/**/*.png
+backend/**/*.log
+backend/**/output.json
+backend/**/scrapy_output.log
+backend/**/screenshot*.png
 
 # Coverage & Testing
 ####################
@@ -66,63 +90,47 @@ nosetests.xml
 coverage.xml
 *.cover
 
-# Node.js/React
-#################
-**/node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-**/build/
-**/dist/
-.pnp
-.pnp.js
-
-# OS-specific & Editors
+# Node / React Frontend
 #######################
-.DS_Store
-Thumbs.db
-desktop.ini
-.idea/
-.vscode/
-*.suo
-*.user
-*.sln.docstates
-*.swp
+/node_modules/
+frontend/node_modules/
+frontend/build/
+frontend/dist/
+frontend/.vite/
+frontend/.pnp
+frontend/.pnp.js
+frontend/package-lock.json
 
-# Logs & Dumps
-##############
-*.log
-logs/
-*.sql
+# Mobile (React Native)
+#################
+mobile/node_modules/
+mobile/android/
+mobile/ios/
+mobile/.xcode.env.local
+mobile/.hermes.inspector.port
 
-# Other
-#########
+# Project specific ignores
+##########################
 unicorn.txt
-firebase_credencials.json
-gemini.md
 trello_import.csv
+gemini.md
+bd_do_projeto.txt
+claude.md
+diagnostic_scraper.py
+estrutura_do_projeto.txt
+migrate_complete.sh
+migrate_structure.sh
+placar_calibracao.json
+README_backup.md
+available_packages.txt
+backup_cacapreco.sql
+build_log.txt
+build.log
+caca-preco.md
 
-backend/cacapreco_scraper/produto_ml_files
-# Arquivos de scraping/debug
-backend/**/*.html
-backend/**/*.png
-backend/**/*.log
-backend/**/output.json
-backend/**/scrapy_output.log
-backend/**/screenshot*.png
-
-# Cache Python
-**/__pycache__/
-**/*.pyc
-**/.pytest_cache/
-**/.coverage
-
-# Arquivos de backup da migração
-*.bak
-*.backup
-
-# Scraping debug
-backend/**/*.html
-backend/**/*.png
-backend/**/screenshot*.png
-backend/**/scrapy_output.log
+.env.prod
+backend/test_selenium.py
+backend/.coverage
+backend/teste.http
+backend/api/views.py.backup
+.firebase/hosting.*.cache
