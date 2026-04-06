@@ -16,28 +16,28 @@ jobs:
         python-version: [3.9]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r cacapreco-app/backend/requirements.lock
+        pip install -r backend/requirements.lock
     - name: Run Tests
-      working-directory: cacapreco-app/backend
+      working-directory: backend
       run: |
         pytest
     - name: Build Docker Image
-      working-directory: cacapreco-app/backend
+      working-directory: backend
       run: |
         docker build -t cacapreco-backend:latest .
     - name: Log in to OCI Container Registry
       run: |
         echo "${{ secrets.OCI_PASSWORD }}" | docker login ${{ secrets.OCI_REGION }}.ocir.io/${{ secrets.OCI_NAMESPACE }} --username="${{ secrets.OCI_USERNAME }}" --password-stdin
     - name: Tag and Push Docker Image
-      working-directory: cacapreco-app/backend
+      working-directory: backend
       run: |
         docker tag cacapreco-backend:latest ${{ secrets.OCI_REGION }}.ocir.io/${{ secrets.OCI_NAMESPACE }}/cacapreco-backend:latest
         docker push ${{ secrets.OCI_REGION }}.ocir.io/${{ secrets.OCI_NAMESPACE }}/cacapreco-backend:latest
