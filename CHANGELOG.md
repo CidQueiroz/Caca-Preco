@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/CidQueiroz/Caca-Preco/compare/v1.0.0...v1.1.0) (2026-04-06)
+
+
+### Features
+
+* **ui:** unify Caça-Preço UI with @cidqueiroz/cdkteck-ui library core components ([5155b53](https://github.com/CidQueiroz/Caca-Preco/commit/5155b53fe10b632cb40533ca63eb387628ec5061))
+
 # 1.0.0 (2026-04-06)
 
 
