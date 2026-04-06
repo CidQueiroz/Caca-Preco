@@ -1,37 +1,41 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Button as LibraryButton } from '@cidqueiroz/cdkteck-ui';
 
 const Botao = ({
     children,
     onClick,
     to,
-    variante = 'primario',
-    tamanho, // Nova propriedade de tamanho
+    variante = 'primary',
+    tamanho,
     type = 'button',
     disabled = false,
-    ...outrasProps
+    ...props
 }) => {
-    // Adiciona a classe de tamanho se a propriedade for fornecida
-    const classes = `btn btn-${variante} ${tamanho === 'sm' ? 'btn-sm' : ''}`.trim();
+    // Map local variants to library variants
+    const variantMap = {
+        'primario': 'primary',
+        'secundario': 'secondary',
+        'sucesso': 'primary', // Library doesn't have success yet, mapping to primary
+        'perigo': 'danger',
+        'primary': 'primary',
+        'secondary': 'secondary',
+        'danger': 'danger',
+        'ghost': 'ghost'
+    };
 
-    if (to) {
-        return (
-            <Link to={to} className={classes} {...outrasProps}>
-                {children}
-            </Link>
-        );
-    }
+    const libVariant = variantMap[variante] || 'primary';
 
     return (
-        <button
+        <LibraryButton
             onClick={onClick}
-            className={classes}
+            to={to}
+            variant={libVariant}
             type={type}
             disabled={disabled}
-            {...outrasProps}
+            {...props}
         >
             {children}
-        </button>
+        </LibraryButton>
     );
 };
 

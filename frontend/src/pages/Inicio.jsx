@@ -1,7 +1,7 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSignInAlt, faUserPlus } from '@fortawesome/free-solid-svg-icons';
-import Botao from '../components/Botao'; // Importando o novo componente
+import { Button } from '@cidqueiroz/cdkteck-ui';
 
 const Inicio = () => {
     return (
@@ -26,17 +26,15 @@ const Inicio = () => {
                     
                     <h2 className="apresentacao__links__subtitulo">Acesse a plataforma:</h2>
                     
-                    {/* Substituindo <a> por <Botao> */}
-                    <Botao to="/login" variante="secundario">
+                    <Button to="/login" variant="secondary">
                         <FontAwesomeIcon icon={faSignInAlt} />
                         Login
-                    </Botao>
+                    </Button>
 
-                    {/* Substituindo <a> por <Botao> */}
-                    <Botao to="/cadastro" variante="primario">
+                    <Button to="/cadastro" variant="primary">
                         <FontAwesomeIcon icon={faUserPlus} />
                         Cadastre-se
-                    </Botao>
+                    </Button>
 
                 </div>
 
