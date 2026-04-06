@@ -6,7 +6,7 @@ import Botao from '../components/Botao'; // Importando o novo componente
 const Inicio = () => {
     return (
         
-        <main className="apresentacao">
+        <main className="apresentacao bg-vitrine">
             
             <section className="apresentacao__conteudo" style={{ textAlign: 'center' }}>
                 

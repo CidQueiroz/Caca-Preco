@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { Header, Footer, ContactModal } from '@cidqueiroz/cdkteck-ui';
+import { Header, Footer, ContactModal, CDKFavicon } from '@cidqueiroz/cdkteck-ui';
 import Notificacao from './Notificacao'; // Keep notification component
 
-const Estrutura = ({ children }) => {
+const Estrutura = ({ children, onThemeToggle }) => {
     const location = useLocation();
     const [isContactModalOpen, setContactModalOpen] = useState(false);
 
@@ -14,9 +14,11 @@ const Estrutura = ({ children }) => {
 
     return (
         <div className="flex flex-col min-h-screen">
+            <CDKFavicon />
             <Header 
                 LinkComponent={ReactRouterLink}
                 usePathname={() => location.pathname}
+                onThemeToggle={onThemeToggle}
             />
             <main className="flex-grow">
                 {children}

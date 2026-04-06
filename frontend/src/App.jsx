@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { useTheme } from '@cidqueiroz/cdkteck-ui';
 
 // Importa o Contexto e os Componentes de Rota
 import RotaProtegida from './components/RotaProtegida';
@@ -67,8 +68,24 @@ const NaoAutorizado = () => (
 );
 
 function App() {
+    const { theme, toggleTheme } = useTheme();
+
+    useEffect(() => {
+        // Sincroniza o tema inicial com localStorage
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme && savedTheme !== theme) {
+            toggleTheme();
+        }
+    }, []);
+
+    const handleThemeToggle = () => {
+        const nextTheme = theme === 'light' ? 'dark' : 'light';
+        localStorage.setItem('theme', nextTheme);
+        toggleTheme();
+    };
+
     return (
-        <Estrutura>
+        <Estrutura onThemeToggle={handleThemeToggle}>
             <Routes>
                 {/* --- Rotas Públicas --- */}
                 <Route path="/" element={<Inicio />} />
