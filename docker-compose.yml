@@ -1,4 +1,4 @@
-version: '3.8'
+# CDK TECK - Caça-Preço Infrastructure
 
 services:
   db:
@@ -54,6 +54,8 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        - GH_PAT=${GH_PAT}
     container_name: cacapreco_frontend
     ports:
       - "3000:3000"

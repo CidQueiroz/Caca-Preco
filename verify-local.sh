@@ -5,6 +5,23 @@
 
 echo "🚀 Iniciando ambiente local para validação..."
 
+# Buscar GH_PAT para build do frontend (GitHub Packages)
+if [ -z "$GH_PAT" ]; then
+    if [ -f "../tokens_secretos" ]; then
+        echo "🔍 Buscando token em tokens_secretos..."
+        # Tentar primeiro GH_PACKAGES_TOKEN, depois GH_PAT
+        TOKEN=$(grep "GH_PACKAGES_TOKEN" ../tokens_secretos | cut -d' ' -f3 | tr -d '"')
+        if [ -z "$TOKEN" ]; then
+            TOKEN=$(grep "GH_PAT" ../tokens_secretos | cut -d' ' -f3 | tr -d '"')
+        fi
+        export GH_PAT=$TOKEN
+        echo "✅ Token extraído com sucesso."
+    else
+        echo "❌ Erro: GH_PAT não definido e ../tokens_secretos não encontrado."
+        exit 1
+    fi
+fi
+
 # Navegar para o diretório do backend
 cd backend
 
