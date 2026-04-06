@@ -18,18 +18,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copia o código
 COPY . .
 
-# Script de wait for db SIMPLES e FUNCIONAL
-RUN echo '#!/bin/bash\n\
-for i in {1..30}; do\n\
-  if python manage.py check --database default 2>/dev/null; then\n\
-    echo "✅ Database ready!"\n\
-    exit 0\n\
-  fi\n\
-  echo "⏳ Waiting for database... attempt $i/30"\n\
-  sleep 2\n\
-done\n\
-echo "❌ Database connection failed!"\n\
-exit 1' > /app/wait_for_db.sh && chmod +x /app/wait_for_db.sh
+# Script de wait for db (oficializado no código fonte)
+RUN chmod +x /app/wait_for_db.sh
 
 EXPOSE 8000
 
