@@ -27,6 +27,7 @@ export default defineConfig(({ command }) => {
       alias: isDevelopment ? {
         '@cidqueiroz/cdkteck-ui': path.resolve(__dirname, '../../cdkteck-ui/src')
       } : {},
+      dedupe: ['react', 'react-dom']
     },
     optimizeDeps: {
       exclude: ['@cidqueiroz/cdkteck-ui']

@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { useTheme } from '@cidqueiroz/cdkteck-ui';
 
 // Importa o Contexto e os Componentes de Rota
+import { useAuth } from './context/AuthContext';
 import RotaProtegida from './components/RotaProtegida';
 import Estrutura from './components/Estrutura';
 
@@ -30,7 +31,6 @@ import AdicionarOferta from './components/AdicionarOferta';
 import DashboardAdmin from './pages/DashboardAdmin';
 import '@cidqueiroz/cdkteck-ui/global.css';
 
-// Substitua seu componente atual por este:
 const NaoAutorizado = () => (
     <div style={{ 
         display: 'flex', 
@@ -69,9 +69,9 @@ const NaoAutorizado = () => (
 
 function App() {
     const { theme, toggleTheme } = useTheme();
+    const { user, isLoading } = useAuth();
 
     useEffect(() => {
-        // Sincroniza o tema inicial com localStorage
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme && savedTheme !== theme) {
             toggleTheme();
@@ -84,46 +84,56 @@ function App() {
         toggleTheme();
     };
 
+    if (isLoading) return null;
+
     return (
-        <Estrutura onThemeToggle={handleThemeToggle}>
-            <Routes>
-                {/* --- Rotas Públicas --- */}
-                <Route path="/" element={<Inicio />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/cadastro" element={<Cadastro />} />
-                <Route path="/verificar-email" element={<VerificarEmail />} />
-                <Route path="/nao-autorizado" element={<NaoAutorizado />} />
-                <Route path="/privacidade" element={<Privacidade />} />
-                <Route path="/termos" element={<Termos />} />
-                <Route path="/contato" element={<Contato />} />
-                <Route path="/recuperar-senha" element={<RecuperarSenha />} />
-                <Route path="/redefinir-senha/:token" element={<RedefinirSenha />} />
+        <Routes>
+            {/* --- Rotas Públicas (Sem Header/Footer) --- */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/cadastro" element={<Cadastro />} />
+            <Route path="/recuperar-senha" element={<RecuperarSenha />} />
+            <Route path="/redefinir-senha/:token" element={<RedefinirSenha />} />
+            <Route path="/verificar-email" element={<VerificarEmail />} />
 
-                {/* --- ROTA DE TRANSIÇÃO (Requer login, mas não perfil completo) --- */}
-                <Route path="/completar-perfil" element={ <RotaProtegida><CompletarPerfil /></RotaProtegida>} />
+            {/* --- Rotas Protegidas ou com Header/Footer --- */}
+            <Route path="*" element={
+                user ? (
+                    <Estrutura onThemeToggle={handleThemeToggle}>
+                        <Routes>
+                            <Route path="/" element={<Inicio />} />
+                            <Route path="/nao-autorizado" element={<NaoAutorizado />} />
+                            <Route path="/privacidade" element={<Privacidade />} />
+                            <Route path="/termos" element={<Termos />} />
+                            <Route path="/contato" element={<Contato />} />
 
-                {/* Rotas específicas para VENDEDOR */}
-                <Route path="/dashboard-vendedor" element={<RotaProtegida papeisPermitidos={['Vendedor']}><DashboardVendedor /></RotaProtegida>} />
-                <Route path="/cadastrar-produto" element={<RotaProtegida papeisPermitidos={['Vendedor']}><CadastroProduto /></RotaProtegida>} />
-                <Route path="/meus-produtos" element={<RotaProtegida papeisPermitidos={['Vendedor']}><MeusProdutos /></RotaProtegida>} />
-                <Route path="/minhas-avaliacoes" element={<RotaProtegida papeisPermitidos={['Vendedor']}><MinhasAvaliacoesDetalhe /></RotaProtegida>} />
-                <Route path="/indicar-vendedor" element={<RotaProtegida papeisPermitidos={['Vendedor', 'Cliente']}><IndicarVendedor /></RotaProtegida>} />
-                <Route path="/completar-perfil" element={<RotaProtegida papeisPermitidos={['Vendedor']}><CompletarPerfil /></RotaProtegida>} />
-                <Route path="/analise-de-mercado" element={<RotaProtegida papeisPermitidos={['Vendedor']}><AnaliseMercadoSaaS /></RotaProtegida>} />
-                <Route path="/adicionar-oferta" element={<RotaProtegida papeisPermitidos={['Vendedor']}><AdicionarOferta /></RotaProtegida>} />
-                <Route path="/dashboard-analise" element={<RotaProtegida papeisPermitidos={['Vendedor']}><DashboardAnalise /></RotaProtegida>} />
-                <Route path="/monitorar-concorrencia" element={<RotaProtegida papeisPermitidos={['Vendedor']}><MonitorarConcorrencia /></RotaProtegida>} />
-                
-                {/* Rotas específicas para CLIENTE */}
-                <Route path="/dashboard-cliente" element={<RotaProtegida papeisPermitidos={['Cliente']}><DashboardCliente /></RotaProtegida>} />
+                            <Route path="/completar-perfil" element={<RotaProtegida><CompletarPerfil /></RotaProtegida>} />
 
-                {/* Rotas específicas para ADMIN */}
-                <Route path="/dashboard-admin" element={<RotaProtegida papeisPermitidos={['Administrador']}><DashboardAdmin /></RotaProtegida>} />
+                            {/* Rotas específicas para VENDEDOR */}
+                            <Route path="/dashboard-vendedor" element={<RotaProtegida papeisPermitidos={['Vendedor']}><DashboardVendedor /></RotaProtegida>} />
+                            <Route path="/cadastrar-produto" element={<RotaProtegida papeisPermitidos={['Vendedor']}><CadastroProduto /></RotaProtegida>} />
+                            <Route path="/meus-produtos" element={<RotaProtegida papeisPermitidos={['Vendedor']}><MeusProdutos /></RotaProtegida>} />
+                            <Route path="/minhas-avaliacoes" element={<RotaProtegida papeisPermitidos={['Vendedor']}><MinhasAvaliacoesDetalhe /></RotaProtegida>} />
+                            <Route path="/indicar-vendedor" element={<RotaProtegida papeisPermitidos={['Vendedor', 'Cliente']}><IndicarVendedor /></RotaProtegida>} />
+                            <Route path="/analise-de-mercado" element={<RotaProtegida papeisPermitidos={['Vendedor']}><AnaliseMercadoSaaS /></RotaProtegida>} />
+                            <Route path="/adicionar-oferta" element={<RotaProtegida papeisPermitidos={['Vendedor']}><AdicionarOferta /></RotaProtegida>} />
+                            <Route path="/dashboard-analise" element={<RotaProtegida papeisPermitidos={['Vendedor']}><DashboardAnalise /></RotaProtegida>} />
+                            <Route path="/monitorar-concorrencia" element={<RotaProtegida papeisPermitidos={['Vendedor']}><MonitorarConcorrencia /></RotaProtegida>} />
+                            
+                            {/* Rotas específicas para CLIENTE */}
+                            <Route path="/dashboard-cliente" element={<RotaProtegida papeisPermitidos={['Cliente']}><DashboardCliente /></RotaProtegida>} />
 
-            </Routes>
-        </Estrutura>
+                            {/* Rotas específicas para ADMIN */}
+                            <Route path="/dashboard-admin" element={<RotaProtegida papeisPermitidos={['Administrador']}><DashboardAdmin /></RotaProtegida>} />
+                            
+                            <Route path="*" element={<Navigate to="/" replace />} />
+                        </Routes>
+                    </Estrutura>
+                ) : (
+                    <Navigate to="/login" replace />
+                )
+            } />
+        </Routes>
     );
 }
 
 export default App;
-

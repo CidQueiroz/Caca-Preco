@@ -1,17 +1,17 @@
-// cacapreco-app/frontend/src/pages/LoginPage.jsx
+// GestaoRPD/frontend/src/pages/LoginPage.jsx
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { LoginPage as CdkLoginPage } from '@cidqueiroz/cdkteck-ui';
 import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
-  const { login, register, loginWithGoogle, isLoading, error } = useAuth();
+  const { login, register, loginWithGoogle, loginWithGitHub, loginWithFace, isLoading, error } = useAuth();
   const navigate = useNavigate();
 
   const handleLogin = async ({ email, password }) => {
     try {
       await login(email, password);
-      navigate('/'); // Redirect to home after successful login
+      navigate('/');
     } catch (err) {
       // Error is handled in AuthContext
     }
@@ -34,15 +34,34 @@ const LoginPage = () => {
       // Error is handled in AuthContext
     }
   };
+  
+  const handleFaceLogin = async () => {
+    try {
+      await loginWithFace();
+      navigate('/'); // Redirect after successful Google login
+    } catch (err) {
+      // Error is handled in AuthContext
+    }
+  };
+
+  const handleGitHubLogin = async () => {
+    try {
+      await loginWithGitHub();
+      navigate('/');
+    } catch (err) {
+    }
+  };
 
   return (
     <CdkLoginPage
       onLogin={handleLogin}
       onRegister={handleRegister}
       onGoogleLogin={handleGoogleLogin}
+      onFacebookLogin={handleFaceLogin}
+      onGitHubLogin={handleGitHubLogin}
       isLoading={isLoading}
       error={error}
-      appName="Caça-Preço"
+      appName="Gestão RPD"
     />
   );
 };

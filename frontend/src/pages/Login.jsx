@@ -51,6 +51,8 @@ const Login = () => {
             isLoading={isLoading}
             error={error}
             appName="Caça-Preço"
+            title="Monitore seus concorrentes no"
+            imageSrc="/assets/lourdes.png"
         />
     );
 };
