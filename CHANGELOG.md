@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/CidQueiroz/Caca-Preco/compare/v1.1.0...v1.2.0) (2026-04-22)
+
+
+### Features
+
+* implement social login methods, update routing structure, and add new assets for Gestão RPD rebranding ([da427a1](https://github.com/CidQueiroz/Caca-Preco/commit/da427a12345c82af131c18072310b49b9e83e974))
+
 # [1.1.0](https://github.com/CidQueiroz/Caca-Preco/compare/v1.0.0...v1.1.0) (2026-04-06)
 
 
